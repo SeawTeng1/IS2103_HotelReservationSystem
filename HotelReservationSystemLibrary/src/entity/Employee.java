@@ -36,7 +36,15 @@ public class Employee implements Serializable {
     @Column(nullable = false)
     @NotNull
     private RoleType roleType;
-    
+
+    public Employee() {
+    }
+
+    public Employee(String username, String password, RoleType roleType) {
+        this.username = username;
+        this.password = password;
+        this.roleType = roleType;
+    }
 
     public Long getEmployeeId() {
         return employeeId;
