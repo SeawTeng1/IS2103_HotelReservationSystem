@@ -6,11 +6,13 @@ package entity;
 
 import enumeration.RoleType;
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -36,6 +38,9 @@ public class Employee implements Serializable {
     @Column(nullable = false)
     @NotNull
     private RoleType roleType;
+    
+    @OneToMany(mappedBy = "ReservationList")
+    private List<Reservation> reservationList;
 
     public Employee() {
     }
@@ -119,6 +124,20 @@ public class Employee implements Serializable {
      */
     public void setRoleType(RoleType roleType) {
         this.roleType = roleType;
+    }
+
+    /**
+     * @return the reservationList
+     */
+    public List<Reservation> getReservationList() {
+        return reservationList;
+    }
+
+    /**
+     * @param reservationList the reservationList to set
+     */
+    public void setReservationList(List<Reservation> reservationList) {
+        this.reservationList = reservationList;
     }
     
 }

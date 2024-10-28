@@ -7,18 +7,22 @@ package entity;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 /**
  *
  * @author Toh Seaw Teng
@@ -47,7 +51,27 @@ public class Reservation implements Serializable {
     @NotNull
     @Min(1)
     private Integer numOfRoom;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Guest guest;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Employee employee;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Partner partner;
+    
+    @ManyToMany()
+    @JoinTable(name = "roomList")
+    private List<Room> roomList;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    private RoomType roomType;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    private RoomRate roomRate;
 
+    
     public Reservation() {
     }
 
@@ -145,6 +169,90 @@ public class Reservation implements Serializable {
      */
     public void setNumOfRoom(Integer numOfRoom) {
         this.numOfRoom = numOfRoom;
+    }
+
+    /**
+     * @return the guest
+     */
+    public Guest getGuest() {
+        return guest;
+    }
+
+    /**
+     * @param guest the guest to set
+     */
+    public void setGuest(Guest guest) {
+        this.guest = guest;
+    }
+
+    /**
+     * @return the employee
+     */
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    /**
+     * @param employee the employee to set
+     */
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
+
+    /**
+     * @return the partner
+     */
+    public Partner getPartner() {
+        return partner;
+    }
+
+    /**
+     * @param partner the partner to set
+     */
+    public void setPartner(Partner partner) {
+        this.partner = partner;
+    }
+
+    /**
+     * @return the roomList
+     */
+    public List<Room> getRoomList() {
+        return roomList;
+    }
+
+    /**
+     * @param roomList the roomList to set
+     */
+    public void setRoomList(List<Room> roomList) {
+        this.roomList = roomList;
+    }
+
+    /**
+     * @return the roomRate
+     */
+    public RoomRate getRoomRate() {
+        return roomRate;
+    }
+
+    /**
+     * @param roomRate the roomRate to set
+     */
+    public void setRoomRate(RoomRate roomRate) {
+        this.roomRate = roomRate;
+    }
+
+    /**
+     * @return the roomType
+     */
+    public RoomType getRoomType() {
+        return roomType;
+    }
+
+    /**
+     * @param roomType the roomType to set
+     */
+    public void setRoomType(RoomType roomType) {
+        this.roomType = roomType;
     }
     
 }

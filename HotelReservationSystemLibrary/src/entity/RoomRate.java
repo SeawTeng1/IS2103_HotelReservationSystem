@@ -8,11 +8,15 @@ import enumeration.RateType;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.FutureOrPresent;
@@ -53,6 +57,12 @@ public class RoomRate implements Serializable {
     @Column(nullable = false)
     @NotNull
     private Boolean disabled;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    private RoomType roomType;
+    
+    @OneToMany(mappedBy = "reservationList")
+    private List<Reservation> reservationList;
 
     public RoomRate() {
     }
@@ -181,6 +191,34 @@ public class RoomRate implements Serializable {
      */
     public void setDisabled(Boolean disabled) {
         this.disabled = disabled;
+    }
+
+    /**
+     * @return the roomType
+     */
+    public RoomType getRoomType() {
+        return roomType;
+    }
+
+    /**
+     * @param roomType the roomType to set
+     */
+    public void setRoomType(RoomType roomType) {
+        this.roomType = roomType;
+    }
+
+    /**
+     * @return the reservationList
+     */
+    public List<Reservation> getReservationList() {
+        return reservationList;
+    }
+
+    /**
+     * @param reservationList the reservationList to set
+     */
+    public void setReservationList(List<Reservation> reservationList) {
+        this.reservationList = reservationList;
     }
     
 }

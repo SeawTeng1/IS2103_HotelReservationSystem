@@ -6,11 +6,13 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Max;
@@ -59,6 +61,15 @@ public class RoomType implements Serializable {
     @Column(nullable = false)
     @NotNull
     private Boolean disabled;
+    
+    @OneToMany(mappedBy = "roomList")
+    private List<Room> roomList;
+    
+    @OneToMany(mappedBy = "reservationList")
+    private List<Reservation> reservationList;
+    
+    @OneToMany(mappedBy = "roomRateList")
+    private List<RoomRate> roomRateList;
 
     public RoomType() {
     }
@@ -202,6 +213,48 @@ public class RoomType implements Serializable {
      */
     public void setDisabled(Boolean disabled) {
         this.disabled = disabled;
+    }
+
+    /**
+     * @return the roomList
+     */
+    public List<Room> getRoomList() {
+        return roomList;
+    }
+
+    /**
+     * @param roomList the roomList to set
+     */
+    public void setRoomList(List<Room> roomList) {
+        this.roomList = roomList;
+    }
+
+    /**
+     * @return the reservationList
+     */
+    public List<Reservation> getReservationList() {
+        return reservationList;
+    }
+
+    /**
+     * @param reservationList the reservationList to set
+     */
+    public void setReservationList(List<Reservation> reservationList) {
+        this.reservationList = reservationList;
+    }
+
+    /**
+     * @return the roomRateList
+     */
+    public List<RoomRate> getRoomRateList() {
+        return roomRateList;
+    }
+
+    /**
+     * @param roomRateList the roomRateList to set
+     */
+    public void setRoomRateList(List<RoomRate> roomRateList) {
+        this.roomRateList = roomRateList;
     }
     
 }

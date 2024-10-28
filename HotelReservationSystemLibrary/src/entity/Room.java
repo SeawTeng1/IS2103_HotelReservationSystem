@@ -6,11 +6,17 @@ package entity;
 
 import enumeration.RoomStatus;
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -41,6 +47,13 @@ public class Room implements Serializable {
     @Column(nullable = false)
     @NotNull
     private Boolean isOccupied;
+    
+    @ManyToMany
+    @JoinTable(name = "reservationList")
+    private List<Reservation> reservationList;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    private RoomType roomType;
 
     public Room() {
     }
@@ -139,6 +152,34 @@ public class Room implements Serializable {
      */
     public void setIsOccupied(Boolean isOccupied) {
         this.isOccupied = isOccupied;
+    }
+
+    /**
+     * @return the reservationList
+     */
+    public List<Reservation> getReservationList() {
+        return reservationList;
+    }
+
+    /**
+     * @param reservationList the reservationList to set
+     */
+    public void setReservationList(List<Reservation> reservationList) {
+        this.reservationList = reservationList;
+    }
+
+    /**
+     * @return the roomType
+     */
+    public RoomType getRoomType() {
+        return roomType;
+    }
+
+    /**
+     * @param roomType the roomType to set
+     */
+    public void setRoomType(RoomType roomType) {
+        this.roomType = roomType;
     }
     
 }

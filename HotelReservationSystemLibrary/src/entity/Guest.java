@@ -5,11 +5,15 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -18,7 +22,8 @@ import javax.validation.constraints.Size;
  * @author Toh Seaw Teng
  */
 @Entity
-public class Guest implements Serializable {
+@Inheritance(strategy=InheritanceType.JOINED)
+public abstract class Guest implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -36,6 +41,9 @@ public class Guest implements Serializable {
     @NotNull
     @Size(min = 8, max = 9)
     private String passportNumber;
+    
+    @OneToMany(mappedBy = "ReservationList")
+    private List<Reservation> reservationList;
 
     public Guest() {
     }
@@ -119,6 +127,20 @@ public class Guest implements Serializable {
      */
     public void setPassportNumber(String passportNumber) {
         this.passportNumber = passportNumber;
+    }
+
+    /**
+     * @return the reservationList
+     */
+    public List<Reservation> getReservationList() {
+        return reservationList;
+    }
+
+    /**
+     * @param reservationList the reservationList to set
+     */
+    public void setReservationList(List<Reservation> reservationList) {
+        this.reservationList = reservationList;
     }
     
 }
