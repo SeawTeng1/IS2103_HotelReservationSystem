@@ -62,7 +62,7 @@ public class Reservation implements Serializable {
     private Partner partner;
     
     @ManyToMany()
-    @JoinTable(name = "roomList")
+    @JoinTable(name = "ReservationRecord")
     private List<Room> roomList;
     
     @ManyToOne(fetch = FetchType.LAZY)

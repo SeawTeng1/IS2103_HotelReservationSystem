@@ -49,7 +49,7 @@ public class Room implements Serializable {
     private Boolean isOccupied;
     
     @ManyToMany
-    @JoinTable(name = "reservationList")
+    @JoinTable(name = "ReservationRecord")
     private List<Reservation> reservationList;
     
     @ManyToOne(fetch = FetchType.LAZY)

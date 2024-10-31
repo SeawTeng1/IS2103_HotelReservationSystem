@@ -22,6 +22,7 @@ import javax.validation.constraints.Digits;
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import util.exception.RoomRateAddReservationException;
 
 /**
  *
@@ -61,7 +62,7 @@ public class RoomRate implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private RoomType roomType;
     
-    @OneToMany(mappedBy = "reservationList")
+    @OneToMany(mappedBy = "RoomRate")
     private List<Reservation> reservationList;
 
     public RoomRate() {
@@ -221,4 +222,15 @@ public class RoomRate implements Serializable {
         this.reservationList = reservationList;
     }
     
+    public void addReservation(Reservation reservation) throws RoomRateAddReservationException 
+    {
+        if(reservation != null && !this.getReservationList().contains(reservation))
+        {
+            this.getReservationList().add(reservation);
+        }
+        else
+        {
+            throw new RoomRateAddReservationException("Reservation already added to room rate");
+        }
+    }
 }

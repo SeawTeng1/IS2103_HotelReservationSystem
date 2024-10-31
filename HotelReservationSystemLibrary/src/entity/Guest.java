@@ -42,7 +42,7 @@ public abstract class Guest implements Serializable {
     @Size(min = 8, max = 9)
     private String passportNumber;
     
-    @OneToMany(mappedBy = "ReservationList")
+    @OneToMany(mappedBy = "Guest")
     private List<Reservation> reservationList;
 
     public Guest() {
