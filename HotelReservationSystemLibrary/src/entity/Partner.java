@@ -35,7 +35,7 @@ public class Partner implements Serializable {
     @Size(min = 8, max = 24)
     private String password;
     
-    @OneToMany(mappedBy = "ReservationList")
+    @OneToMany(mappedBy = "Partner")
     private List<Reservation> reservationList;
 
     public Partner() {

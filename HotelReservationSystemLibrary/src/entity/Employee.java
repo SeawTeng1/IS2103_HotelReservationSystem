@@ -39,7 +39,7 @@ public class Employee implements Serializable {
     @NotNull
     private RoleType roleType;
     
-    @OneToMany(mappedBy = "ReservationList")
+    @OneToMany(mappedBy = "Employee")
     private List<Reservation> reservationList;
 
     public Employee() {

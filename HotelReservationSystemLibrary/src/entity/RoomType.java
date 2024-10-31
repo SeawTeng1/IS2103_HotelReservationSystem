@@ -19,6 +19,8 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import util.exception.RoomTypeAddRoomRateException;
+import util.exception.RoomTypeRemoveRoomRateException;
 
 /**
  *
@@ -62,13 +64,13 @@ public class RoomType implements Serializable {
     @NotNull
     private Boolean disabled;
     
-    @OneToMany(mappedBy = "roomList")
+    @OneToMany(mappedBy = "RoomType")
     private List<Room> roomList;
     
-    @OneToMany(mappedBy = "reservationList")
+    @OneToMany(mappedBy = "RoomType")
     private List<Reservation> reservationList;
     
-    @OneToMany(mappedBy = "roomRateList")
+    @OneToMany(mappedBy = "RoomType")
     private List<RoomRate> roomRateList;
 
     public RoomType() {
@@ -257,4 +259,26 @@ public class RoomType implements Serializable {
         this.roomRateList = roomRateList;
     }
     
+    public void addRoomRate(RoomRate roomRate) throws RoomTypeAddRoomRateException 
+    {
+        if(roomRate != null && !this.getRoomRateList().contains(roomRate)) {
+            this.getRoomRateList().add(roomRate);
+        }
+        else {
+            throw new RoomTypeAddRoomRateException("Room rate already added to this room type");
+        }
+    }
+    
+    public void removeRoomrate(RoomRate roomRate) throws RoomTypeRemoveRoomRateException
+    {
+        if(roomRate != null && this.getRoomRateList().contains(roomRate))
+        {
+            this.getRoomRateList().remove(roomRate);
+        }
+        else
+        {
+            throw new RoomTypeRemoveRoomRateException("Room rate has not been added to room type");
+        }
+    }
+
 }
