@@ -22,8 +22,8 @@ public interface RoomRateSessionBeanRemote {
 
     public RoomRate retrieveRoomRateById(Long roomRateId) throws RoomRateNotFoundException;
 
-    public RoomRate updateRoomRate(Long roomRateId, RoomRate roomRateUpdate) throws RoomRateNotFoundException;
+    public RoomRate updateRoomRate(Long roomRateId, RoomRate roomRateUpdate) throws RoomRateNotFoundException, PersistentContextException;
 
-    public void deleteRoomRate(Long roomRateId) throws RoomRateNotFoundException, RoomTypeRemoveRoomRateException;
+    public void deleteRoomRate(Long roomRateId) throws RoomRateNotFoundException, RoomTypeRemoveRoomRateException, PersistentContextException;
     
 }
