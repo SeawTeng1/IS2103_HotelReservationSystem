@@ -13,9 +13,13 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import util.exception.AvailableRoomNotFoundException;
+import util.exception.RoomRateNotFoundException;
 
 /**
  *
@@ -35,11 +39,15 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
     */ 
     
     @Override
-    public List<Room> searchAvailableRoom(String roomType, Date checkInDate, Date checkOutDate) {
+    public List<Room> searchAvailableRoom(String roomType, Date checkInDate, Date checkOutDate) throws AvailableRoomNotFoundException {
         List<Room> roomList = em.createQuery(
                 "SELECT r FROM Room r WHERE r.roomType.name = :roomType AND r.disabled = false OR r.roomStatus != UNAVAILABLE")
             .setParameter("roomType", roomType)
             .getResultList();
+        
+        if (roomList.size() < 1) {
+            throw new AvailableRoomNotFoundException("No available room found, please try again.");
+        }
         
         List<Room> availableRoom = new ArrayList<Room>();
         for (Room r : roomList) {
@@ -60,7 +68,8 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
     }
     
     @Override
-    public BigDecimal getTotalPrice(String roomType, Date checkInDate, Date checkOutDate, Integer numOfRoom) {
+    public BigDecimal getTotalPrice(String roomType, Date checkInDate, Date checkOutDate, Integer numOfRoom) 
+            throws RoomRateNotFoundException, AvailableRoomNotFoundException {
         BigDecimal total = new BigDecimal(0);
         
         RoomRate rate = (RoomRate) em.createQuery(
@@ -69,9 +78,17 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
             .setParameter("rateType", RateType.PUBLISHED)
             .getSingleResult();
         
-        List<Room> availableRoom = this.searchAvailableRoom(roomType, checkInDate, checkOutDate);
-        if (availableRoom.size() >= numOfRoom) {
-            total = rate.getRatePerNight().multiply(new BigDecimal(numOfRoom));
+        if (rate == null) {
+            throw new RoomRateNotFoundException("Published room rate for current room not found");
+        }
+        
+        try {
+            List<Room> availableRoom = this.searchAvailableRoom(roomType, checkInDate, checkOutDate);
+            if (availableRoom.size() >= numOfRoom) {
+                total = rate.getRatePerNight().multiply(new BigDecimal(numOfRoom));
+            }
+        } catch (AvailableRoomNotFoundException ex) {
+            throw new AvailableRoomNotFoundException("No available room found, please try again.");
         }
         
         return total;
@@ -84,7 +101,7 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
         For same day check-in, allocate the required room(s) immediately if reservation is made after 2 am.
     */
     @Override
-    public void walkInReserve (List<Room> selectedRoom, Date checkInDate, Date checkOutDate, BigDecimal total) {
+    public void walkInReserve (List<Room> selectedRoom, Date checkInDate, Date checkOutDate, BigDecimal total) throws RoomRateNotFoundException {
         Reservation reservation = new Reservation(checkInDate, checkOutDate, total, selectedRoom.size());
         em.persist(reservation);
         
@@ -96,6 +113,10 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
             .setParameter("roomType", selectedRoom.get(0).getRoomType())
             .setParameter("rateType", RateType.PUBLISHED)
             .getSingleResult();
+        
+        if (rate == null) {
+            throw new RoomRateNotFoundException("Published room rate for current room not found");
+        }
         
         reservation.setRoomRate(rate);
         

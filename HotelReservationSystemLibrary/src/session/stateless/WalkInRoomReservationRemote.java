@@ -9,6 +9,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.AvailableRoomNotFoundException;
+import util.exception.RoomRateNotFoundException;
 
 /**
  *
@@ -16,9 +18,9 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface WalkInRoomReservationRemote {
-    public List<Room> searchAvailableRoom(String roomType, Date checkInDate, Date checkOutDate);
+    public List<Room> searchAvailableRoom(String roomType, Date checkInDate, Date checkOutDate) throws AvailableRoomNotFoundException;
 
-    public void walkInReserve(List<Room> selectedRoom, Date checkInDate, Date checkOutDate, BigDecimal total);
+    public void walkInReserve(List<Room> selectedRoom, Date checkInDate, Date checkOutDate, BigDecimal total) throws RoomRateNotFoundException;
 
-    public BigDecimal getTotalPrice(String roomType, Date checkInDate, Date checkOutDate, Integer numOfRoom);
+    public BigDecimal getTotalPrice(String roomType, Date checkInDate, Date checkOutDate, Integer numOfRoom) throws RoomRateNotFoundException, AvailableRoomNotFoundException;
 }

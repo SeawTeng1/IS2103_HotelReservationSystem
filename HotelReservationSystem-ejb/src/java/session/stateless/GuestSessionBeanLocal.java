@@ -4,7 +4,12 @@
  */
 package session.stateless;
 
+import entity.Guest;
 import javax.ejb.Local;
+import util.exception.GuestExistException;
+import util.exception.GuestNotFoundException;
+import util.exception.InvalidCredentialException;
+import util.exception.PersistentContextException;
 
 /**
  *
@@ -12,5 +17,13 @@ import javax.ejb.Local;
  */
 @Local
 public interface GuestSessionBeanLocal {
+
+    public Guest guestLogin(String passportNumber, String password) throws GuestNotFoundException, InvalidCredentialException;
+
+    public Guest retrieveGuestById(Long guestId) throws GuestNotFoundException;
+
+    public Guest retrieveGuestByPassportNumber(String passportNumber) throws GuestNotFoundException;
+
+    public Guest createGuest(Guest guest) throws PersistentContextException, GuestExistException;
     
 }
