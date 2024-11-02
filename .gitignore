@@ -24,21 +24,21 @@ nbproject/private/
 build/
 dist/
 
-EnterpriseApplication1-ejb/nbproject/private/
-EnterpriseApplication1-ejb/build/
-EnterpriseApplication1-ejb/dist/
+HotelReservationSystem-ejb/nbproject/private/
+HotelReservationSystem-ejb/build/
+HotelReservationSystem-ejb/dist/
 
-# EnterpriseApplication1-war/nbproject/private/
-# EnterpriseApplication1-war/build/
-# EnterpriseApplication1-war/dist/
+HotelReservationSystemLibrary/nbproject/private/
+HotelReservationSystemLibrary/build/
+HotelReservationSystemLibrary/dist/
 
-EnterpriseApplication1Client/nbproject/private/
-EnterpriseApplication1Client/build/
-EnterpriseApplication1Client/dist/
+HoRSReservationClient/nbproject/private/
+HoRSReservationClient/build/
+HoRSReservationClient/dist/
 
-EnterpriseApplication1Library/nbproject/private/
-EnterpriseApplication1Library/build/
-EnterpriseApplication1Library/dist/
+HoRSManagementClient/nbproject/private/
+HoRSManagementClient/build/
+HoRSManagementClient/dist/
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
