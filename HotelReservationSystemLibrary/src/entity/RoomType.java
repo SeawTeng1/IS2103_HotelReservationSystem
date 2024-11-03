@@ -36,6 +36,7 @@ public class RoomType implements Serializable {
     @Column(nullable = false, unique = true, length = 50)
     @NotNull
     @Size(min = 4, max = 50)
+    // Deluxe Room, Premier Room, Family Room, Junior Suite and Grand Suite
     private String name;
     @Column(nullable = false, length = 150)
     @NotNull
@@ -63,6 +64,11 @@ public class RoomType implements Serializable {
     @Column(nullable = false)
     @NotNull
     private Boolean disabled;
+    @Column(nullable = false)
+    @NotNull
+    @Min(1)
+    // for the upgrade of room
+    private Integer roomRank; 
     
     @OneToMany(mappedBy = "RoomType")
     private List<Room> roomList;
@@ -76,7 +82,7 @@ public class RoomType implements Serializable {
     public RoomType() {
     }
 
-    public RoomType(String name, String description, BigDecimal size, Integer beds, Integer capacity, String amenities, Boolean disabled) {
+    public RoomType(String name, String description, BigDecimal size, Integer beds, Integer capacity, String amenities, Boolean disabled, Integer roomRank) {
         this.name = name;
         this.description = description;
         this.size = size;
@@ -84,6 +90,7 @@ public class RoomType implements Serializable {
         this.capacity = capacity;
         this.amenities = amenities;
         this.disabled = disabled;
+        this.roomRank = roomRank;
     }
         
     public Long getRoomTypeId() {
@@ -279,6 +286,20 @@ public class RoomType implements Serializable {
         {
             throw new RoomTypeRemoveRoomRateException("Room rate has not been added to room type");
         }
+    }
+
+    /**
+     * @return the roomRank
+     */
+    public Integer getRoomRank() {
+        return roomRank;
+    }
+
+    /**
+     * @param roomRank the roomRank to set
+     */
+    public void setRoomRank(Integer roomRank) {
+        this.roomRank = roomRank;
     }
 
 }

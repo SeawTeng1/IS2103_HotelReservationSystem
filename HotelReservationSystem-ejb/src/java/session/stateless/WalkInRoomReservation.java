@@ -51,14 +51,14 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
         
         List<Room> availableRoom = new ArrayList<Room>();
         for (Room r : roomList) {
-            for (Reservation res : r.getReservationList()) {
-                if (
-                        !res.getCheckOutDate().after(checkInDate) &&
-                        !res.getCheckInDate().before(checkOutDate)
-                ) {
-                    if (!availableRoom.contains(r)) {
-                        availableRoom.add(r);
-                    }
+            List<Reservation> resList = r.getReservationList();
+            Reservation res = resList.get(resList.size() - 1);
+            if (
+                !res.getCheckOutDate().after(checkInDate) &&
+                !res.getCheckInDate().before(checkOutDate)
+            ) {
+                if (!availableRoom.contains(r)) {
+                    availableRoom.add(r);
                 }
             }
         }
