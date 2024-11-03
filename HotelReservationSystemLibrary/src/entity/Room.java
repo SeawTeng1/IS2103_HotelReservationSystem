@@ -13,6 +13,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -52,7 +53,8 @@ public class Room implements Serializable {
     @JoinTable(name = "ReservationRecord")
     private List<Reservation> reservationList;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, cascade = {}, fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
     private RoomType roomType;
 
     public Room() {

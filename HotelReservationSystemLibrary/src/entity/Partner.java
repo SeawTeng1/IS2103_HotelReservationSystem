@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,7 +36,7 @@ public class Partner implements Serializable {
     @Size(min = 8, max = 24)
     private String password;
     
-    @OneToMany(mappedBy = "Partner")
+    @OneToMany(mappedBy = "Partner", cascade = {}, fetch = FetchType.LAZY)
     private List<Reservation> reservationList;
 
     public Partner() {

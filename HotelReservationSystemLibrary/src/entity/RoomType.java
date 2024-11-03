@@ -9,9 +9,11 @@ import java.math.BigDecimal;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
@@ -70,13 +72,13 @@ public class RoomType implements Serializable {
     // for the upgrade of room
     private Integer roomRank; 
     
-    @OneToMany(mappedBy = "RoomType")
+    @OneToMany(mappedBy = "RoomType", cascade = {}, fetch = FetchType.LAZY)
     private List<Room> roomList;
     
-    @OneToMany(mappedBy = "RoomType")
+    @OneToMany(mappedBy = "RoomType", cascade = {}, fetch = FetchType.LAZY)
     private List<Reservation> reservationList;
     
-    @OneToMany(mappedBy = "RoomType")
+    @OneToMany(mappedBy = "RoomType", cascade = {}, fetch = FetchType.LAZY)
     private List<RoomRate> roomRateList;
 
     public RoomType() {
