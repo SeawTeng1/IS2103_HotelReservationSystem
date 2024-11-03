@@ -14,6 +14,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -73,13 +74,15 @@ public class Reservation implements Serializable {
     @JoinTable(name = "ReservationRecord")
     private List<Room> roomList;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, cascade = {}, fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
     private RoomType roomType;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, cascade = {}, fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
     private RoomRate roomRate;
     
-    @OneToMany(mappedBy="Reservation")
+    @OneToMany(mappedBy="Reservation", cascade = {}, fetch = FetchType.LAZY)
     private List<ExceptionItem> roomExceptionList;
 
     

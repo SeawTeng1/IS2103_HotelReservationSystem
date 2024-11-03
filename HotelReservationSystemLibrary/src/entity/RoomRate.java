@@ -15,6 +15,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.DecimalMin;
@@ -59,10 +60,11 @@ public class RoomRate implements Serializable {
     @NotNull
     private Boolean disabled;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, cascade = {}, fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
     private RoomType roomType;
     
-    @OneToMany(mappedBy = "RoomRate")
+    @OneToMany(mappedBy = "RoomRate", cascade = {}, fetch = FetchType.LAZY)
     private List<Reservation> reservationList;
 
     public RoomRate() {

@@ -109,6 +109,8 @@ public class RoomAllocationSessionBean implements RoomAllocationSessionBeanRemot
                                 
                                 // add room exception
                                 ExceptionItem roomException = new ExceptionItem(RoomExceptionType.UPGRADE_ALLOCATED, today);
+                                em.persist(roomException);
+                                em.flush();
                                 roomException.setReservation(r);
                                 r.addExceptionItem(roomException);
                                 
