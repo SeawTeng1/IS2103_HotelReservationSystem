@@ -23,6 +23,8 @@ import javax.validation.constraints.Digits;
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import util.exception.ReservationAddRoomException;
+import util.exception.ReservationAddRoomExceptionItemException;
 /**
  *
  * @author Toh Seaw Teng
@@ -51,6 +53,12 @@ public class Reservation implements Serializable {
     @NotNull
     @Min(1)
     private Integer numOfRoom;
+    @Column(nullable = false)
+    @NotNull
+    private Boolean isCheckIn = false;
+    @Column(nullable = false)
+    @NotNull
+    private Boolean isCheckOut = false;
     
     @ManyToOne(fetch = FetchType.LAZY)
     private Guest guest;
@@ -70,6 +78,9 @@ public class Reservation implements Serializable {
     
     @ManyToOne(fetch = FetchType.LAZY)
     private RoomRate roomRate;
+    
+    @OneToMany(mappedBy="Reservation")
+    private List<ExceptionItem> roomExceptionList;
 
     
     public Reservation() {
@@ -254,5 +265,70 @@ public class Reservation implements Serializable {
     public void setRoomType(RoomType roomType) {
         this.roomType = roomType;
     }
+
+    /**
+     * @return the roomExceptionList
+     */
+    public List<ExceptionItem> getRoomExceptionList() {
+        return roomExceptionList;
+    }
+
+    /**
+     * @param roomExceptionList the roomExceptionList to set
+     */
+    public void setRoomExceptionList(List<ExceptionItem> roomExceptionList) {
+        this.roomExceptionList = roomExceptionList;
+    }
+
+    /**
+     * @return the isCheckIn
+     */
+    public Boolean getIsCheckIn() {
+        return isCheckIn;
+    }
+
+    /**
+     * @param isCheckIn the isCheckIn to set
+     */
+    public void setIsCheckIn(Boolean isCheckIn) {
+        this.isCheckIn = isCheckIn;
+    }
+
+    /**
+     * @return the isCheckOut
+     */
+    public Boolean getIsCheckOut() {
+        return isCheckOut;
+    }
+
+    /**
+     * @param isCheckOut the isCheckOut to set
+     */
+    public void setIsCheckOut(Boolean isCheckOut) {
+        this.isCheckOut = isCheckOut;
+    }
     
+    public void addRoom(Room room) throws ReservationAddRoomException 
+    {
+        if(room != null && !this.getRoomList().contains(room))
+        {
+            this.getRoomList().add(room);
+        }
+        else
+        {
+            throw new ReservationAddRoomException("Room already added to reservation");
+        }
+    }
+    
+    public void addExceptionItem(ExceptionItem exceptionItem) throws ReservationAddRoomExceptionItemException 
+    {
+        if(exceptionItem != null && !this.getRoomExceptionList().contains(exceptionItem))
+        {
+            this.getRoomExceptionList().add(exceptionItem);
+        }
+        else
+        {
+            throw new ReservationAddRoomExceptionItemException("Room exception already added to reservation");
+        }
+    }
 }

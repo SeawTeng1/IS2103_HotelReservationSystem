@@ -4,8 +4,12 @@
  */
 package session.stateless;
 
+import entity.ExceptionItem;
 import entity.Guest;
 import entity.Reservation;
+import entity.Room;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -87,6 +91,7 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
         }
     }
     
+    @Override
     public List<Reservation> getReservationListByGuest(Long guestId) throws ReservationListForGuestNotFoundException {
         List<Reservation> reservationList = em.createQuery(
                 "SELECT r FROM Reservation r WHERE r.guest.guestId = :guestId")
@@ -105,9 +110,95 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
         Check-in a guest by informing him/her of the allocated room
         Room allocation exception needs to be handled manually
     */
+    @Override
+    public List<Room> guestCheckIn(Long guestId) throws ReservationListForGuestNotFoundException {
+        Date today = new Date();
+        List<Room> checkInRoom = new ArrayList<Room>();
+        
+        // get all the reservation for guest which will be check in today
+        List<Reservation> reservationList = em.createQuery(
+                "SELECT r FROM Reservation r WHERE r.guest.guestId = :guestId AND r.checkInDate = :today")
+            .setParameter("guestId", guestId)
+            .setParameter("today", today)
+            .getResultList();
+        
+        if (reservationList.size() < 1) {
+            throw new ReservationListForGuestNotFoundException("Reservation for guest ID " + guestId + " not found.");
+        }
+        
+        for (Reservation res : reservationList) {
+            List<Room> roomList = res.getRoomList();
+            
+            if (roomList.size() > 0) {
+                for (Room room : roomList) {
+                    room.setIsOccupied(Boolean.TRUE);
+                    res.setIsCheckIn(Boolean.TRUE);
+                    
+                    checkInRoom.add(room);
+                }
+            }
+        }
+        
+        return checkInRoom;
+    }
     
-     /*
+    // check if there is any room exception 
+    @Override
+    public List<ExceptionItem> getRoomException(Long guestId) throws ReservationListForGuestNotFoundException {
+        Date today = new Date();
+        List<ExceptionItem> roomExceptionList = new ArrayList<ExceptionItem>();
+        
+        List<Reservation> reservationList = em.createQuery(
+                "SELECT r FROM Reservation r WHERE r.guest.guestId = :guestId AND r.checkInDate = :today")
+            .setParameter("guestId", guestId)
+            .setParameter("today", today)
+            .getResultList();
+        
+        if (reservationList.size() < 1) {
+            throw new ReservationListForGuestNotFoundException("Reservation for guest ID " + guestId + " not found.");
+        }
+        
+        for (Reservation res : reservationList) {
+            if (res.getRoomExceptionList().size() > 0) {
+                roomExceptionList.addAll(res.getRoomExceptionList());
+            }
+        }
+        
+        return roomExceptionList;
+    } 
+    
+    /*
         26. Check-out Guest
         Check-out a guest to indicate the end of his/her visit to the hotel.
     */
+    @Override
+    public void guestCheckOut(Long guestId) throws ReservationListForGuestNotFoundException, PersistentContextException {
+        Date today = new Date();
+        
+        // get all the reservation for guest which will be check in today
+        List<Reservation> reservationList = em.createQuery(
+                "SELECT r FROM Reservation r WHERE r.guest.guestId = :guestId AND r.isCheckIn = TRUE AND r.isCheckOut = FALSE")
+            .setParameter("guestId", guestId)
+            .getResultList();
+        
+        if (reservationList.size() < 1) {
+            throw new ReservationListForGuestNotFoundException("Reservation for guest ID " + guestId + " not found.");
+        }
+        
+        try {
+            for (Reservation res : reservationList) {
+                List<Room> roomList = res.getRoomList();
+
+                if (roomList.size() > 0) {
+                    for (Room room : roomList) {
+                        room.setIsOccupied(Boolean.FALSE);
+                        res.setIsCheckOut(Boolean.TRUE);
+                    }
+                }
+            }
+        } catch (PersistenceException e) {
+            throw new PersistentContextException("Persistent Context issue " + e.getMessage());
+        }
+        
+    }
 }
