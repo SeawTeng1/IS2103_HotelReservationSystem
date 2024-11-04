@@ -17,6 +17,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import util.exception.GuestAddReservationException;
 
 /**
  *
@@ -162,4 +163,15 @@ public abstract class Guest implements Serializable {
         this.password = password;
     }
     
+    public void addReservation(Reservation reservation) throws GuestAddReservationException 
+    {
+        if(reservation != null && !this.getReservationList().contains(reservation))
+        {
+            this.getReservationList().add(reservation);
+        }
+        else
+        {
+            throw new GuestAddReservationException("Reservation already added to room");
+        }
+    }
 }

@@ -16,6 +16,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import util.exception.EmployeeAddReservationException;
+import util.exception.RoomAddReservationException;
 
 /**
  *
@@ -141,4 +143,15 @@ public class Employee implements Serializable {
         this.reservationList = reservationList;
     }
     
+    public void addReservation(Reservation reservation) throws EmployeeAddReservationException 
+    {
+        if(reservation != null && !this.getReservationList().contains(reservation))
+        {
+            this.getReservationList().add(reservation);
+        }
+        else
+        {
+            throw new EmployeeAddReservationException("Reservation already added to Employee");
+        }
+    }
 }
