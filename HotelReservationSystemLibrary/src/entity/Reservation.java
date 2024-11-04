@@ -18,6 +18,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.FutureOrPresent;
@@ -61,7 +62,7 @@ public class Reservation implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private Partner partner;
     
-    @ManyToMany()
+    @ManyToMany
     @JoinTable(name = "ReservationRecord")
     private List<Room> roomList;
     
@@ -70,6 +71,9 @@ public class Reservation implements Serializable {
     
     @ManyToOne(fetch = FetchType.LAZY)
     private RoomRate roomRate;
+    
+    @OneToOne
+    private RoomAllocationExceptionReport report;
 
     
     public Reservation() {
@@ -255,4 +259,12 @@ public class Reservation implements Serializable {
         this.roomType = roomType;
     }
     
+    public RoomAllocationExceptionReport getReport() {
+        return report;
+    }
+
+    public void setReport(RoomAllocationExceptionReport report) {
+        this.report = report;
+    }
+
 }
