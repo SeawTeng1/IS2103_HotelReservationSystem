@@ -91,6 +91,10 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
         }
     }
     
+    /*
+        6. View All My Reservations
+        Display a list of reservation records for the guest.
+    */
     @Override
     public List<Reservation> getReservationListByGuest(Long guestId) throws ReservationListForGuestNotFoundException {
         List<Reservation> reservationList = em.createQuery(
@@ -103,6 +107,24 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
         }
         
         return reservationList;
+    }
+    
+    /*
+        5. View My Reservation Details
+        Display the details of a particular guest reservation.
+    */
+    public Reservation getReservationByGuest(Long reservationId, Long guestId) throws ReservationListForGuestNotFoundException {
+        Reservation reservation = (Reservation) em.createQuery(
+                "SELECT r FROM Reservation r WHERE r.reservationId = :reservationId AND r.guest.guestId = :guestId")
+            .setParameter("reservationId", reservationId)
+            .setParameter("guestId", guestId)
+            .getSingleResult();
+        
+        if (reservation == null) {
+            throw new ReservationListForGuestNotFoundException("Reservation not found for this guest.");
+        }
+        
+        return reservation;
     }
  
     /*

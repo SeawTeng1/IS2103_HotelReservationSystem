@@ -4,6 +4,7 @@
  */
 package session.stateless;
 
+import entity.Employee;
 import entity.Reservation;
 import entity.Room;
 import entity.RoomRate;
@@ -19,7 +20,10 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.exception.AvailableRoomNotFoundException;
+import util.exception.EmployeeAddReservationException;
+import util.exception.RoomRateAddReservationException;
 import util.exception.RoomRateNotFoundException;
+import util.exception.RoomTypeAddReservationException;
 
 /**
  *
@@ -101,7 +105,8 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
         For same day check-in, allocate the required room(s) immediately if reservation is made after 2 am.
     */
     @Override
-    public void walkInReserve (List<Room> selectedRoom, Date checkInDate, Date checkOutDate, BigDecimal total) throws RoomRateNotFoundException {
+    public void walkInReserve (List<Room> selectedRoom, Date checkInDate, Date checkOutDate, BigDecimal total, Long employeeId) 
+            throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, EmployeeAddReservationException {
         Reservation reservation = new Reservation(checkInDate, checkOutDate, total, selectedRoom.size());
         em.persist(reservation);
         
@@ -123,12 +128,23 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
         // Room: add reservationList;
         // Room Rate: add reservationList;
         // Room Type: reservationList
+        // Employee: add reservation
+        try {
+            RoomType roomType = selectedRoom.get(0).getRoomType();
+            roomType.addReservation(reservation);
+            rate.addReservation(reservation);
+            Employee employee = em.find(Employee.class, employeeId);
+            employee.addReservation(reservation);
+        } catch (RoomTypeAddReservationException ex) {
+            throw new RoomTypeAddReservationException("Reservation already added to room type");
+        } catch (RoomRateAddReservationException ex) {
+            throw new RoomRateAddReservationException("Reservation already added to room rate");
+        } catch (EmployeeAddReservationException ex) {
+            throw new EmployeeAddReservationException("Reservation already added to Employee");
+        }
         
-        RoomType roomType = selectedRoom.get(0).getRoomType();
         for (Room r : selectedRoom) {
             r.getReservationList().add(reservation);
-            roomType.getReservationList().add(reservation);
-            rate.getReservationList().add(reservation);
         }
     }
 }
