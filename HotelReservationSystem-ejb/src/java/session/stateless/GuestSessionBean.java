@@ -4,10 +4,11 @@
  */
 package session.stateless;
 
-import entity.ExceptionItem;
+
 import entity.Guest;
 import entity.Reservation;
 import entity.Room;
+import entity.RoomAllocationExceptionReport;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -91,10 +92,6 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
         }
     }
     
-    /*
-        6. View All My Reservations
-        Display a list of reservation records for the guest.
-    */
     @Override
     public List<Reservation> getReservationListByGuest(Long guestId) throws ReservationListForGuestNotFoundException {
         List<Reservation> reservationList = em.createQuery(
@@ -107,24 +104,6 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
         }
         
         return reservationList;
-    }
-    
-    /*
-        5. View My Reservation Details
-        Display the details of a particular guest reservation.
-    */
-    public Reservation getReservationByGuest(Long reservationId, Long guestId) throws ReservationListForGuestNotFoundException {
-        Reservation reservation = (Reservation) em.createQuery(
-                "SELECT r FROM Reservation r WHERE r.reservationId = :reservationId AND r.guest.guestId = :guestId")
-            .setParameter("reservationId", reservationId)
-            .setParameter("guestId", guestId)
-            .getSingleResult();
-        
-        if (reservation == null) {
-            throw new ReservationListForGuestNotFoundException("Reservation not found for this guest.");
-        }
-        
-        return reservation;
     }
  
     /*
@@ -166,9 +145,9 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
     
     // check if there is any room exception 
     @Override
-    public List<ExceptionItem> getRoomException(Long guestId) throws ReservationListForGuestNotFoundException {
+    public List<RoomAllocationExceptionReport> getRoomException(Long guestId) throws ReservationListForGuestNotFoundException {
         Date today = new Date();
-        List<ExceptionItem> roomExceptionList = new ArrayList<ExceptionItem>();
+        List<RoomAllocationExceptionReport> roomExceptionList = new ArrayList<RoomAllocationExceptionReport>();
         
         List<Reservation> reservationList = em.createQuery(
                 "SELECT r FROM Reservation r WHERE r.guest.guestId = :guestId AND r.checkInDate = :today")
@@ -181,8 +160,8 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
         }
         
         for (Reservation res : reservationList) {
-            if (res.getRoomExceptionList().size() > 0) {
-                roomExceptionList.addAll(res.getRoomExceptionList());
+            if (res.getReport() != null) {
+                roomExceptionList.add(res.getReport());
             }
         }
         

@@ -4,19 +4,25 @@
  */
 package session.singleton;
 
-import entity.ExceptionItem;
+
 import entity.Reservation;
 import entity.Room;
-import enumeration.RoomExceptionType;
+import entity.RoomAllocationExceptionReport;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import session.stateless.RoomAllocationExceptionReportSessionBeanLocal;
+import util.exception.ReportExistException;
 import util.exception.ReservationAddRoomException;
 import util.exception.ReservationAddRoomExceptionItemException;
 import util.exception.ReservationForTodayNotFoundException;
 import util.exception.RoomAddReservationException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -25,10 +31,13 @@ import util.exception.RoomAddReservationException;
 @Singleton
 public class RoomAllocationSessionBean implements RoomAllocationSessionBeanRemote, RoomAllocationSessionBeanLocal {
 
+    @EJB
+    private RoomAllocationExceptionReportSessionBeanLocal roomAllocationExceptionReportSessionBeanLocal;
+
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
     
-
+    
     /** 22. Allocate Room to Current Day Reservations
      * get all reservation which check in on current date
      * get room by the required room type
@@ -49,7 +58,7 @@ public class RoomAllocationSessionBean implements RoomAllocationSessionBeanRemot
             throw new ReservationForTodayNotFoundException("No Reservation found for today.");
         }
         
-        for (Reservation r : reservationList) {
+        for (Reservation r : reservationList) { //reservation list of all check in today
             Integer roomRank = r.getRoomType().getRoomRank();
             Integer roomRequired = r.getNumOfRoom();
             
@@ -108,19 +117,18 @@ public class RoomAllocationSessionBean implements RoomAllocationSessionBeanRemot
                                 r.addRoom(room);
                                 
                                 // add room exception
-                                ExceptionItem roomException = new ExceptionItem(RoomExceptionType.UPGRADE_ALLOCATED, today);
-                                em.persist(roomException);
-                                em.flush();
-                                roomException.setReservation(r);
-                                r.addExceptionItem(roomException);
-                                
+                                RoomAllocationExceptionReport report = new RoomAllocationExceptionReport();
+                                report.setDetails("Room allocation exception, room of higher type was assigned!");
+                                roomAllocationExceptionReportSessionBeanLocal.createReport(report, r.getReservationId());
                                 roomRequired--;
                             } catch (RoomAddReservationException ex) {
                                 throw new RoomAddReservationException("Reservation already added to room");
                             } catch (ReservationAddRoomException ex) {
                                 throw new ReservationAddRoomException("Room already added to reservation");
-                            } catch (ReservationAddRoomExceptionItemException ex) {
-                                throw new ReservationAddRoomExceptionItemException("Room exception already added to reservation");
+                            } catch (UnknownPersistenceException ex) {
+                                Logger.getLogger(RoomAllocationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (ReportExistException ex) {
+                                Logger.getLogger(RoomAllocationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
 
@@ -135,9 +143,15 @@ public class RoomAllocationSessionBean implements RoomAllocationSessionBeanRemot
             // create exception report type 2
             if (roomRequired > 0) {
                 while (roomRequired > 0) {
-                    ExceptionItem roomException = new ExceptionItem(RoomExceptionType.NOT_ALLOCATION, today);
-                    roomException.setReservation(r);
-                    r.addExceptionItem(roomException);
+                    RoomAllocationExceptionReport report = new RoomAllocationExceptionReport();
+                    report.setDetails("Room allocation exception, no room was assigned!");
+                    try {
+                        roomAllocationExceptionReportSessionBeanLocal.createReport(report, r.getReservationId());
+                    } catch (UnknownPersistenceException ex) {
+                        Logger.getLogger(RoomAllocationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (ReportExistException ex) {
+                        Logger.getLogger(RoomAllocationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                     
                     roomRequired--;
                 }

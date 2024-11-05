@@ -4,8 +4,8 @@
  */
 package entity;
 
-import enumeration.RoomAllocationExceptionReportType;
 import java.io.Serializable;
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,15 +25,28 @@ public class RoomAllocationExceptionReport implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomAllocationExceptionReportId;  
-    @Column(nullable = false)
-    @NotNull
-    private RoomAllocationExceptionReportType type;
+    //@Column(nullable = false)
+    //@NotNull
+    //private RoomAllocationExceptionReportType type;
     @Column(nullable = false)
     @NotNull
     private String details;
+    @Column(nullable = false)
+    @NotNull
+    private Date reportDate;
     
-    @OneToOne(mappedBy="roomAllocationExceptionReport")
+    @OneToOne()
     private Reservation reservation;
+
+    public RoomAllocationExceptionReport(String details, Reservation reservation, Date reportDate) {
+        this.details = details;
+        this.reservation = reservation;
+        this.reportDate = reportDate;
+    }
+
+    public RoomAllocationExceptionReport() {
+    }
+    
 
     public Long getRoomAllocationExceptionReportId() {
         return roomAllocationExceptionReportId;
@@ -66,6 +79,62 @@ public class RoomAllocationExceptionReport implements Serializable {
     @Override
     public String toString() {
         return "entity.RoomAllocationExceptionReport[ id=" + roomAllocationExceptionReportId + " ]";
+    }
+
+    /**
+     * @return the reservation
+     */
+    public Reservation getReservation() {
+        return reservation;
+    }
+
+    /**
+     * @param reservation the reservation to set
+     */
+    public void setReservation(Reservation reservation) {
+        this.reservation = reservation;
+    }
+
+    /**
+     * @return the details
+     */
+    public String getDetails() {
+        return details;
+    }
+
+    /**
+     * @param details the details to set
+     */
+    public void setDetails(String details) {
+        this.details = details;
+    }
+
+    /**
+     * @return the type
+     */
+    //public RoomAllocationExceptionReportType getType() {
+        //return type;
+    //}
+
+    /**
+     * @param type the type to set
+     */
+    //public void setType(RoomAllocationExceptionReportType type) {
+        //this.type = type;
+    //}
+
+    /**
+     * @return the reportDate
+     */
+    public Date getReportDate() {
+        return reportDate;
+    }
+
+    /**
+     * @param reportDate the reportDate to set
+     */
+    public void setReportDate(Date reportDate) {
+        this.reportDate = reportDate;
     }
     
 }
