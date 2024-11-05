@@ -1,15 +1,15 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/J2EE/EJB30/SessionRemote.java to edit this template
+ * Click nbfs://nbhost/SystemFileSystem/Templates/J2EE/EJB30/SessionLocal.java to edit this template
  */
-package session.stateless;
+package session.stateful;
 
 import entity.Room;
 import entity.RoomRate;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
-import javax.ejb.Remote;
+import javax.ejb.Local;
 import util.exception.AvailableRoomNotFoundException;
 import util.exception.GuestAddReservationException;
 import util.exception.GuestNotFoundException;
@@ -22,9 +22,9 @@ import util.exception.RoomTypeAddReservationException;
  *
  * @author Toh Seaw Teng
  */
-@Remote
-public interface GuestRoomReservationSessionBeanRemote {
-    
+@Local
+public interface GuestRoomReservationSessionBeanLocal {
+
     public BigDecimal getTotalPrice(String roomType, Date checkInDate, Date checkOutDate, Integer numOfRoom) throws RoomRateNotFoundException, AvailableRoomNotFoundException;
 
     public RoomRate getCorrectRoomRate(String roomType, Date checkInDate, Date checkOutDate) throws RoomRateNotFoundException;

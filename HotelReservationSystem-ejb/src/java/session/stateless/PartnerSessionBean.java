@@ -5,6 +5,7 @@
 package session.stateless;
 
 import entity.Partner;
+import entity.Reservation;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -17,6 +18,7 @@ import util.exception.EmployeeNotFoundException;
 import util.exception.PartnerExistException;
 import util.exception.PartnerInvalidPasswordException;
 import util.exception.PartnerNotFoundException;
+import util.exception.ReservationListForPartnerNotFoundException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -93,5 +95,23 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
             throw new PartnerNotFoundException("Employee does not exist: " + username);
         }
     }
-  
+    
+    /*
+        5. View All Partner Reservations
+        Display a list of reservation records for the partner.
+    */
+    
+    @Override
+    public List<Reservation> getReservationListByPartner(Long partnerId) throws ReservationListForPartnerNotFoundException {
+        List<Reservation> reservationList = em.createQuery(
+                "SELECT r FROM Reservation r WHERE r.partner.partnerId = :partnerId")
+            .setParameter("partnerId", partnerId)
+            .getResultList();
+        
+        if (reservationList.size() < 1) {
+            throw new ReservationListForPartnerNotFoundException("Reservation not found for this partner.");
+        }
+        
+        return reservationList;
+    }
 }

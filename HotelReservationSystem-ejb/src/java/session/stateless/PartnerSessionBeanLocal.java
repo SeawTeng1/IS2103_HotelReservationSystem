@@ -5,11 +5,13 @@
 package session.stateless;
 
 import entity.Partner;
+import entity.Reservation;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.PartnerExistException;
 import util.exception.PartnerInvalidPasswordException;
 import util.exception.PartnerNotFoundException;
+import util.exception.ReservationListForPartnerNotFoundException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -26,5 +28,7 @@ public interface PartnerSessionBeanLocal {
     public Partner partnerLogin(String username, String password) throws PartnerNotFoundException, PartnerInvalidPasswordException;
 
     public Partner retrievePartnerbyUsername(String username) throws PartnerNotFoundException;
+
+    public List<Reservation> getReservationListByPartner(Long partnerId) throws ReservationListForPartnerNotFoundException;
     
 }

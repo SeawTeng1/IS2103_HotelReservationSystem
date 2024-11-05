@@ -1,8 +1,8 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/J2EE/EJB30/StatelessEjbClass.java to edit this template
+ * Click nbfs://nbhost/SystemFileSystem/Templates/J2EE/EJB30/StatefulEjbClass.java to edit this template
  */
-package session.stateless;
+package session.stateful;
 
 import entity.Employee;
 import entity.Reservation;
@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.ejb.Stateless;
+import javax.ejb.Stateful;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.exception.AvailableRoomNotFoundException;
@@ -27,7 +27,7 @@ import util.exception.RoomTypeAddReservationException;
  *
  * @author Toh Seaw Teng
  */
-@Stateless
+@Stateful
 public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkInRoomReservationLocal {
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
