@@ -19,6 +19,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.FutureOrPresent;
@@ -39,11 +40,11 @@ public class Reservation implements Serializable {
     private Long reservationId;
     @Column(nullable = false)
     @NotNull
-    @FutureOrPresent 
+    @FutureOrPresent
     private Date checkInDate;
     @Column(nullable = false)
     @NotNull
-    @FutureOrPresent 
+    @FutureOrPresent
     private Date checkOutDate;
     @Column(nullable = false, precision = 11, scale = 2)
     @NotNull
@@ -60,32 +61,32 @@ public class Reservation implements Serializable {
     @Column(nullable = false)
     @NotNull
     private Boolean isCheckOut = false;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Guest guest;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Employee employee;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Partner partner;
-    
-    @ManyToMany()
+
+    @ManyToMany
     @JoinTable(name = "ReservationRecord")
     private List<Room> roomList;
-    
+
     @ManyToOne(optional = false, cascade = {}, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private RoomType roomType;
-    
+
     @ManyToOne(optional = false, cascade = {}, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private RoomRate roomRate;
-    
-    @OneToMany(mappedBy="Reservation", cascade = {}, fetch = FetchType.LAZY)
-    private List<ExceptionItem> roomExceptionList;
 
-    
+    @OneToOne
+    private RoomAllocationExceptionReport report;
+
+
     public Reservation() {
     }
 
@@ -310,8 +311,16 @@ public class Reservation implements Serializable {
     public void setIsCheckOut(Boolean isCheckOut) {
         this.isCheckOut = isCheckOut;
     }
-    
-    public void addRoom(Room room) throws ReservationAddRoomException 
+
+    public RoomAllocationExceptionReport getReport() {
+        return report;
+    }
+
+    public void setReport(RoomAllocationExceptionReport report) {
+        this.report = report;
+    }
+
+    public void addRoom(Room room) throws ReservationAddRoomException
     {
         if(room != null && !this.getRoomList().contains(room))
         {
@@ -320,18 +329,6 @@ public class Reservation implements Serializable {
         else
         {
             throw new ReservationAddRoomException("Room already added to reservation");
-        }
-    }
-    
-    public void addExceptionItem(ExceptionItem exceptionItem) throws ReservationAddRoomExceptionItemException 
-    {
-        if(exceptionItem != null && !this.getRoomExceptionList().contains(exceptionItem))
-        {
-            this.getRoomExceptionList().add(exceptionItem);
-        }
-        else
-        {
-            throw new ReservationAddRoomExceptionItemException("Room exception already added to reservation");
         }
     }
 }
