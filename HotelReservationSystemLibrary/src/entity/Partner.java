@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import util.exception.PartnerAddReservationException;
 
 /**
  *
@@ -122,4 +123,15 @@ public class Partner implements Serializable {
         this.reservationList = reservationList;
     }
     
+    public void addReservation(Reservation reservation) throws PartnerAddReservationException 
+    {
+        if(reservation != null && !this.getReservationList().contains(reservation))
+        {
+            this.getReservationList().add(reservation);
+        }
+        else
+        {
+            throw new PartnerAddReservationException("Reservation already added to room");
+        }
+    }
 }

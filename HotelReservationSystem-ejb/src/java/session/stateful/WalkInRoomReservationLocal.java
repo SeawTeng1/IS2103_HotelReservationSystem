@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/J2EE/EJB30/SessionLocal.java to edit this template
  */
-package session.stateless;
+package session.stateful;
 
 import entity.Room;
 import java.math.BigDecimal;
@@ -21,7 +21,7 @@ import util.exception.RoomTypeAddReservationException;
  */
 @Local
 public interface WalkInRoomReservationLocal {
-
+    
     public List<Room> searchAvailableRoom(String roomType, Date checkInDate, Date checkOutDate) throws AvailableRoomNotFoundException;
 
     public void walkInReserve (List<Room> selectedRoom, Date checkInDate, Date checkOutDate, BigDecimal total, Long employeeId) throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, EmployeeAddReservationException;
