@@ -56,28 +56,32 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     
     // 19. Update Room Rate
     @Override
-    public RoomRate updateRoomRate(Long roomRateId, RoomRate roomRateUpdate) throws RoomRateNotFoundException {
+    public RoomRate updateRoomRate(Long roomRateId, RoomRate roomRateUpdate) throws RoomRateNotFoundException, PersistentContextException {
         RoomRate roomRate = em.find(RoomRate.class, roomRateId);
         if (roomRate == null) {
             throw new RoomRateNotFoundException("Room Rate ID " + roomRateId + " not found.");
         }
         
-        if (roomRateUpdate != null) {
-            roomRate.setName(roomRateUpdate.getName());
-            roomRate.setRateType(roomRateUpdate.getRateType());
-            roomRate.setRatePerNight(roomRateUpdate.getRatePerNight());
-            roomRate.setValidityStart(roomRateUpdate.getValidityStart());
-            roomRate.setValidityEnd(roomRateUpdate.getValidityEnd());
+        try {
+            if (roomRateUpdate != null) {
+                roomRate.setName(roomRateUpdate.getName());
+                roomRate.setRateType(roomRateUpdate.getRateType());
+                roomRate.setRatePerNight(roomRateUpdate.getRatePerNight());
+                roomRate.setValidityStart(roomRateUpdate.getValidityStart());
+                roomRate.setValidityEnd(roomRateUpdate.getValidityEnd());
+            }
+            
+            em.merge(roomRate);
+            return roomRate;
+        } catch (PersistenceException e) {
+            throw new PersistentContextException("Persistent Context issue " + e.getMessage());
         }
-        em.merge(roomRate);
-        
-        return roomRate;
     }
     
     
     // 20. Delete Room Rate
     @Override
-    public void deleteRoomRate(Long roomRateId) throws RoomRateNotFoundException, RoomTypeRemoveRoomRateException {
+    public void deleteRoomRate(Long roomRateId) throws RoomRateNotFoundException, RoomTypeRemoveRoomRateException, PersistentContextException {
         RoomRate roomRate = em.find(RoomRate.class, roomRateId);
         if (roomRate == null) {
             throw new RoomRateNotFoundException("Room Rate ID " + roomRateId + " not found.");
@@ -85,14 +89,23 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
         
         // if there is any reservation do not delete the room rate because it might still be access in the future
         if (!roomRate.getReservationList().isEmpty()) {
-            roomRate.setDisabled(true);
+            try {
+                roomRate.setDisabled(true);
             em.merge(roomRate);
+            } catch (PersistenceException e) {
+                throw new PersistentContextException("Persistent Context issue " + e.getMessage());
+            }
         } else {
             //remove room rate from room type
-            roomRate.getRoomType().removeRoomrate(roomRate);
-            
-            roomRate.setRoomType(null);
-            em.remove(roomRate);
+            try {
+                roomRate.getRoomType().removeRoomrate(roomRate);
+                roomRate.setRoomType(null);
+                em.remove(roomRate);
+            } catch (RoomTypeRemoveRoomRateException ex) {
+                throw new RoomTypeRemoveRoomRateException("Room rate has not been added to room type");
+            } catch (PersistenceException e) {
+                throw new PersistentContextException("Persistent Context issue " + e.getMessage());
+            }
         }
     }
 }

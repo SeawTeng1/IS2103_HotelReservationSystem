@@ -13,14 +13,14 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import util.exception.RoomAddReservationException;
 
 /**
  *
@@ -44,25 +44,26 @@ public class Room implements Serializable {
     @Column(nullable = false)
     @NotNull
     private Boolean disabled;
+    // if checkin set this to true, checkout set it to false
     @Column(nullable = false)
     @NotNull
-    private Boolean isOccupied;
+    private Boolean isOccupied = false;
     
     @ManyToMany
     @JoinTable(name = "ReservationRecord")
     private List<Reservation> reservationList;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, cascade = {}, fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
     private RoomType roomType;
 
     public Room() {
     }
 
-    public Room(Integer roomNumber, RoomStatus roomStatus, Boolean disabled, Boolean isOccupied) {
+    public Room(Integer roomNumber, RoomStatus roomStatus, Boolean disabled) {
         this.roomNumber = roomNumber;
         this.roomStatus = roomStatus;
         this.disabled = disabled;
-        this.isOccupied = isOccupied;
     }
     
     public Long getRoomId() {
@@ -182,4 +183,15 @@ public class Room implements Serializable {
         this.roomType = roomType;
     }
     
+    public void addReservation(Reservation reservation) throws RoomAddReservationException 
+    {
+        if(reservation != null && !this.getReservationList().contains(reservation))
+        {
+            this.getReservationList().add(reservation);
+        }
+        else
+        {
+            throw new RoomAddReservationException("Reservation already added to room");
+        }
+    }
 }

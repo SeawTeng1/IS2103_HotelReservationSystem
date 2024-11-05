@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -19,6 +20,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import util.exception.RoomTypeAddReservationException;
 import util.exception.RoomTypeAddRoomRateException;
 import util.exception.RoomTypeRemoveRoomRateException;
 
@@ -36,6 +38,7 @@ public class RoomType implements Serializable {
     @Column(nullable = false, unique = true, length = 50)
     @NotNull
     @Size(min = 4, max = 50)
+    // Deluxe Room, Premier Room, Family Room, Junior Suite and Grand Suite
     private String name;
     @Column(nullable = false, length = 150)
     @NotNull
@@ -63,20 +66,25 @@ public class RoomType implements Serializable {
     @Column(nullable = false)
     @NotNull
     private Boolean disabled;
+    @Column(nullable = false)
+    @NotNull
+    @Min(1)
+    // for the upgrade of room
+    private Integer roomRank; 
     
-    @OneToMany(mappedBy = "RoomType")
+    @OneToMany(mappedBy = "RoomType", cascade = {}, fetch = FetchType.LAZY)
     private List<Room> roomList;
     
-    @OneToMany(mappedBy = "RoomType")
+    @OneToMany(mappedBy = "RoomType", cascade = {}, fetch = FetchType.LAZY)
     private List<Reservation> reservationList;
     
-    @OneToMany(mappedBy = "RoomType")
+    @OneToMany(mappedBy = "RoomType", cascade = {}, fetch = FetchType.LAZY)
     private List<RoomRate> roomRateList;
 
     public RoomType() {
     }
 
-    public RoomType(String name, String description, BigDecimal size, Integer beds, Integer capacity, String amenities, Boolean disabled) {
+    public RoomType(String name, String description, BigDecimal size, Integer beds, Integer capacity, String amenities, Boolean disabled, Integer roomRank) {
         this.name = name;
         this.description = description;
         this.size = size;
@@ -84,6 +92,7 @@ public class RoomType implements Serializable {
         this.capacity = capacity;
         this.amenities = amenities;
         this.disabled = disabled;
+        this.roomRank = roomRank;
     }
         
     public Long getRoomTypeId() {
@@ -244,6 +253,18 @@ public class RoomType implements Serializable {
     public void setReservationList(List<Reservation> reservationList) {
         this.reservationList = reservationList;
     }
+    
+    public void addReservation(Reservation reservation) throws RoomTypeAddReservationException 
+    {
+        if(reservation != null && !this.getReservationList().contains(reservation))
+        {
+            this.getReservationList().add(reservation);
+        }
+        else
+        {
+            throw new RoomTypeAddReservationException("Reservation already added to room type");
+        }
+    }
 
     /**
      * @return the roomRateList
@@ -279,6 +300,20 @@ public class RoomType implements Serializable {
         {
             throw new RoomTypeRemoveRoomRateException("Room rate has not been added to room type");
         }
+    }
+
+    /**
+     * @return the roomRank
+     */
+    public Integer getRoomRank() {
+        return roomRank;
+    }
+
+    /**
+     * @param roomRank the roomRank to set
+     */
+    public void setRoomRank(Integer roomRank) {
+        this.roomRank = roomRank;
     }
 
 }
