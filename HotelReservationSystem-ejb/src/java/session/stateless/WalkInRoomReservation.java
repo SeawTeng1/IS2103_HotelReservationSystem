@@ -14,8 +14,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -45,7 +43,7 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
     @Override
     public List<Room> searchAvailableRoom(String roomType, Date checkInDate, Date checkOutDate) throws AvailableRoomNotFoundException {
         List<Room> roomList = em.createQuery(
-                "SELECT r FROM Room r WHERE r.roomType.name = :roomType AND r.disabled = false OR r.roomStatus != UNAVAILABLE")
+                "SELECT r FROM Room r WHERE (r.roomType.name = :roomType AND r.disabled = false) OR r.roomStatus != 'UNAVAILABLE'")
             .setParameter("roomType", roomType)
             .getResultList();
         

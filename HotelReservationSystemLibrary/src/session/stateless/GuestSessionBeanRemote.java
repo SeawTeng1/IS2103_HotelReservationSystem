@@ -4,10 +4,10 @@
  */
 package session.stateless;
 
-import entity.ExceptionItem;
 import entity.Guest;
 import entity.Reservation;
 import entity.Room;
+import entity.RoomAllocationExceptionReport;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.GuestExistException;
@@ -37,6 +37,7 @@ public interface GuestSessionBeanRemote {
 
     public void guestCheckOut(Long guestId) throws ReservationListForGuestNotFoundException, PersistentContextException;
 
-    public List<ExceptionItem> getRoomException(Long guestId) throws ReservationListForGuestNotFoundException;
+    //public List<ExceptionItem> getRoomException(Long guestId) throws ReservationListForGuestNotFoundException;
+    public List<RoomAllocationExceptionReport> getRoomException(Long guestId) throws ReservationListForGuestNotFoundException;
     
 }

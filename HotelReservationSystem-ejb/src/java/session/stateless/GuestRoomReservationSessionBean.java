@@ -4,7 +4,6 @@
  */
 package session.stateless;
 
-import entity.Employee;
 import entity.Guest;
 import entity.Reservation;
 import entity.Room;
@@ -14,7 +13,6 @@ import enumeration.RateType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.EJB;
