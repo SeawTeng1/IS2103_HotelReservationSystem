@@ -10,7 +10,6 @@
     <class>entity.Room</class>
     <class>entity.RoomRate</class>
     <class>entity.RoomType</class>
-    <class>entity.ExceptionItem</class>
     <class>entity.RoomAllocationExceptionReport</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
