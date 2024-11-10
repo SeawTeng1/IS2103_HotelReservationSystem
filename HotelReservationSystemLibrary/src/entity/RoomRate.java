@@ -11,6 +11,8 @@ import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -40,6 +42,7 @@ public class RoomRate implements Serializable {
     @NotNull
     @Size(min = 4, max = 50)
     private String name;
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @NotNull
     private RateType rateType;

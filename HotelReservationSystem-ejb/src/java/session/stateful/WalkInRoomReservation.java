@@ -10,6 +10,7 @@ import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
 import enumeration.RateType;
+import enumeration.RoomStatus;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,6 +18,7 @@ import java.util.List;
 import javax.ejb.Stateful;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import util.exception.AvailableRoomNotFoundException;
 import util.exception.EmployeeAddReservationException;
 import util.exception.RoomRateAddReservationException;
@@ -43,10 +45,43 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
     @Override
     public List<Room> searchAvailableRoom(String roomType, Date checkInDate, Date checkOutDate) throws AvailableRoomNotFoundException {
         List<Room> roomList = em.createQuery(
-                "SELECT r FROM Room r WHERE (r.roomType.name = :roomType AND r.disabled = false) OR r.roomStatus != 'UNAVAILABLE'")
+                "SELECT r FROM Room r WHERE (r.roomType.name = :roomType AND r.disabled = false) OR r.roomStatus != :roomStatus")
             .setParameter("roomType", roomType)
+            .setParameter("roomStatus", RoomStatus.UNAVAILABLE)
             .getResultList();
         
+        if (roomList.size() < 1) {
+            throw new AvailableRoomNotFoundException("No available room found, please try again.");
+        }
+        
+        List<Room> availableRoom = new ArrayList<Room>();
+        for (Room r : roomList) {
+            List<Reservation> resList = r.getReservationList();
+            Reservation res = resList.get(resList.size() - 1);
+            if (
+                !res.getCheckOutDate().after(checkInDate) &&
+                !res.getCheckInDate().before(checkOutDate)
+            ) {
+                if (!availableRoom.contains(r)) {
+                    availableRoom.add(r);
+                }
+            }
+        }
+        
+        // for inventory can just check if the number of room <= availableRoom.size()
+        return availableRoom;
+    }
+    
+    public List<Room> searchAvailableRoomWithLimit(String roomType, Date checkInDate, Date checkOutDate, Integer limit) throws AvailableRoomNotFoundException {
+        Query query = em.createQuery(
+                "SELECT r FROM Room r WHERE (r.roomType.name = :roomType AND r.disabled = false) OR r.roomStatus != 'UNAVAILABLE'")
+            .setParameter("roomType", roomType);
+                
+        if (limit != 0) {
+            query.setMaxResults(limit);
+        }
+        
+        List<Room> roomList = query.getResultList();
         if (roomList.size() < 1) {
             throw new AvailableRoomNotFoundException("No available room found, please try again.");
         }

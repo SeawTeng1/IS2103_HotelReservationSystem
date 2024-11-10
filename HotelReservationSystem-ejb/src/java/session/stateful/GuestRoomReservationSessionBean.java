@@ -11,10 +11,16 @@ import entity.RoomRate;
 import entity.RoomType;
 import enumeration.RateType;
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateful;
 import javax.persistence.EntityManager;
@@ -46,7 +52,25 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
         The reservation amount should be calculated based on the available prevailing rate of that room type.
         The system needs to ensure that the hotel has sufficient room inventory to fulfil the new reservation
     */
-    // searchAvailableRoom can utilise the walkinroonreservation method
+    @Override
+    public List<Room> searchAvailableRoom(String roomType, Date checkInDate, Date checkOutDate) throws AvailableRoomNotFoundException {
+        try {
+            List<Room> roomList = walkInRoomReservation.searchAvailableRoom(roomType, checkInDate, checkOutDate);
+            return roomList;
+        } catch (AvailableRoomNotFoundException e) {
+            throw e;
+        }
+    }
+    
+    public List<Room> searchAvailableRoomWithLimit(String roomType, Date checkInDate, Date checkOutDate, Integer limit) throws AvailableRoomNotFoundException {
+        try {
+            List<Room> roomList = walkInRoomReservation.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, limit);
+            return roomList;
+        } catch (AvailableRoomNotFoundException e) {
+            throw e;
+        }
+    }
+    
     @Override
     public BigDecimal getTotalPrice(String roomType, Date checkInDate, Date checkOutDate, Integer numOfRoom) 
             throws RoomRateNotFoundException, AvailableRoomNotFoundException {
@@ -57,7 +81,13 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
             if (availableRoom.size() >= numOfRoom) {
                 try {
                     RoomRate rate = this.getCorrectRoomRate(roomType, checkInDate, checkOutDate);
-                    total = rate.getRatePerNight().multiply(new BigDecimal(numOfRoom));
+                    
+                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd MM yyyy");
+                    LocalDate date1 = LocalDate.parse(checkInDate.toString(), dtf);
+                    LocalDate date2 = LocalDate.parse(checkOutDate.toString(), dtf);
+                    long daysBetween = Duration.between(date1, date2).toDays();
+                    
+                    total = rate.getRatePerNight().multiply(new BigDecimal(daysBetween)).multiply(new BigDecimal(numOfRoom));
                 } catch (RoomRateNotFoundException e) {
                     throw new RoomRateNotFoundException("Room rate for current room not found");
                 }
@@ -119,10 +149,24 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
     */
     
     @Override
-    public void onlineReserve (List<Room> selectedRoom, Date checkInDate, Date checkOutDate, BigDecimal total, Long guestId) 
+    public void onlineReserve (String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long guestId) 
             throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, GuestAddReservationException, RoomAddReservationException, GuestNotFoundException {
         
-        Reservation reservation = new Reservation(checkInDate, checkOutDate, total, selectedRoom.size());
+        List<Room> selectedRoom = new ArrayList<Room>();
+        try {
+            selectedRoom = this.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, noOfRoom);
+        } catch (AvailableRoomNotFoundException ex) {
+            Logger.getLogger(GuestRoomReservationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        BigDecimal total = new BigDecimal(0);
+        try {
+            total = this.getTotalPrice(roomType, checkInDate, checkOutDate, noOfRoom);
+        } catch (AvailableRoomNotFoundException ex) {
+            Logger.getLogger(GuestRoomReservationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        Reservation reservation = new Reservation(checkInDate, checkOutDate, total, noOfRoom);
         em.persist(reservation);
         
         // Reservation: add roomList; roomType; roomRate;
@@ -131,7 +175,7 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
         Date today = new Date();
         
         // get room rate
-        RoomRate rate = this.getCorrectRoomRate(selectedRoom.get(0).getRoomType().getName(), checkInDate, checkOutDate);
+        RoomRate rate = this.getCorrectRoomRate(roomType, checkInDate, checkOutDate);
         
         Guest guest = em.find(Guest.class, guestId);
         if (guest == null) {
@@ -158,8 +202,8 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
         // Room Type: reservationList
         // Guest: add reservation
         try {
-            RoomType roomType = selectedRoom.get(0).getRoomType();
-            roomType.addReservation(reservation);
+            RoomType type = selectedRoom.get(0).getRoomType();
+            type.addReservation(reservation);
             rate.addReservation(reservation);
             guest.addReservation(reservation);
         } catch (RoomTypeAddReservationException ex) {

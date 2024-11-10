@@ -25,7 +25,7 @@ import util.exception.GuestAddReservationException;
  */
 @Entity
 @Inheritance(strategy=InheritanceType.JOINED)
-public abstract class Guest implements Serializable {
+public class Guest implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -33,11 +33,11 @@ public abstract class Guest implements Serializable {
     private Long guestId;
     @Column(nullable = false, length = 24)
     @NotNull
-    @Size(min = 4, max = 24)
+    @Size(min = 1, max = 24)
     private String firstName;
     @Column(nullable = false, length = 24)
     @NotNull
-    @Size(min = 4, max = 24)
+    @Size(min = 1, max = 24)
     private String lastName;
     @NotNull
     @Size(min = 8, max = 24)

@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -17,7 +19,6 @@ import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import util.exception.EmployeeAddReservationException;
-import util.exception.RoomAddReservationException;
 
 /**
  *
@@ -38,6 +39,7 @@ public class Employee implements Serializable {
     @NotNull
     @Size(min = 8, max = 24)
     private String password;
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @NotNull
     private RoleType roleType;

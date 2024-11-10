@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -38,6 +40,7 @@ public class Room implements Serializable {
     @Min(4)
     @Max(4)
     private Integer roomNumber;
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @NotNull
     private RoomStatus roomStatus;
