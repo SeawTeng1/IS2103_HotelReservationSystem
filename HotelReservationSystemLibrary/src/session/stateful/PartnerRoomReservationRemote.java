@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.AvailableRoomNotFoundException;
 import util.exception.GuestAddReservationException;
 import util.exception.GuestNotFoundException;
 import util.exception.PartnerAddReservationException;
@@ -25,6 +26,8 @@ import util.exception.RoomTypeAddReservationException;
 @Remote
 public interface PartnerRoomReservationRemote {
     
-    public void onlineReserve(List<Room> selectedRoom, Date checkInDate, Date checkOutDate, BigDecimal total, Long partnerId, Long guestId) throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, PartnerAddReservationException, RoomAddReservationException, PartnerNotFoundException, GuestNotFoundException, GuestAddReservationException;
-    
+    public void onlineReserve(String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long partnerId, Long guestId) 
+            throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, 
+            PartnerAddReservationException, RoomAddReservationException, PartnerNotFoundException, GuestNotFoundException, 
+            GuestAddReservationException, AvailableRoomNotFoundException;
 }

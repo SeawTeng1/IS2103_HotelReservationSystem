@@ -294,7 +294,8 @@ public class MainApp {
                                 RoomRateAddReservationException | 
                                 GuestAddReservationException | 
                                 RoomAddReservationException | 
-                                GuestNotFoundException ex) {
+                                GuestNotFoundException |
+                                InputDataValidationException ex) {
                             System.out.println(ex.getMessage());
                         }
                     }

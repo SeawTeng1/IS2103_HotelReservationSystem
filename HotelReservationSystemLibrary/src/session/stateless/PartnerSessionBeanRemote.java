@@ -8,9 +8,11 @@ import entity.Partner;
 import entity.Reservation;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.InputDataValidationException;
 import util.exception.PartnerExistException;
 import util.exception.PartnerInvalidPasswordException;
 import util.exception.PartnerNotFoundException;
+import util.exception.ReservationForPartnerNotFoundException;
 import util.exception.ReservationListForPartnerNotFoundException;
 import util.exception.UnknownPersistenceException;
 
@@ -20,7 +22,7 @@ import util.exception.UnknownPersistenceException;
  */
 @Remote
 public interface PartnerSessionBeanRemote {
-   public Partner createNewEmployee(Partner newPartner) throws PartnerExistException, UnknownPersistenceException;
+   public Partner createNewEmployee(Partner newPartner) throws PartnerExistException, UnknownPersistenceException, InputDataValidationException;
 
     public List<Partner> viewAllPartners();
 
@@ -29,5 +31,7 @@ public interface PartnerSessionBeanRemote {
     public Partner retrievePartnerbyUsername(String username) throws PartnerNotFoundException; 
     
     public List<Reservation> getReservationListByPartner(Long partnerId) throws ReservationListForPartnerNotFoundException;
+        
+    public Reservation getReservationDetailByPartner(Long partnerId, Long reservationId) throws ReservationForPartnerNotFoundException;
     
 }

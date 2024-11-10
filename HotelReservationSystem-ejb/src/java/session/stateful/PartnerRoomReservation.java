@@ -13,12 +13,16 @@ import entity.RoomType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateful;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import util.exception.AvailableRoomNotFoundException;
 import util.exception.GuestAddReservationException;
 import util.exception.GuestNotFoundException;
 import util.exception.PartnerAddReservationException;
@@ -34,12 +38,12 @@ import util.exception.RoomTypeAddReservationException;
  */
 @Stateful
 public class PartnerRoomReservation implements PartnerRoomReservationRemote, PartnerRoomReservationLocal {
-
+    
     @PersistenceContext()
     private EntityManager em;
 
     @EJB
-    private GuestRoomReservationSessionBeanLocal guestRoomReservationSessionBean;
+    private GuestRoomReservationSessionBeanLocal guestRoomReservationSessionBeanLocal;
     
     /*
         3. Partner Reserve Room 
@@ -51,12 +55,26 @@ public class PartnerRoomReservation implements PartnerRoomReservationRemote, Par
         For same day check-in, allocate the required room
     */
     @Override
-    public void onlineReserve (List<Room> selectedRoom, Date checkInDate, Date checkOutDate, BigDecimal total, Long partnerId, Long guestId) 
+    public void onlineReserve(String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long partnerId, Long guestId) 
             throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, 
             PartnerAddReservationException, RoomAddReservationException, PartnerNotFoundException, 
-            GuestNotFoundException, GuestAddReservationException {
+            GuestNotFoundException, GuestAddReservationException, AvailableRoomNotFoundException {
         
-        Reservation reservation = new Reservation(checkInDate, checkOutDate, total, selectedRoom.size());
+        List<Room> selectedRoom = new ArrayList<Room>();
+        try {
+            selectedRoom = guestRoomReservationSessionBeanLocal.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, noOfRoom);
+        } catch (AvailableRoomNotFoundException ex) {
+            throw ex;
+        }
+        
+        BigDecimal total = new BigDecimal(0);
+        try {
+            total = guestRoomReservationSessionBeanLocal.getTotalPrice(roomType, checkInDate, checkOutDate, noOfRoom);
+        } catch (AvailableRoomNotFoundException ex) {
+            throw ex;
+        }
+        
+        Reservation reservation = new Reservation(checkInDate, checkOutDate, total, noOfRoom);
         em.persist(reservation);
         
         // Reservation: add roomList; roomType; roomRate;
@@ -65,7 +83,7 @@ public class PartnerRoomReservation implements PartnerRoomReservationRemote, Par
         Date today = new Date();
         
         // get room rate
-        RoomRate rate = guestRoomReservationSessionBean.getCorrectRoomRate(selectedRoom.get(0).getRoomType().getName(), checkInDate, checkOutDate);
+        RoomRate rate = guestRoomReservationSessionBeanLocal.getCorrectRoomRate(selectedRoom.get(0).getRoomType().getName(), checkInDate, checkOutDate);
         
         Partner partner = em.find(Partner.class, partnerId);
         if (partner == null) {
@@ -97,8 +115,8 @@ public class PartnerRoomReservation implements PartnerRoomReservationRemote, Par
         // Room Type: reservationList
         // Guest: add reservation
         try {
-            RoomType roomType = selectedRoom.get(0).getRoomType();
-            roomType.addReservation(reservation);
+            RoomType type = selectedRoom.get(0).getRoomType();
+            type.addReservation(reservation);
             rate.addReservation(reservation);
             partner.addReservation(reservation);
             guest.addReservation(reservation);
