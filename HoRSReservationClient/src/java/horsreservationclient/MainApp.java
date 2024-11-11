@@ -61,7 +61,7 @@ public class MainApp {
             
             while(response < 1 || response > 3)
             {
-                System.out.print("> ");
+                System.out.print(" > ");
 
                 response = scanner.nextInt();
 
@@ -98,9 +98,9 @@ public class MainApp {
         Scanner scanner = new Scanner(System.in);
         
         System.out.println("\n*** HoRS Reservation System : Guest Login ***\n");
-        System.out.print("Enter Passport Number> ");
+        System.out.print("Enter Passport Number > ");
         String passportNumber = scanner.nextLine().trim();
-        System.out.print("Enter Password> ");
+        System.out.print("Enter Password > ");
         String password = scanner.nextLine().trim();
         
         try {
@@ -115,13 +115,13 @@ public class MainApp {
         Scanner scanner = new Scanner(System.in);
         
         System.out.println("\n*** HoRS Reservation System : Register as Guest ***\n");
-        System.out.print("Enter Guest First Name> ");
+        System.out.print("Enter Guest First Name > ");
         String firstName = scanner.nextLine().trim();
-        System.out.print("Enter Guest Last Name> ");
+        System.out.print("Enter Guest Last Name > ");
         String lastName = scanner.nextLine().trim();
-        System.out.print("Enter Passport Number> ");
+        System.out.print("Enter Passport Number > ");
         String passportNumber = scanner.nextLine().trim();
-        System.out.print("Enter Password> ");
+        System.out.print("Enter Password > ");
         String password = scanner.nextLine().trim();
         
         try {
@@ -147,7 +147,7 @@ public class MainApp {
             
             while(response < 1 || response > 4)
             {
-                System.out.print("> ");
+                System.out.print(" > ");
 
                 response = scanner.nextInt();
 
@@ -272,7 +272,7 @@ public class MainApp {
                 response = 0;
 
                 while(response < 1 || response > 2) {
-                    System.out.print("> ");
+                    System.out.print(" > ");
                     response = scanner.nextInt();
                     if(response == 1)
                     {
@@ -295,6 +295,7 @@ public class MainApp {
                                 GuestAddReservationException | 
                                 RoomAddReservationException | 
                                 GuestNotFoundException |
+                                AvailableRoomNotFoundException |
                                 InputDataValidationException ex) {
                             System.out.println(ex.getMessage());
                         }
@@ -334,6 +335,8 @@ public class MainApp {
                     System.out.print(" Room Type: " + res.getRoomType().getName());
                     System.out.print(" No of Room: " + res.getCheckOutDate());
                     System.out.print(" Total Price: " + res.getTotalPrice() + "\n");
+                    
+                    count++;
                 }
             }
         } catch (ReservationListForGuestNotFoundException ex) {
@@ -345,7 +348,7 @@ public class MainApp {
         Scanner scanner = new Scanner(System.in);
         
         System.out.println("\n*** HoRS Reservation System : View My Reservation Details ***\n");
-        System.out.print("Enter Reservation Id> ");
+        System.out.print("Enter Reservation Id > ");
         Long reservationId = scanner.nextLong();
         
         try {

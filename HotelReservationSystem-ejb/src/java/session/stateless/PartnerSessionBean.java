@@ -112,7 +112,7 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
     @Override
     public Partner retrievePartnerbyUsername(String username) throws PartnerNotFoundException {
         try {
-            Query query = em.createQuery("SELECT p FROM Partner ep WHERE p.username = :inUsername ");
+            Query query = em.createQuery("SELECT p FROM Partner p WHERE p.username = :inUsername ");
             query.setParameter("inUsername", username);
             return (Partner)query.getSingleResult();
         } catch (NoResultException ex) {

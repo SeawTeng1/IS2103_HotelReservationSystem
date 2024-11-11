@@ -25,6 +25,7 @@ import session.stateless.PartnerSessionBeanLocal;
 import util.exception.AvailableRoomNotFoundException;
 import util.exception.GuestAddReservationException;
 import util.exception.GuestNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.PartnerAddReservationException;
 import util.exception.PartnerInvalidPasswordException;
 import util.exception.PartnerNotFoundException;
@@ -49,12 +50,12 @@ public class PartnerWebService {
     private PartnerRoomReservationLocal partnerRoomReservationLocal;
     @EJB
     private PartnerSessionBeanLocal partnerSessionBeanLocal;
-    
+
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
-    
+
     @WebMethod(operationName = "partnerLogin")
-    public Partner partnerLogin(@WebParam(name = "username") String username, @WebParam(name = "password") String password) 
+    public Partner partnerLogin(@WebParam(name = "username") String username, @WebParam(name = "password") String password)
                 throws PartnerInvalidPasswordException, PartnerNotFoundException {
 
         Partner partner = this.partnerSessionBeanLocal.partnerLogin(username, password);
@@ -64,9 +65,10 @@ public class PartnerWebService {
             em.detach(reservation);
             reservation.setPartner(null);
         }
+
         return partner;
     }
-    
+
     @WebMethod(operationName = "getReservationDetailByPartner")
     public Reservation getReservationDetailByPartner(@WebParam(name = "partnerId") Long partnerId, @WebParam(name = "reservationId") Long reservationId) throws ReservationForPartnerNotFoundException {
 
@@ -108,7 +110,7 @@ public class PartnerWebService {
 
     @WebMethod(operationName = "searchAvailableRoom")
     public List<Room> searchAvailableRoom(
-            @WebParam(name = "roomType") String roomType, 
+            @WebParam(name = "roomType") String roomType,
             @WebParam(name = "checkInDate") Date checkInDate,
             @WebParam(name = "checkOutDate") Date checkOutDate
     ) throws AvailableRoomNotFoundException {
@@ -116,10 +118,10 @@ public class PartnerWebService {
         List<Room> roomList = this.guestRoomReservationSessionBeanLocal.searchAvailableRoom(roomType, checkInDate, checkOutDate);
         return roomList;
     }
-    
+
     @WebMethod(operationName = "getTotalPrice")
     public BigDecimal getTotalPrice(
-            @WebParam(name = "roomType") String roomType, 
+            @WebParam(name = "roomType") String roomType,
             @WebParam(name = "checkInDate") Date checkInDate,
             @WebParam(name = "checkOutDate") Date checkOutDate
     ) throws AvailableRoomNotFoundException, RoomRateNotFoundException {
@@ -127,7 +129,7 @@ public class PartnerWebService {
         BigDecimal roomRate = this.guestRoomReservationSessionBeanLocal.getTotalPrice(roomType, checkInDate, checkOutDate, 1);
         return roomRate;
     }
-    
+
     @WebMethod(operationName = "onlineReserve")
     public void onlineReserve(
             @WebParam(name = "roomType") String roomType,
@@ -136,9 +138,9 @@ public class PartnerWebService {
             @WebParam(name = "checkOutDate") Date checkOutDate,
             @WebParam(name = "partnerId") Long partnerId,
             @WebParam(name = "guestId") Long guestId
-    ) throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, 
-            PartnerAddReservationException, RoomAddReservationException, PartnerNotFoundException, 
-            GuestNotFoundException, GuestAddReservationException, AvailableRoomNotFoundException {
+    ) throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException,
+            PartnerAddReservationException, RoomAddReservationException, PartnerNotFoundException,
+            GuestNotFoundException, GuestAddReservationException, AvailableRoomNotFoundException, InputDataValidationException {
         this.partnerRoomReservationLocal.onlineReserve(roomType, noOfRoom, checkInDate, checkOutDate, partnerId, guestId);
     }
 }

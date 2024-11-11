@@ -30,7 +30,7 @@ public interface GuestRoomReservationSessionBeanLocal {
 
     public RoomRate getCorrectRoomRate(String roomType, Date checkInDate, Date checkOutDate) throws RoomRateNotFoundException;
 
-    public void onlineReserve(String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long guestId) throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, GuestAddReservationException, RoomAddReservationException, GuestNotFoundException, InputDataValidationException;
+    public void onlineReserve(String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long guestId) throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, GuestAddReservationException, RoomAddReservationException, GuestNotFoundException, InputDataValidationException, AvailableRoomNotFoundException;
 
     public List<Room> searchAvailableRoom(String roomType, Date checkInDate, Date checkOutDate) throws AvailableRoomNotFoundException;
 

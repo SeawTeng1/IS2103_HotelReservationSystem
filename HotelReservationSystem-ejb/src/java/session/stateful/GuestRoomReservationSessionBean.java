@@ -51,7 +51,7 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
 
     @PersistenceContext()
     private EntityManager em;
-    
+
     // bean validation
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
@@ -60,7 +60,7 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
         this.validatorFactory = Validation.buildDefaultValidatorFactory();
         this.validator = validatorFactory.getValidator();
     }
-    
+
     /*
         3. Search Hotel Room
         Search an available room across all room types offered by the hotel according to the check-in date and check-out date.
@@ -76,7 +76,7 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
             throw e;
         }
     }
-    
+
     @Override
     public List<Room> searchAvailableRoomWithLimit(String roomType, Date checkInDate, Date checkOutDate, Integer limit) throws AvailableRoomNotFoundException {
         try {
@@ -86,36 +86,36 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
             throw e;
         }
     }
-    
+
     @Override
-    public BigDecimal getTotalPrice(String roomType, Date checkInDate, Date checkOutDate, Integer numOfRoom) 
+    public BigDecimal getTotalPrice(String roomType, Date checkInDate, Date checkOutDate, Integer numOfRoom)
             throws RoomRateNotFoundException, AvailableRoomNotFoundException {
         BigDecimal total = new BigDecimal(0);
-        
+
         try {
             List<Room> availableRoom = walkInRoomReservation.searchAvailableRoom(roomType, checkInDate, checkOutDate);
             if (availableRoom.size() >= numOfRoom) {
                 try {
                     RoomRate rate = this.getCorrectRoomRate(roomType, checkInDate, checkOutDate);
-                    
+
                     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd MM yyyy");
                     LocalDate date1 = LocalDate.parse(checkInDate.toString(), dtf);
                     LocalDate date2 = LocalDate.parse(checkOutDate.toString(), dtf);
                     long daysBetween = Duration.between(date1, date2).toDays();
-                    
+
                     total = rate.getRatePerNight().multiply(new BigDecimal(daysBetween)).multiply(new BigDecimal(numOfRoom));
                 } catch (RoomRateNotFoundException e) {
                     throw new RoomRateNotFoundException("Room rate for current room not found");
                 }
-                
+
             }
         } catch (AvailableRoomNotFoundException ex) {
             throw new AvailableRoomNotFoundException("No available room found, please try again.");
         }
-        
+
         return total;
     }
-    
+
     /*
         get rate
     */
@@ -128,7 +128,7 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
             .setParameter("roomType", roomType)
             .setParameter("rateType", RateType.NORMAL)
             .getSingleResult();
-        
+
         List<RoomRate> specialRateList = em.createQuery(
                 "SELECT rr FROM RoomRate rr WHERE "
                         + "rr.roomType.name = :roomType AND (rr.rateType = :peakType OR rr.rateType = :promoType)"
@@ -140,11 +140,11 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
             .setParameter("checkInDate", checkInDate)
             .setParameter("checkOutDate", checkOutDate)
             .getResultList();
-        
+
         if (normalRate == null) {
             throw new RoomRateNotFoundException("Room rate for current room not found");
         }
-        
+
         RoomRate specialRate = null;
         if (specialRateList != null) {
             for (RoomRate rate : specialRateList) {
@@ -153,35 +153,30 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
                 }
             }
         }
-        
+
         return specialRate != null ? specialRate : normalRate;
     }
-    
+
     /*
-        4. Reserve Hotel Room 
-        Reserve a room offered in the search results (see use case 
+        4. Reserve Hotel Room
+        Reserve a room offered in the search results (see use case
         It is possible for a guest to reserve more than one room.
         For same day check-in, allocate the required room(s) immediately if reservation is made after 2 am.
     */
-    
+
     @Override
-    public void onlineReserve (String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long guestId) 
-            throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, GuestAddReservationException, RoomAddReservationException, GuestNotFoundException, InputDataValidationException {
-        
+    public void onlineReserve (String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long guestId)
+            throws RoomRateNotFoundException, RoomTypeAddReservationException,
+            RoomRateAddReservationException, GuestAddReservationException, RoomAddReservationException,
+            GuestNotFoundException, InputDataValidationException, AvailableRoomNotFoundException {
+
         List<Room> selectedRoom = new ArrayList<Room>();
-        try {
-            selectedRoom = this.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, noOfRoom);
-        } catch (AvailableRoomNotFoundException ex) {
-            Logger.getLogger(GuestRoomReservationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
+        selectedRoom = this.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, noOfRoom);
+
+
         BigDecimal total = new BigDecimal(0);
-        try {
-            total = this.getTotalPrice(roomType, checkInDate, checkOutDate, noOfRoom);
-        } catch (AvailableRoomNotFoundException ex) {
-            Logger.getLogger(GuestRoomReservationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
+        total = this.getTotalPrice(roomType, checkInDate, checkOutDate, noOfRoom);
+
         Reservation reservation = new Reservation(checkInDate, checkOutDate, total, noOfRoom);
         Set<ConstraintViolation<Reservation>>constraintViolations = validator.validate(reservation);
         if (constraintViolations.isEmpty()) {
@@ -204,7 +199,7 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
                 throw new RoomRateNotFoundException("Published room rate for current room not found");
             }
 
-            if (today.equals(checkInDate) && 
+            if (today.equals(checkInDate) &&
                     (now.toLocalTime().equals(LocalTime.of(2, 0)) || now.toLocalTime().isAfter(LocalTime.of(2, 0)))) {
                 reservation.setRoomList(selectedRoom);
                 for (Room r : selectedRoom) {
@@ -235,15 +230,15 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
     }
-    
+
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Reservation>>constraintViolations) {
         String msg = "Input data validation error!:";
-            
+
         for(ConstraintViolation constraintViolation:constraintViolations)
         {
             msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
         }
-        
+
         return msg;
     }
 }

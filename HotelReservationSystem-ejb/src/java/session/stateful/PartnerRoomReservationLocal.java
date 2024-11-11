@@ -12,6 +12,7 @@ import javax.ejb.Local;
 import util.exception.AvailableRoomNotFoundException;
 import util.exception.GuestAddReservationException;
 import util.exception.GuestNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.PartnerAddReservationException;
 import util.exception.PartnerNotFoundException;
 import util.exception.RoomAddReservationException;
@@ -29,6 +30,6 @@ public interface PartnerRoomReservationLocal {
     public void onlineReserve(String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long partnerId, Long guestId) 
             throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, 
             PartnerAddReservationException, RoomAddReservationException, PartnerNotFoundException, GuestNotFoundException, 
-            GuestAddReservationException, AvailableRoomNotFoundException;
+            GuestAddReservationException, AvailableRoomNotFoundException, InputDataValidationException;
 
 }

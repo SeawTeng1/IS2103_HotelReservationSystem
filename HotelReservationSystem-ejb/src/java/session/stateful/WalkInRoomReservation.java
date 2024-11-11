@@ -40,8 +40,8 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
         get available room across all room types offered by the hotel according to the check-in date and check-out date
         reservation amount should be calculated based on the prevailing published rate
         need to check that there is enough inventory for new reservation for that room type
-    */ 
-    
+    */
+
     @Override
     public List<Room> searchAvailableRoom(String roomType, Date checkInDate, Date checkOutDate) throws AvailableRoomNotFoundException {
         List<Room> roomList = em.createQuery(
@@ -49,11 +49,11 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
             .setParameter("roomType", roomType)
             .setParameter("roomStatus", RoomStatus.UNAVAILABLE)
             .getResultList();
-        
+
         if (roomList.size() < 1) {
             throw new AvailableRoomNotFoundException("No available room found, please try again.");
         }
-        
+
         List<Room> availableRoom = new ArrayList<Room>();
         for (Room r : roomList) {
             List<Reservation> resList = r.getReservationList();
@@ -67,25 +67,25 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
                 }
             }
         }
-        
+
         // for inventory can just check if the number of room <= availableRoom.size()
         return availableRoom;
     }
-    
+
     public List<Room> searchAvailableRoomWithLimit(String roomType, Date checkInDate, Date checkOutDate, Integer limit) throws AvailableRoomNotFoundException {
         Query query = em.createQuery(
                 "SELECT r FROM Room r WHERE (r.roomType.name = :roomType AND r.disabled = false) OR r.roomStatus != 'UNAVAILABLE'")
             .setParameter("roomType", roomType);
-                
+
         if (limit != 0) {
             query.setMaxResults(limit);
         }
-        
+
         List<Room> roomList = query.getResultList();
         if (roomList.size() < 1) {
             throw new AvailableRoomNotFoundException("No available room found, please try again.");
         }
-        
+
         List<Room> availableRoom = new ArrayList<Room>();
         for (Room r : roomList) {
             List<Reservation> resList = r.getReservationList();
@@ -99,26 +99,26 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
                 }
             }
         }
-        
+
         // for inventory can just check if the number of room <= availableRoom.size()
         return availableRoom;
     }
-    
+
     @Override
-    public BigDecimal getTotalPrice(String roomType, Date checkInDate, Date checkOutDate, Integer numOfRoom) 
+    public BigDecimal getTotalPrice(String roomType, Date checkInDate, Date checkOutDate, Integer numOfRoom)
             throws RoomRateNotFoundException, AvailableRoomNotFoundException {
         BigDecimal total = new BigDecimal(0);
-        
+
         RoomRate rate = (RoomRate) em.createQuery(
                 "SELECT rr FROM RoomRate rr WHERE rr.roomType.name = :roomType AND rr.rateType = :rateType")
             .setParameter("roomType", roomType)
             .setParameter("rateType", RateType.PUBLISHED)
             .getSingleResult();
-        
+
         if (rate == null) {
             throw new RoomRateNotFoundException("Published room rate for current room not found");
         }
-        
+
         try {
             List<Room> availableRoom = this.searchAvailableRoom(roomType, checkInDate, checkOutDate);
             if (availableRoom.size() >= numOfRoom) {
@@ -127,10 +127,10 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
         } catch (AvailableRoomNotFoundException ex) {
             throw new AvailableRoomNotFoundException("No available room found, please try again.");
         }
-        
+
         return total;
     }
-    
+
     /*
         24. Walk-in Reserve Room
         walk-in guest can reserve more than one room.
@@ -138,11 +138,11 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
         For same day check-in, allocate the required room(s) immediately if reservation is made after 2 am.
     */
     @Override
-    public void walkInReserve (List<Room> selectedRoom, Date checkInDate, Date checkOutDate, BigDecimal total, Long employeeId) 
+    public void walkInReserve (List<Room> selectedRoom, Date checkInDate, Date checkOutDate, BigDecimal total, Long employeeId)
             throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, EmployeeAddReservationException {
         Reservation reservation = new Reservation(checkInDate, checkOutDate, total, selectedRoom.size());
         em.persist(reservation);
-        
+
         // Reservation: add roomList; roomType; roomRate;
         reservation.setRoomList(selectedRoom);
         reservation.setRoomType(selectedRoom.get(0).getRoomType());
@@ -151,13 +151,13 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
             .setParameter("roomType", selectedRoom.get(0).getRoomType())
             .setParameter("rateType", RateType.PUBLISHED)
             .getSingleResult();
-        
+
         if (rate == null) {
             throw new RoomRateNotFoundException("Published room rate for current room not found");
         }
-        
+
         reservation.setRoomRate(rate);
-        
+
         // Room: add reservationList;
         // Room Rate: add reservationList;
         // Room Type: reservationList
@@ -175,7 +175,7 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
         } catch (EmployeeAddReservationException ex) {
             throw new EmployeeAddReservationException("Reservation already added to Employee");
         }
-        
+
         for (Room r : selectedRoom) {
             r.getReservationList().add(reservation);
         }
