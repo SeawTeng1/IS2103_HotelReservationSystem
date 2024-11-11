@@ -4,11 +4,10 @@
  */
 package session.stateless;
 
-import entity.RoomAllocationExceptionReport;
-import java.util.List;
 import javax.ejb.Remote;
 import util.exception.InputDataValidationException;
 import util.exception.ReportExistException;
+import util.exception.ReservationNotFoundException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -16,9 +15,6 @@ import util.exception.UnknownPersistenceException;
  * @author priskilarebecca.p
  */
 @Remote
-public interface RoomAllocationExceptionReportSessionBeanRemote {
-    public RoomAllocationExceptionReport createReport(RoomAllocationExceptionReport newReport, Long reservationId) throws UnknownPersistenceException, ReportExistException, InputDataValidationException;
-
-    public List<RoomAllocationExceptionReport> viewAllReports();
-    
+public interface EjbTimerSessionBeanRemote {
+    public void roomToReservationAllocationTimer() throws ReservationNotFoundException, UnknownPersistenceException, InputDataValidationException, ReportExistException;
 }

@@ -5,14 +5,21 @@
 package session.stateless;
 
 import entity.Employee;
+import entity.Room;
 import entity.RoomType;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import util.exception.InputDataValidationException;
 import util.exception.RoomTypeDeleteException;
 import util.exception.RoomTypeExistException;
 import util.exception.RoomTypeNotFoundException;
@@ -31,30 +38,47 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     public void persist(Object object) {
         em.persist(object);
     }
+    
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
+    
+    
+    public RoomTypeSessionBean()
+    {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
 
     // Add business logic below. (Right-click in editor and choose
     // "Insert Code > Add Business Method")
     
     //7. Create New Room Type
     @Override
-    public RoomType createNewRoomType(RoomType newRoomType) throws RoomTypeExistException, UnknownPersistenceException {
-        try { 
-            insertNewRoomRank(newRoomType.getRoomRank(), newRoomType);
-            em.persist(newRoomType);
-            em.flush();
-            
-        } catch(PersistenceException ex) {
-            if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
-                if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
-                    throw new RoomTypeExistException("Room Type Already Exists!");
+    public RoomType createNewRoomType(RoomType newRoomType) throws RoomTypeExistException, UnknownPersistenceException, InputDataValidationException {
+         Set<ConstraintViolation<RoomType>>constraintViolations = validator.validate(newRoomType);
+        
+        if(constraintViolations.isEmpty()) {
+            try { 
+                insertNewRoomRank(newRoomType.getRoomRank(), newRoomType);
+                em.persist(newRoomType);
+                em.flush();
+
+            } catch(PersistenceException ex) {
+                if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
+                    if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
+                        throw new RoomTypeExistException("Room Type Already Exists!");
+                    } else {
+                        throw new UnknownPersistenceException(ex.getMessage());
+                    }
                 } else {
                     throw new UnknownPersistenceException(ex.getMessage());
                 }
-            } else {
-                throw new UnknownPersistenceException(ex.getMessage());
             }
+            return newRoomType;
+        } else {
+            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
-        return newRoomType;
     }
     
     //8. View Room Type Details - handle in main
@@ -143,5 +167,17 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
                 rt.setRoomRank(rt.getRoomRank() - 1);
             }
         }       
+    }
+    
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<RoomType>>constraintViolations)
+    {
+        String msg = "Input data validation error!:";
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+        
+        return msg;
     }
 }

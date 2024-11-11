@@ -8,6 +8,7 @@ import entity.Partner;
 import entity.Reservation;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.InputDataValidationException;
 import util.exception.PartnerExistException;
 import util.exception.PartnerInvalidPasswordException;
 import util.exception.PartnerNotFoundException;
@@ -20,7 +21,7 @@ import util.exception.UnknownPersistenceException;
  */
 @Remote
 public interface PartnerSessionBeanRemote {
-   public Partner createNewEmployee(Partner newPartner) throws PartnerExistException, UnknownPersistenceException;
+   public Partner createNewPartner(Partner newPartner) throws PartnerExistException, UnknownPersistenceException, InputDataValidationException;
 
     public List<Partner> viewAllPartners();
 
