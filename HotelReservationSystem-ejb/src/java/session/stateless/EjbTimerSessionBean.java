@@ -47,5 +47,4 @@ public class EjbTimerSessionBean implements EjbTimerSessionBeanRemote, EjbTimerS
         
         roomSessionBeanLocal.allocateRoomToReservation(todayDateAsDate);
     }
-    
 }

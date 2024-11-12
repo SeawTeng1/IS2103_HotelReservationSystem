@@ -5,6 +5,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -51,6 +52,7 @@ public class Guest implements Serializable {
     private List<Reservation> reservationList;
 
     public Guest() {
+        this.reservationList = new ArrayList<>();
     }
 
     public Guest(String firstName, String lastName, String passportNumber, String password) {
@@ -58,6 +60,7 @@ public class Guest implements Serializable {
         this.lastName = lastName;
         this.passportNumber = passportNumber;
         this.password = password;
+        this.reservationList = new ArrayList<>();
     }
     
     public Long getGuestId() {

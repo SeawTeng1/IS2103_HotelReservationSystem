@@ -13,9 +13,11 @@ import entity.RoomType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,6 +35,7 @@ import util.exception.GuestNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.PartnerAddReservationException;
 import util.exception.PartnerNotFoundException;
+import util.exception.ReservationAddRoomException;
 import util.exception.RoomAddReservationException;
 import util.exception.RoomRateAddReservationException;
 import util.exception.RoomRateNotFoundException;
@@ -70,13 +73,11 @@ public class PartnerRoomReservation implements PartnerRoomReservationRemote, Par
         For same day check-in, allocate the required room
     */
     @Override
-    public void onlineReserve(String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long partnerId, Long guestId)
+    public Reservation onlineReserve(String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long partnerId, Long guestId)
             throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException,
             PartnerAddReservationException, RoomAddReservationException, PartnerNotFoundException,
-            GuestNotFoundException, GuestAddReservationException, AvailableRoomNotFoundException, InputDataValidationException {
-
-        List<Room> selectedRoom = new ArrayList<Room>();
-        selectedRoom = guestRoomReservationSessionBeanLocal.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, noOfRoom);
+            GuestNotFoundException, GuestAddReservationException, AvailableRoomNotFoundException, InputDataValidationException, ReservationAddRoomException {
+         List<Room> selectedRoom = guestRoomReservationSessionBeanLocal.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, noOfRoom);
 
         BigDecimal total = new BigDecimal(0);
         total = guestRoomReservationSessionBeanLocal.getTotalPrice(roomType, checkInDate, checkOutDate, noOfRoom);
@@ -89,7 +90,6 @@ public class PartnerRoomReservation implements PartnerRoomReservationRemote, Par
             // Reservation: add roomList; roomType; roomRate;
             // add roomList only if the reservation is same day check in and is after 2am
             LocalDateTime now = LocalDateTime.now();
-            Date today = new Date();
 
             // get room rate
             RoomRate rate = guestRoomReservationSessionBeanLocal.getCorrectRoomRate(selectedRoom.get(0).getRoomType().getName(), checkInDate, checkOutDate);
@@ -107,17 +107,23 @@ public class PartnerRoomReservation implements PartnerRoomReservationRemote, Par
             if (rate == null) {
                 throw new RoomRateNotFoundException("Published room rate for current room not found");
             }
+            
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+            LocalDateTime parsedDateTime = LocalDateTime.parse(checkInDate.toString(), dtf);
+            LocalDateTime today = LocalDateTime.parse((new Date()).toString(), dtf);
 
-            if (today.equals(checkInDate) &&
+            if (parsedDateTime.toLocalDate().isEqual(today.toLocalDate()) &&
                     (now.toLocalTime().equals(LocalTime.of(2, 0)) || now.toLocalTime().isAfter(LocalTime.of(2, 0)))) {
-                reservation.setRoomList(selectedRoom);
                 for (Room r : selectedRoom) {
+                    reservation.addRoom(r);
                     r.addReservation(reservation);
                 }
             }
 
             reservation.setRoomType(selectedRoom.get(0).getRoomType());
             reservation.setRoomRate(rate);
+            reservation.setGuest(guest);
+            reservation.setPartner(partner);
 
             // Room: add reservationList;
             // Room Rate: add reservationList;
@@ -138,6 +144,8 @@ public class PartnerRoomReservation implements PartnerRoomReservationRemote, Par
             }  catch (GuestAddReservationException ex) {
                 throw new GuestAddReservationException("Reservation already added to Employee");
             }
+            
+            return reservation;
         }   else {
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }

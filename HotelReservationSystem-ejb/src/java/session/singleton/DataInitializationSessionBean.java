@@ -5,6 +5,7 @@
 package session.singleton;
 
 import entity.Employee;
+import entity.Guest;
 import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
@@ -18,10 +19,13 @@ import javax.ejb.Singleton;
 import javax.ejb.LocalBean;
 import javax.ejb.Startup;
 import session.stateless.EmployeeSessionBeanLocal;
+import session.stateless.GuestSessionBeanLocal;
 import session.stateless.RoomRateSessionBeanLocal;
 import session.stateless.RoomSessionBeanLocal;
 import session.stateless.RoomTypeSessionBeanLocal;
 import util.exception.EmployeeExistException;
+import util.exception.EmployeeNotFoundException;
+import util.exception.GuestExistException;
 import util.exception.InputDataValidationException;
 import util.exception.PersistentContextException;
 import util.exception.RoomExistException;
@@ -43,6 +47,9 @@ import util.exception.UnknownPersistenceException;
 public class DataInitializationSessionBean {
 
     @EJB
+    private GuestSessionBeanLocal guestSessionBean;
+
+    @EJB
     private RoomTypeSessionBeanLocal roomTypeSessionBeanLocal;
 
     @EJB
@@ -53,6 +60,8 @@ public class DataInitializationSessionBean {
 
     @EJB
     private EmployeeSessionBeanLocal employeeSessionBeanLocal;
+    
+    
 
     public DataInitializationSessionBean() {
     }
@@ -61,6 +70,11 @@ public class DataInitializationSessionBean {
     public void postConstruct()
     {
         // if data not found then do the init
+        try {
+            employeeSessionBeanLocal.retrieveEmployeebyUsername("sysadmin");
+        } catch (EmployeeNotFoundException ex) {
+            initializeData();
+        }
     }
     
     private void initializeData()
@@ -145,37 +159,40 @@ public class DataInitializationSessionBean {
             grand.addRoomRate(grandNor);
             
             // room
-            roomSessionBeanLocal.createNewRoom(new Room(0101, RoomStatus.AVAILABLE), "Deluxe Room");
-            roomSessionBeanLocal.createNewRoom(new Room(0201, RoomStatus.AVAILABLE), "Deluxe Room");
-            roomSessionBeanLocal.createNewRoom(new Room(0301, RoomStatus.AVAILABLE), "Deluxe Room");
-            roomSessionBeanLocal.createNewRoom(new Room(0401, RoomStatus.AVAILABLE), "Deluxe Room");
-            roomSessionBeanLocal.createNewRoom(new Room(0501, RoomStatus.AVAILABLE), "Deluxe Room");
+            roomSessionBeanLocal.createNewRoom(new Room("0101", RoomStatus.AVAILABLE), "Deluxe Room");
+            roomSessionBeanLocal.createNewRoom(new Room("0201", RoomStatus.AVAILABLE), "Deluxe Room");
+            roomSessionBeanLocal.createNewRoom(new Room("0301", RoomStatus.AVAILABLE), "Deluxe Room");
+            roomSessionBeanLocal.createNewRoom(new Room("0401", RoomStatus.AVAILABLE), "Deluxe Room");
+            roomSessionBeanLocal.createNewRoom(new Room("0501", RoomStatus.AVAILABLE), "Deluxe Room");
             
-            roomSessionBeanLocal.createNewRoom(new Room(0102, RoomStatus.AVAILABLE), "Premier Room");
-            roomSessionBeanLocal.createNewRoom(new Room(0202, RoomStatus.AVAILABLE), "Premier Room");
-            roomSessionBeanLocal.createNewRoom(new Room(0302, RoomStatus.AVAILABLE), "Premier Room");
-            roomSessionBeanLocal.createNewRoom(new Room(0402, RoomStatus.AVAILABLE), "Premier Room");
-            roomSessionBeanLocal.createNewRoom(new Room(0502, RoomStatus.AVAILABLE), "Premier Room");
+            roomSessionBeanLocal.createNewRoom(new Room("0102", RoomStatus.AVAILABLE), "Premier Room");
+            roomSessionBeanLocal.createNewRoom(new Room("0202", RoomStatus.AVAILABLE), "Premier Room");
+            roomSessionBeanLocal.createNewRoom(new Room("0302", RoomStatus.AVAILABLE), "Premier Room");
+            roomSessionBeanLocal.createNewRoom(new Room("0402", RoomStatus.AVAILABLE), "Premier Room");
+            roomSessionBeanLocal.createNewRoom(new Room("0502", RoomStatus.AVAILABLE), "Premier Room");
             
-            roomSessionBeanLocal.createNewRoom(new Room(0103, RoomStatus.AVAILABLE), "Family Room");
-            roomSessionBeanLocal.createNewRoom(new Room(0203, RoomStatus.AVAILABLE), "Family Room");
-            roomSessionBeanLocal.createNewRoom(new Room(0303, RoomStatus.AVAILABLE), "Family Room");
-            roomSessionBeanLocal.createNewRoom(new Room(0403, RoomStatus.AVAILABLE), "Family Room");
-            roomSessionBeanLocal.createNewRoom(new Room(0503, RoomStatus.AVAILABLE), "Family Room");
+            roomSessionBeanLocal.createNewRoom(new Room("0103", RoomStatus.AVAILABLE), "Family Room");
+            roomSessionBeanLocal.createNewRoom(new Room("0203", RoomStatus.AVAILABLE), "Family Room");
+            roomSessionBeanLocal.createNewRoom(new Room("0303", RoomStatus.AVAILABLE), "Family Room");
+            roomSessionBeanLocal.createNewRoom(new Room("0403", RoomStatus.AVAILABLE), "Family Room");
+            roomSessionBeanLocal.createNewRoom(new Room("0503", RoomStatus.AVAILABLE), "Family Room");
             
-            roomSessionBeanLocal.createNewRoom(new Room(0104, RoomStatus.AVAILABLE), "Junior Suite");
-            roomSessionBeanLocal.createNewRoom(new Room(0204, RoomStatus.AVAILABLE), "Junior Suite");
-            roomSessionBeanLocal.createNewRoom(new Room(0304, RoomStatus.AVAILABLE), "Junior Suite");
-            roomSessionBeanLocal.createNewRoom(new Room(0404, RoomStatus.AVAILABLE), "Junior Suite");
-            roomSessionBeanLocal.createNewRoom(new Room(0504, RoomStatus.AVAILABLE), "Junior Suite");
+            roomSessionBeanLocal.createNewRoom(new Room("0104", RoomStatus.AVAILABLE), "Junior Suite");
+            roomSessionBeanLocal.createNewRoom(new Room("0204", RoomStatus.AVAILABLE), "Junior Suite");
+            roomSessionBeanLocal.createNewRoom(new Room("0304", RoomStatus.AVAILABLE), "Junior Suite");
+            roomSessionBeanLocal.createNewRoom(new Room("0404", RoomStatus.AVAILABLE), "Junior Suite");
+            roomSessionBeanLocal.createNewRoom(new Room("0504", RoomStatus.AVAILABLE), "Junior Suite");
             
-            roomSessionBeanLocal.createNewRoom(new Room(0105, RoomStatus.AVAILABLE), "Grand Suite");
-            roomSessionBeanLocal.createNewRoom(new Room(0205, RoomStatus.AVAILABLE), "Grand Suite");
-            roomSessionBeanLocal.createNewRoom(new Room(0305, RoomStatus.AVAILABLE), "Grand Suite");
-            roomSessionBeanLocal.createNewRoom(new Room(0405, RoomStatus.AVAILABLE), "Grand Suite");
-            roomSessionBeanLocal.createNewRoom(new Room(0505, RoomStatus.AVAILABLE), "Grand Suite");
+            roomSessionBeanLocal.createNewRoom(new Room("0105", RoomStatus.AVAILABLE), "Grand Suite");
+            roomSessionBeanLocal.createNewRoom(new Room("0205", RoomStatus.AVAILABLE), "Grand Suite");
+            roomSessionBeanLocal.createNewRoom(new Room("0305", RoomStatus.AVAILABLE), "Grand Suite");
+            roomSessionBeanLocal.createNewRoom(new Room("0405", RoomStatus.AVAILABLE), "Grand Suite");
+            roomSessionBeanLocal.createNewRoom(new Room("0505", RoomStatus.AVAILABLE), "Grand Suite");
+            
+            // Testing
+            guestSessionBean.createGuest(new Guest("ss", "sss", "1234567A", "12345678"));
         }
-        catch(RoomTypeDisabledException | RoomExistException | RoomTypeNotFoundException | RoomTypeAddRoomRateException | PersistentContextException | RoomRateExistException | RoomTypeExistException | EmployeeExistException | UnknownPersistenceException | InputDataValidationException ex)
+        catch(GuestExistException | RoomTypeDisabledException | RoomExistException | RoomTypeNotFoundException | RoomTypeAddRoomRateException | PersistentContextException | RoomRateExistException | RoomTypeExistException | EmployeeExistException | UnknownPersistenceException | InputDataValidationException ex)
         {
             ex.printStackTrace();
         }

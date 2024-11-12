@@ -6,6 +6,7 @@ package entity;
 
 import enumeration.RoleType;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -48,12 +49,14 @@ public class Employee implements Serializable {
     private List<Reservation> reservationList;
 
     public Employee() {
+        this.reservationList = new ArrayList<>();
     }
 
     public Employee(String username, String password, RoleType roleType) {
         this.username = username;
         this.password = password;
         this.roleType = roleType;
+        this.reservationList = new ArrayList<>();
     }
 
     public Long getEmployeeId() {

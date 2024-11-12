@@ -16,9 +16,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,6 +36,7 @@ import util.exception.AvailableRoomNotFoundException;
 import util.exception.GuestAddReservationException;
 import util.exception.GuestNotFoundException;
 import util.exception.InputDataValidationException;
+import util.exception.ReservationAddRoomException;
 import util.exception.RoomAddReservationException;
 import util.exception.RoomRateAddReservationException;
 import util.exception.RoomRateNotFoundException;
@@ -98,10 +101,11 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
                 try {
                     RoomRate rate = this.getCorrectRoomRate(roomType, checkInDate, checkOutDate);
 
-                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd MM yyyy");
+                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
                     LocalDate date1 = LocalDate.parse(checkInDate.toString(), dtf);
                     LocalDate date2 = LocalDate.parse(checkOutDate.toString(), dtf);
-                    long daysBetween = Duration.between(date1, date2).toDays();
+                    long daysBetween = ChronoUnit.DAYS.between(date1, date2);
+
 
                     total = rate.getRatePerNight().multiply(new BigDecimal(daysBetween)).multiply(new BigDecimal(numOfRoom));
                 } catch (RoomRateNotFoundException e) {
@@ -165,14 +169,12 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
     */
 
     @Override
-    public void onlineReserve (String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long guestId)
+    public Reservation onlineReserve (String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long guestId)
             throws RoomRateNotFoundException, RoomTypeAddReservationException,
             RoomRateAddReservationException, GuestAddReservationException, RoomAddReservationException,
-            GuestNotFoundException, InputDataValidationException, AvailableRoomNotFoundException {
+            GuestNotFoundException, InputDataValidationException, AvailableRoomNotFoundException, ReservationAddRoomException {
 
-        List<Room> selectedRoom = new ArrayList<Room>();
-        selectedRoom = this.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, noOfRoom);
-
+        List<Room> selectedRoom = this.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, noOfRoom);
 
         BigDecimal total = new BigDecimal(0);
         total = this.getTotalPrice(roomType, checkInDate, checkOutDate, noOfRoom);
@@ -180,12 +182,9 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
         Reservation reservation = new Reservation(checkInDate, checkOutDate, total, noOfRoom);
         Set<ConstraintViolation<Reservation>>constraintViolations = validator.validate(reservation);
         if (constraintViolations.isEmpty()) {
-            em.persist(reservation);
-
             // Reservation: add roomList; roomType; roomRate;
             // add roomList only if the reservation is same day check in and is after 2am
             LocalDateTime now = LocalDateTime.now();
-            Date today = new Date();
 
             // get room rate
             RoomRate rate = this.getCorrectRoomRate(roomType, checkInDate, checkOutDate);
@@ -198,17 +197,22 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
             if (rate == null) {
                 throw new RoomRateNotFoundException("Published room rate for current room not found");
             }
+            
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+            LocalDateTime parsedDateTime = LocalDateTime.parse(checkInDate.toString(), dtf);
+            LocalDateTime today = LocalDateTime.parse((new Date()).toString(), dtf);
 
-            if (today.equals(checkInDate) &&
+            if (parsedDateTime.toLocalDate().isEqual(today.toLocalDate()) &&
                     (now.toLocalTime().equals(LocalTime.of(2, 0)) || now.toLocalTime().isAfter(LocalTime.of(2, 0)))) {
-                reservation.setRoomList(selectedRoom);
                 for (Room r : selectedRoom) {
+                    reservation.addRoom(r);
                     r.addReservation(reservation);
                 }
             }
 
             reservation.setRoomType(selectedRoom.get(0).getRoomType());
             reservation.setRoomRate(rate);
+            reservation.setGuest(guest);
 
             // Room: add reservationList;
             // Room Rate: add reservationList;
@@ -219,6 +223,8 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
                 type.addReservation(reservation);
                 rate.addReservation(reservation);
                 guest.addReservation(reservation);
+                
+                em.persist(reservation);
             } catch (RoomTypeAddReservationException ex) {
                 throw new RoomTypeAddReservationException("Reservation already added to room type");
             } catch (RoomRateAddReservationException ex) {
@@ -226,6 +232,8 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
             } catch (GuestAddReservationException ex) {
                 throw new GuestAddReservationException("Reservation already added to Employee");
             }
+            
+            return reservation;
         }  else {
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }

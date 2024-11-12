@@ -38,10 +38,11 @@ public class MainApp {
         {
             System.out.println("*** Welcome to Holiday Reservation System ***\n");
             System.out.println("1: Partner Login");
-            System.out.println("2: Exit\n");
+            System.out.println("2: Search Hotel Room");
+            System.out.println("3: Exit\n");
             response = 0;
             
-            while(response < 1 || response > 2)
+            while(response < 1 || response > 3)
             {
                 System.out.print(" > ");
 
@@ -57,6 +58,10 @@ public class MainApp {
                 }
                 else if (response == 2)
                 {
+                    searchReserveRoom();
+                }
+                else if (response == 3)
+                {
                     break;
                 }
                 else
@@ -65,7 +70,7 @@ public class MainApp {
                 }
             }
             
-            if(response == 2)
+            if(response == 3)
             {
                 break;
             }
@@ -96,7 +101,7 @@ public class MainApp {
         while(true)
         {
             System.out.println("*** Welcome to Holiday Reservation System: Reservation Service ***\n");
-            System.out.println("1: Reserve Hotel Room");
+            System.out.println("1: Search and Reserve Hotel Room");
             System.out.println("2: View Partner Reservation Details");
             System.out.println("3: View All Partner Reservations");
             System.out.println("4: Exit\n");
@@ -176,7 +181,11 @@ public class MainApp {
     public void searchReserveRoom() {
         // search room
         Scanner scanner = new Scanner(System.in);
-        System.out.println("*** Welcome to Holiday Reservation System: Search and Reserve Hotel Room ***\n");
+        if (this.partner != null) {
+            System.out.println("*** Welcome to Holiday Reservation System: Search and Reserve Hotel Room ***\n");
+        } else {
+            System.out.println("*** Welcome to Holiday Reservation System: Search Hotel Room ***\n");
+        }
         // validate Date is future date
         
         Date checkInDate;
@@ -185,11 +194,12 @@ public class MainApp {
         while (true) {
             System.out.print("Enter Check In Date (MM/DD/YYYY) >");
             checkInDate = new Date(scanner.nextLine().trim());
+            checkInDate.setTime(checkInDate.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
             System.out.print("Enter Check Out Date (MM/DD/YYYY) > ");
             checkOutDate = new Date(scanner.nextLine().trim());
             
             // invalid
-            if (checkInDate.before(new Date())) {
+            if (checkInDate.before(new Date()) && !checkInDate.equals(checkOutDate)) {
                 System.out.println("Check In Date cannot be a past date");
             } else if (checkOutDate.before(new Date())) {
                 System.out.println("Check Out Date cannot be a past date");
@@ -199,9 +209,6 @@ public class MainApp {
                 break;
             }
         }
-        
-        System.out.print("Enter Guest Id >");
-        Long guestId = scanner.nextLong();
         
         System.out.println("*** Available Room Types ***\n");
         Integer count = 0;
@@ -213,8 +220,9 @@ public class MainApp {
                     BigDecimal roomRate = this.service.getPartnerWebServicePort().getTotalPrice(
                             type, convertDateToXMLGregorianCalendar(checkInDate), convertDateToXMLGregorianCalendar(checkOutDate));
                     System.out.println("Room Type: " + type);
-                    System.out.print(" No of Room Available: " + roomList.size());
-                    System.out.print(" Room Rate: $" + roomRate);
+                    System.out.println("No of Room Available: " + roomList.size());
+                    System.out.println("Room Rate: $" + roomRate);
+                    System.out.println("-----------------------------------------------");
                 }
                 
                 count++;
@@ -225,60 +233,39 @@ public class MainApp {
         
         if (count < 1) {
             System.out.println("No Available Room between " + checkInDate.toString() + " to " + checkOutDate.toString());
-        } else {        
-            Integer response = 0;
-            while(true)
-            {
-                System.out.println("1: Reserve Hotel Room");
-                System.out.println("2: Exit\n");
-                response = 0;
+        } else {
+            if (this.partner != null) {
+                System.out.println("*** Reserve Hotel Room between" + checkInDate.toString() + " to " + checkOutDate.toString() + " ***");
+                System.out.print("Enter Room Type> ");
+                String roomType = scanner.nextLine().trim();
 
-                while(response < 1 || response > 2) {
-                    System.out.print(" > ");
-                    response = scanner.nextInt();
-                    if(response == 1)
-                    {
-                        System.out.println("*** Reserve Hotel Room between" + checkInDate.toString() + " to " + checkOutDate.toString() + " ***");
-                        System.out.print("Enter Room Type> ");
-                        String roomType = scanner.nextLine().trim();
+                // will just assume that user will not input 0
+                System.out.print("Enter No of Room> ");
+                Integer noOfRoom = scanner.nextInt();
 
-                        // will just assume that user will not input 0
-                        System.out.print("Enter No of Room> ");
-                        Integer noOfRoom = scanner.nextInt();
+                System.out.print("Enter Guest Id >");
+                Long guestId = scanner.nextLong();
 
-                        try {
-                            this.service.getPartnerWebServicePort().onlineReserve(
-                                roomType, noOfRoom, 
-                                    convertDateToXMLGregorianCalendar(checkInDate), 
-                                    convertDateToXMLGregorianCalendar(checkOutDate), this.partner.getPartnerId(), guestId);
+                try {
+                    Reservation reservation = this.service.getPartnerWebServicePort().onlineReserve(
+                        roomType, noOfRoom, 
+                            convertDateToXMLGregorianCalendar(checkInDate), 
+                            convertDateToXMLGregorianCalendar(checkOutDate), this.partner.getPartnerId(), guestId);
 
-                            System.out.println("Room Successfully Reserved");
-                        } catch (ws.partner.RoomRateNotFoundException_Exception | 
-                                ws.partner.RoomTypeAddReservationException_Exception | 
-                                ws.partner.RoomRateAddReservationException_Exception | 
-                                ws.partner.PartnerAddReservationException_Exception | 
-                                ws.partner.RoomAddReservationException_Exception | 
-                                ws.partner.PartnerNotFoundException_Exception |
-                                ws.partner.AvailableRoomNotFoundException_Exception |
-                                ws.partner.GuestAddReservationException_Exception |
-                                ws.partner.GuestNotFoundException_Exception ex) {
-                            System.out.println(ex.getMessage());
-                        }
-                    }
-                    else if(response == 2)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        System.out.println("Invalid option, please try again!\n");                
-                    }
+                    System.out.println("Reservation Id: " + reservation.getReservationId() + " Successfully Created");
+                } catch (ws.partner.RoomRateNotFoundException_Exception | 
+                        ws.partner.RoomTypeAddReservationException_Exception | 
+                        ws.partner.RoomRateAddReservationException_Exception | 
+                        ws.partner.PartnerAddReservationException_Exception | 
+                        ws.partner.RoomAddReservationException_Exception | 
+                        ws.partner.PartnerNotFoundException_Exception |
+                        ws.partner.AvailableRoomNotFoundException_Exception |
+                        ws.partner.GuestAddReservationException_Exception |
+                        ws.partner.GuestNotFoundException_Exception ex) {
+                    System.out.println(ex.getMessage());
                 }
-
-                if(response == 2)
-                {
-                    break;
-                }
+            } else {
+                 System.out.println("Please login to reserve the available room.");
             }
         }
     }
@@ -311,7 +298,7 @@ public class MainApp {
                 System.out.println("Check In Date: " + reservation.getCheckInDate());
                 System.out.println("Check Out Date: " + reservation.getCheckOutDate());
                 System.out.println("Room Type: " + reservation.getRoomType().getName());
-                System.out.println("No of Room: " + reservation.getCheckOutDate());
+                System.out.println("No of Room: " + reservation.getNumOfRoom());
                 System.out.println("Total Price: " + reservation.getTotalPrice());
             }
         } catch (ws.partner.ReservationForPartnerNotFoundException_Exception ex) {
@@ -326,18 +313,15 @@ public class MainApp {
             
             if (!reservationList.isEmpty()) {
                 System.out.println("*** Reservations Records ***\n");
-                Integer count = 1;
                 for (Reservation res : reservationList) {
-                    System.out.print(count + ".");
-                    System.out.print(" Reservation Id: " + res.getReservationId());
-                    System.out.print(" Guest Id: " + res.getGuest().getGuestId());
-                    System.out.print(" Check In Date: " + res.getCheckInDate());
-                    System.out.print(" Check Out Date: " + res.getCheckOutDate());
-                    System.out.print(" Room Type: " + res.getRoomType().getName());
-                    System.out.print(" No of Room: " + res.getCheckOutDate());
-                    System.out.print(" Total Price: " + res.getTotalPrice() + "\n");
-                    
-                    count++;
+                    System.out.println(" Reservation Id: " + res.getReservationId());
+                    System.out.println("Guest Id: " + res.getGuest().getGuestId());
+                    System.out.println("Check In Date: " + res.getCheckInDate());
+                    System.out.println(" Check Out Date: " + res.getCheckOutDate());
+                    System.out.println("Room Type: " + res.getRoomType().getName());
+                    System.out.println("No of Room: " + res.getNumOfRoom());
+                    System.out.println("Total Price: " + res.getTotalPrice());
+                    System.out.println("-----------------------------------------------");
                 }
             }
         } catch (ws.partner.ReservationListForPartnerNotFoundException_Exception ex) {

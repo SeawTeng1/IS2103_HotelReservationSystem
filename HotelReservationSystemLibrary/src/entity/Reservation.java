@@ -6,6 +6,7 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
@@ -70,14 +71,15 @@ public class Reservation implements Serializable {
     private Partner partner;
     
     @ManyToMany
-    @JoinTable(name = "ReservationRecord")
+    @JoinTable(name = "ReservationRecord", joinColumns =
+    @JoinColumn(name = "ROOM_ID"), inverseJoinColumns = @JoinColumn(name = "RESERVATION_ID"))
     private List<Room> roomList;
     
-    @ManyToOne(optional = false, cascade = {}, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, cascade = {}, fetch = FetchType.EAGER)
     @JoinColumn(nullable = false)
     private RoomType roomType;
     
-    @ManyToOne(optional = false, cascade = {}, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, cascade = {}, fetch = FetchType.EAGER)
     @JoinColumn(nullable = false)
     private RoomRate roomRate;
     
@@ -85,6 +87,7 @@ public class Reservation implements Serializable {
     private RoomAllocationExceptionReport report;
     
     public Reservation() {
+        this.roomList = new ArrayList<>();
     }
 
     public Reservation(Date checkInDate, Date checkOutDate, BigDecimal totalPrice, Integer numOfRoom) {
@@ -92,6 +95,7 @@ public class Reservation implements Serializable {
         this.checkOutDate = checkOutDate;
         this.totalPrice = totalPrice;
         this.numOfRoom = numOfRoom;
+        this.roomList = new ArrayList<>();
     }
 
     public Long getReservationId() {

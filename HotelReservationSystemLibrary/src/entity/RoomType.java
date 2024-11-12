@@ -6,6 +6,7 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -77,10 +78,13 @@ public class RoomType implements Serializable {
     private List<RoomRate> roomRateList;
     
     //unidirectional
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     private RoomType higherRoomType;
 
     public RoomType() {
+        this.reservationList = new ArrayList<>();
+        this.roomList = new ArrayList<>();
+        this.roomRateList = new ArrayList<>();
     }
 
     public RoomType(String name, String description, BigDecimal size, Integer beds, Integer capacity, String amenities, Boolean disabled, Integer roomRank) {
@@ -92,10 +96,18 @@ public class RoomType implements Serializable {
         this.amenities = amenities;
         this.disabled = disabled;
         this.roomRank = roomRank;
+        
+        this.reservationList = new ArrayList<>();
+        this.roomList = new ArrayList<>();
+        this.roomRateList = new ArrayList<>();
     }
 
     public RoomType(String name) {
         this.name = name;
+        
+        this.reservationList = new ArrayList<>();
+        this.roomList = new ArrayList<>();
+        this.roomRateList = new ArrayList<>();
     }
         
     public Long getRoomTypeId() {

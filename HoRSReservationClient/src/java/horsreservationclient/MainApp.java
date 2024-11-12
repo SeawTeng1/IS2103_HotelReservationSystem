@@ -21,6 +21,7 @@ import util.exception.GuestNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidCredentialException;
 import util.exception.PersistentContextException;
+import util.exception.ReservationAddRoomException;
 import util.exception.ReservationForGuestNotFoundException;
 import util.exception.ReservationListForGuestNotFoundException;
 import util.exception.RoomAddReservationException;
@@ -56,10 +57,11 @@ public class MainApp {
             System.out.println("*** Welcome to HoRS Reservation System ***\n");
             System.out.println("1: Guest Login");
             System.out.println("2: Register as Guest");
-            System.out.println("3: Exit\n");
+            System.out.println("3: Search Hotel Room");
+            System.out.println("4: Exit\n");
             response = 0;
             
-            while(response < 1 || response > 3)
+            while(response < 1 || response > 4)
             {
                 System.out.print(" > ");
 
@@ -79,6 +81,10 @@ public class MainApp {
                 }
                 else if (response == 3)
                 {
+                    searchReserveRoom();
+                }
+                else if (response == 4)
+                {
                     break;
                 }
                 else
@@ -87,7 +93,7 @@ public class MainApp {
                 }
             }
             
-            if(response == 3)
+            if(response == 4)
             {
                 break;
             }
@@ -219,7 +225,11 @@ public class MainApp {
     public void searchReserveRoom() {
         // search room
         Scanner scanner = new Scanner(System.in);
-        System.out.println("*** Welcome to HoRS Reservation System: Search and Reserve Hotel Room ***\n");
+        if (this.guest != null) {
+            System.out.println("*** Welcome to HoRS Reservation System: Search and Reserve Hotel Room ***\n");
+        } else {
+            System.out.println("*** Welcome to HoRS Reservation System: Search Hotel Room ***\n");
+        }
         // validate Date is future date
         
         Date checkInDate;
@@ -228,6 +238,7 @@ public class MainApp {
         while (true) {
             System.out.print("Enter Check In Date (MM/DD/YYYY) >");
             checkInDate = new Date(scanner.nextLine().trim());
+            checkInDate.setTime(checkInDate.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
             System.out.print("Enter Check Out Date (MM/DD/YYYY) > ");
             checkOutDate = new Date(scanner.nextLine().trim());
             
@@ -251,8 +262,9 @@ public class MainApp {
                 if (!roomList.isEmpty()) {
                     BigDecimal roomRate = this.guestRoomReservationSessionBeanRemote.getTotalPrice(type, checkInDate, checkOutDate, 1);
                     System.out.println("Room Type: " + type);
-                    System.out.print(" No of Room Available: " + roomList.size());
-                    System.out.print(" Room Rate: $" + roomRate);
+                    System.out.println("No of Room Available: " + roomList.size());
+                    System.out.println("Room Rate: $" + roomRate);
+                    System.out.println("-----------------------------------------------");
                 }
                 
                 count++;
@@ -263,57 +275,36 @@ public class MainApp {
         
         if (count < 1) {
             System.out.println("No Available Room between " + checkInDate.toString() + " to " + checkOutDate.toString());
-        } else {        
-            Integer response = 0;
-            while(true)
-            {
-                System.out.println("1: Reserve Hotel Room");
-                System.out.println("2: Exit\n");
-                response = 0;
+        } else {
+            if (this.guest != null) {
+                System.out.println("\"*** Welcome to HoRS Reservation System: Reserve Hotel Room ***\n");
 
-                while(response < 1 || response > 2) {
-                    System.out.print(" > ");
-                    response = scanner.nextInt();
-                    if(response == 1)
-                    {
-                        System.out.println("*** Reserve Hotel Room between" + checkInDate.toString() + " to " + checkOutDate.toString() + " ***");
-                        System.out.print("Enter Room Type> ");
-                        String roomType = scanner.nextLine().trim();
+                System.out.println("*** Reserve Hotel Room between" + checkInDate.toString() + " to " + checkOutDate.toString() + " ***");
+                System.out.print("Enter Room Type> ");
+                String roomType = scanner.nextLine().trim();
 
-                        // will just assume that user will not input 0
-                        System.out.print("Enter No of Room> ");
-                        Integer noOfRoom = scanner.nextInt();
+                // will just assume that user will not input 0
+                System.out.print("Enter No of Room> ");
+                Integer noOfRoom = scanner.nextInt();
 
-                        try {
-                            this.guestRoomReservationSessionBeanRemote.onlineReserve(
-                                roomType, noOfRoom, checkInDate, checkOutDate, this.guest.getGuestId());
+                try {
+                    Reservation reservation = this.guestRoomReservationSessionBeanRemote.onlineReserve(
+                        roomType, noOfRoom, checkInDate, checkOutDate, this.guest.getGuestId());
 
-                            System.out.println("Room Successfully Reserved");
-                        } catch (RoomRateNotFoundException | 
-                                RoomTypeAddReservationException | 
-                                RoomRateAddReservationException | 
-                                GuestAddReservationException | 
-                                RoomAddReservationException | 
-                                GuestNotFoundException |
-                                AvailableRoomNotFoundException |
-                                InputDataValidationException ex) {
-                            System.out.println(ex.getMessage());
-                        }
-                    }
-                    else if(response == 2)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        System.out.println("Invalid option, please try again!\n");                
-                    }
+                    System.out.println("Reservation Id: " + reservation.getReservationId() + " Successfully Created");
+                } catch (RoomRateNotFoundException | 
+                        RoomTypeAddReservationException | 
+                        RoomRateAddReservationException | 
+                        GuestAddReservationException | 
+                        RoomAddReservationException | 
+                        GuestNotFoundException |
+                        AvailableRoomNotFoundException |
+                        InputDataValidationException | 
+                        ReservationAddRoomException ex) {
+                    System.out.println(ex.getMessage());
                 }
-
-                if(response == 2)
-                {
-                    break;
-                }
+            } else {
+                System.out.println("Please login to reserve the available room.");
             }
         }
     }
@@ -328,15 +319,13 @@ public class MainApp {
                 System.out.println("*** Reservations Records ***\n");
                 Integer count = 1;
                 for (Reservation res : reservationList) {
-                    System.out.print(count + ".");
-                    System.out.print(" Reservation Id: " + res.getReservationId());
-                    System.out.print(" Check In Date: " + res.getCheckInDate());
-                    System.out.print(" Check Out Date: " + res.getCheckOutDate());
-                    System.out.print(" Room Type: " + res.getRoomType().getName());
-                    System.out.print(" No of Room: " + res.getCheckOutDate());
-                    System.out.print(" Total Price: " + res.getTotalPrice() + "\n");
-                    
-                    count++;
+                    System.out.println("Reservation Id: " + res.getReservationId());
+                    System.out.println("Check In Date: " + res.getCheckInDate());
+                    System.out.println("Check Out Date: " + res.getCheckOutDate());
+                    System.out.println("Room Type: " + res.getRoomType().getName());
+                    System.out.println("No of Room: " + res.getNumOfRoom());
+                    System.out.println("Total Price: " + res.getTotalPrice());
+                    System.out.println("-----------------------------------------------");
                 }
             }
         } catch (ReservationListForGuestNotFoundException ex) {
@@ -359,7 +348,7 @@ public class MainApp {
                 System.out.println("Check In Date: " + reservation.getCheckInDate());
                 System.out.println("Check Out Date: " + reservation.getCheckOutDate());
                 System.out.println("Room Type: " + reservation.getRoomType().getName());
-                System.out.println("No of Room: " + reservation.getCheckOutDate());
+                System.out.println("No of Room: " + reservation.getNumOfRoom());
                 System.out.println("Total Price: " + reservation.getTotalPrice());
             }
         } catch (ReservationForGuestNotFoundException ex) {

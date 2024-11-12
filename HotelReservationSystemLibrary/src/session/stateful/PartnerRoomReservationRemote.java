@@ -4,6 +4,7 @@
  */
 package session.stateful;
 
+import entity.Reservation;
 import entity.Room;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -15,6 +16,7 @@ import util.exception.GuestNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.PartnerAddReservationException;
 import util.exception.PartnerNotFoundException;
+import util.exception.ReservationAddRoomException;
 import util.exception.RoomAddReservationException;
 import util.exception.RoomRateAddReservationException;
 import util.exception.RoomRateNotFoundException;
@@ -27,8 +29,8 @@ import util.exception.RoomTypeAddReservationException;
 @Remote
 public interface PartnerRoomReservationRemote {
     
-    public void onlineReserve(String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long partnerId, Long guestId) 
+    public Reservation onlineReserve(String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long partnerId, Long guestId) 
             throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, 
             PartnerAddReservationException, RoomAddReservationException, PartnerNotFoundException, GuestNotFoundException, 
-            GuestAddReservationException, AvailableRoomNotFoundException, InputDataValidationException;
+            GuestAddReservationException, AvailableRoomNotFoundException, InputDataValidationException, ReservationAddRoomException;
 }

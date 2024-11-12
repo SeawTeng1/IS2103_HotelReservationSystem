@@ -55,16 +55,12 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
     */
     @Override
     public Guest guestLogin(String passportNumber, String password) throws GuestNotFoundException, InvalidCredentialException {
-        try {
-            Guest guest = this.retrieveGuestByPassportNumber(passportNumber);
-            
-            if (guest.getPassword().equals(password)) {
-                return guest;
-            } else {
-                throw new InvalidCredentialException("Invalid passport Number or password, please try again");
-            }
-        } catch (GuestNotFoundException ex) {
-            throw new GuestNotFoundException("Passport Number " + passportNumber + " not found.");
+        Guest guest = this.retrieveGuestByPassportNumber(passportNumber);
+
+        if (guest.getPassword().equals(password)) {
+            return guest;
+        } else {
+            throw new InvalidCredentialException("Invalid passport Number or password, please try again");
         }
     }
     
@@ -102,14 +98,15 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
                 em.persist(guest);
                 em.flush();
                 return guest;
-            } catch (PersistenceException e) {
-                Long count = em.createQuery("SELECT COUNT(g) FROM Guest g WHERE g.passportNumber = :passportNumber", Long.class)
-                    .setParameter("passportNumber", guest.getPassportNumber())
-                    .getSingleResult();
-                if (count > 0) {
-                    throw new GuestExistException("Guest with same passport number exist!");
+            } catch(PersistenceException ex) {
+                if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
+                    if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
+                        throw new GuestExistException("Guest with same passport number exist!");
+                    } else {
+                        throw new PersistentContextException(ex.getMessage());
+                    }
                 } else {
-                     throw new PersistentContextException("Persistent Context issue " + e.getMessage());
+                    throw new PersistentContextException(ex.getMessage());
                 }
             }
         } else {

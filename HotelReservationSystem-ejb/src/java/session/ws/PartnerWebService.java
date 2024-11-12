@@ -116,6 +116,17 @@ public class PartnerWebService {
     ) throws AvailableRoomNotFoundException {
 
         List<Room> roomList = this.guestRoomReservationSessionBeanLocal.searchAvailableRoom(roomType, checkInDate, checkOutDate);
+        for (Room room : roomList) {
+            em.detach(room);
+
+            em.detach(room.getRoomType());
+            room.setRoomType(null);
+
+            for (Reservation reservation : room.getReservationList()) {
+                em.detach(reservation);
+                reservation.setRoomList(null);
+            }
+        }
         return roomList;
     }
 
@@ -127,11 +138,12 @@ public class PartnerWebService {
     ) throws AvailableRoomNotFoundException, RoomRateNotFoundException {
 
         BigDecimal roomRate = this.guestRoomReservationSessionBeanLocal.getTotalPrice(roomType, checkInDate, checkOutDate, 1);
+        
         return roomRate;
     }
 
     @WebMethod(operationName = "onlineReserve")
-    public void onlineReserve(
+    public Reservation onlineReserve(
             @WebParam(name = "roomType") String roomType,
             @WebParam(name = "noOfRoom") Integer noOfRoom,
             @WebParam(name = "checkInDate") Date checkInDate,
@@ -141,6 +153,6 @@ public class PartnerWebService {
     ) throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException,
             PartnerAddReservationException, RoomAddReservationException, PartnerNotFoundException,
             GuestNotFoundException, GuestAddReservationException, AvailableRoomNotFoundException, InputDataValidationException {
-        this.partnerRoomReservationLocal.onlineReserve(roomType, noOfRoom, checkInDate, checkOutDate, partnerId, guestId);
+        return this.partnerRoomReservationLocal.onlineReserve(roomType, noOfRoom, checkInDate, checkOutDate, partnerId, guestId);
     }
 }

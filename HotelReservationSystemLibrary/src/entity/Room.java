@@ -6,6 +6,7 @@ package entity;
 
 import enumeration.RoomStatus;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,6 +23,7 @@ import javax.persistence.ManyToOne;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import util.exception.RoomAddReservationException;
 
 /**
@@ -35,11 +37,10 @@ public class Room implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomId;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 4)
     @NotNull
-    @Min(4)
-    @Max(4)
-    private Integer roomNumber;
+    @Size(min = 4, max = 4)
+    private String roomNumber;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @NotNull
@@ -52,20 +53,21 @@ public class Room implements Serializable {
     @NotNull
     private Boolean isOccupied = false;
     
-    @ManyToMany
-    @JoinTable(name = "ReservationRecord")
+    @ManyToMany(mappedBy = "roomList")
     private List<Reservation> reservationList;
     
-    @ManyToOne(optional = false, cascade = {}, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, cascade = {}, fetch = FetchType.EAGER)
     @JoinColumn(nullable = false)
     private RoomType roomType;
 
     public Room() {
+        this.reservationList = new ArrayList<>();
     }
 
-    public Room(Integer roomNumber, RoomStatus roomStatus) {
+    public Room(String roomNumber, RoomStatus roomStatus) {
         this.roomNumber = roomNumber;
         this.roomStatus = roomStatus;
+        this.reservationList = new ArrayList<>();
     }
     
     public Long getRoomId() {
@@ -104,14 +106,14 @@ public class Room implements Serializable {
     /**
      * @return the roomNumber
      */
-    public Integer getRoomNumber() {
+    public String getRoomNumber() {
         return roomNumber;
     }
 
     /**
      * @param roomNumber the roomNumber to set
      */
-    public void setRoomNumber(Integer roomNumber) {
+    public void setRoomNumber(String roomNumber) {
         this.roomNumber = roomNumber;
     }
 
