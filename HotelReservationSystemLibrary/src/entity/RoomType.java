@@ -41,34 +41,28 @@ public class RoomType implements Serializable {
     @Size(min = 4, max = 50)
     // Deluxe Room, Premier Room, Family Room, Junior Suite and Grand Suite
     private String name;
-    @Column(nullable = false, length = 150)
-    @NotNull
+    @Column(length = 150)
     @Size(max = 150)
     private String description;
-    @Column(nullable = false, precision = 11, scale = 2)
-    @NotNull
+    @Column(precision = 11, scale = 2)
     @DecimalMin("0.00")
     @Digits(integer = 9, fraction = 2)
     private BigDecimal size;
-    @Column(nullable = false)
-    @NotNull
+    @Column()
     @Min(1)
     @Max(5)
     private Integer beds;
-    @Column(nullable = false)
-    @NotNull
+    @Column()
     @Min(1)
     @Max(5)
     private Integer capacity;
-    @Column(nullable = false, length = 50)
-    @NotNull
+    @Column(length = 50)
     @Size(min = 4, max = 50)
     private String amenities;
     @Column(nullable = false)
     @NotNull
-    private Boolean disabled;
-    @Column(nullable = false)
-    @NotNull
+    private Boolean disabled = false;
+    @Column()
     @Min(1)
     // for the upgrade of room
     private Integer roomRank; 
@@ -83,7 +77,7 @@ public class RoomType implements Serializable {
     private List<RoomRate> roomRateList;
     
     //unidirectional
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private RoomType higherRoomType;
 
     public RoomType() {
@@ -98,6 +92,10 @@ public class RoomType implements Serializable {
         this.amenities = amenities;
         this.disabled = disabled;
         this.roomRank = roomRank;
+    }
+
+    public RoomType(String name) {
+        this.name = name;
     }
         
     public Long getRoomTypeId() {

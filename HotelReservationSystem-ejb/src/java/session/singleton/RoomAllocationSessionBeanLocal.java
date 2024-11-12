@@ -5,6 +5,7 @@
 package session.singleton;
 
 import javax.ejb.Local;
+import util.exception.InputDataValidationException;
 import util.exception.ReservationAddRoomException;
 import util.exception.ReservationAddRoomExceptionItemException;
 import util.exception.ReservationForTodayNotFoundException;
@@ -17,6 +18,7 @@ import util.exception.RoomAddReservationException;
 @Local
 public interface RoomAllocationSessionBeanLocal {
 
-    public void allocateReservationRoomDaily() throws ReservationForTodayNotFoundException, RoomAddReservationException, ReservationAddRoomException, ReservationAddRoomExceptionItemException;
+    public void allocateReservationRoomDaily() throws ReservationForTodayNotFoundException, RoomAddReservationException, 
+            ReservationAddRoomException, ReservationAddRoomExceptionItemException, InputDataValidationException;
     
 }

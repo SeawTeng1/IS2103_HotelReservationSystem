@@ -46,7 +46,7 @@ public class Room implements Serializable {
     private RoomStatus roomStatus;
     @Column(nullable = false)
     @NotNull
-    private Boolean disabled;
+    private Boolean disabled = false;
     // if checkin set this to true, checkout set it to false
     @Column(nullable = false)
     @NotNull
@@ -63,10 +63,9 @@ public class Room implements Serializable {
     public Room() {
     }
 
-    public Room(Integer roomNumber, RoomStatus roomStatus, Boolean disabled) {
+    public Room(Integer roomNumber, RoomStatus roomStatus) {
         this.roomNumber = roomNumber;
         this.roomStatus = roomStatus;
-        this.disabled = disabled;
     }
     
     public Long getRoomId() {

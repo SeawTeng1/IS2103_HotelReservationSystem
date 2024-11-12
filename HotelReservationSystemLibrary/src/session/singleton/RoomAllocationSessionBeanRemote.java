@@ -8,6 +8,7 @@ import entity.Room;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
+import util.exception.InputDataValidationException;
 import util.exception.ReservationAddRoomException;
 import util.exception.ReservationAddRoomExceptionItemException;
 import util.exception.ReservationForTodayNotFoundException;
@@ -20,6 +21,7 @@ import util.exception.RoomAddReservationException;
 @Remote
 public interface RoomAllocationSessionBeanRemote {
     
-    public void allocateReservationRoomDaily() throws ReservationForTodayNotFoundException, RoomAddReservationException, ReservationAddRoomException, ReservationAddRoomExceptionItemException;
+    public void allocateReservationRoomDaily() throws ReservationForTodayNotFoundException, RoomAddReservationException, 
+            ReservationAddRoomException, ReservationAddRoomExceptionItemException, InputDataValidationException;
     
 }

@@ -51,17 +51,16 @@ public class RoomRate implements Serializable {
     @DecimalMin("0.00")
     @Digits(integer = 9, fraction = 2)
     private BigDecimal ratePerNight;
-    @Column(nullable = false)
-    @NotNull
+    @Column()
     @FutureOrPresent 
     private Date validityStart;
-    @Column(nullable = false)
-    @NotNull
+    @Column()
     @FutureOrPresent 
     private Date validityEnd;
+    // default will not be disabled
     @Column(nullable = false)
     @NotNull
-    private Boolean disabled;
+    private Boolean disabled = false;
     
     @ManyToOne(optional = false, cascade = {}, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
@@ -80,6 +79,12 @@ public class RoomRate implements Serializable {
         this.validityStart = validityStart;
         this.validityEnd = validityEnd;
         this.disabled = disabled;
+    }
+
+    public RoomRate(String name, RateType rateType, BigDecimal ratePerNight) {
+        this.name = name;
+        this.rateType = rateType;
+        this.ratePerNight = ratePerNight;
     }
 
     public Long getRoomRateId() {
