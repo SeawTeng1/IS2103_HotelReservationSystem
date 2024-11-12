@@ -60,7 +60,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         
         if(constraintViolations.isEmpty()) {
             try { 
-                insertNewRoomRank(newRoomType.getRoomRank(), newRoomType);
+                // insertNewRoomRank(newRoomType.getRoomRank(), newRoomType);
                 em.persist(newRoomType);
                 em.flush();
 
@@ -104,11 +104,11 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     public void deleteRoomType(Long roomTypeId) throws RoomTypeNotFoundException, RoomTypeDeleteException {
         RoomType roomTypeToDelete = retrieveRoomTypebyId(roomTypeId);
         // check if any rooms of room type are occupied else if occupied disable room type
-        Query query = em.createQuery("SELECT r FROM Room r WHERE r.roomType.roomTypeId = :inRoomType AND room.isOccupied = :inIsOccupied");
-        query.setParameter("inRoomType", roomTypeToDelete);
-        query.setParameter("inIsOccupied", true);
-        if(query.getResultList().isEmpty()) { 
-            deleteRoomRank(roomTypeToDelete);
+        Query query = em.createQuery("SELECT r FROM Room r WHERE r.roomType.roomTypeId = :inRoomType");
+        query.setParameter("inRoomType", roomTypeId);
+        if(query.getResultList().isEmpty() && roomTypeToDelete.getRoomRateList().isEmpty()) { 
+            // deleteRoomRank(roomTypeToDelete);
+            // If no room = no reservtion, so don't need to cut the relationship
             em.remove(roomTypeToDelete); 
         } else { //if some rooms are occupied set disabled
             roomTypeToDelete.setDisabled(Boolean.TRUE);
@@ -137,7 +137,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     @Override
     public RoomType retrieveRoomTypebyName(String roomTypeName) throws RoomTypeNotFoundException {
         try{
-            Query query = em.createQuery("SELECT rt FROM RoomType rt WHERE rt.name = :inName ");
+            Query query = em.createQuery("SELECT rt FROM RoomType rt WHERE rt.name = :inName");
             query.setParameter("inName", roomTypeName);
             return (RoomType)query.getSingleResult();
         } catch (NoResultException ex) {
@@ -147,6 +147,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     
     
     //need to know how to insert new room rank and need to delete room rank if delete room, and update other room ranks!!!
+    /*
     @Override
     public void insertNewRoomRank(Integer rank, RoomType newRoomType) {
         Query query = em.createQuery("SELECT rt FROM RoomType rt ORDER BY rt.roomRank ASC");
@@ -168,6 +169,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
             }
         }       
     }
+    */
     
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<RoomType>>constraintViolations)
     {

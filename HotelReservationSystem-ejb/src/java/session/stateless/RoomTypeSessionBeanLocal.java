@@ -34,8 +34,8 @@ public interface RoomTypeSessionBeanLocal {
 
     public void deleteRoomType(Long roomTypeId) throws RoomTypeNotFoundException, RoomTypeDeleteException;
 
-    public void insertNewRoomRank(Integer rank, RoomType newRoomType);
+    //public void insertNewRoomRank(Integer rank, RoomType newRoomType);
 
-    public void deleteRoomRank(RoomType deleteRoomType);
+    //public void deleteRoomRank(RoomType deleteRoomType);
     
 }

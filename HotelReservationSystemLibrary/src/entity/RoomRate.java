@@ -7,10 +7,13 @@ package entity;
 import enumeration.RateType;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -40,6 +43,7 @@ public class RoomRate implements Serializable {
     @NotNull
     @Size(min = 4, max = 50)
     private String name;
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @NotNull
     private RateType rateType;
@@ -48,19 +52,18 @@ public class RoomRate implements Serializable {
     @DecimalMin("0.00")
     @Digits(integer = 9, fraction = 2)
     private BigDecimal ratePerNight;
-    @Column(nullable = false)
-    @NotNull
+    @Column()
     @FutureOrPresent 
     private Date validityStart;
-    @Column(nullable = false)
-    @NotNull
+    @Column()
     @FutureOrPresent 
     private Date validityEnd;
+    // default will not be disabled
     @Column(nullable = false)
     @NotNull
-    private Boolean disabled;
+    private Boolean disabled = false;
     
-    @ManyToOne(optional = false, cascade = {}, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, cascade = {}, fetch = FetchType.EAGER)
     @JoinColumn(nullable = false)
     private RoomType roomType;
     
@@ -68,6 +71,7 @@ public class RoomRate implements Serializable {
     private List<Reservation> reservationList;
 
     public RoomRate() {
+        this.reservationList = new ArrayList<>();
     }
 
     public RoomRate(String name, RateType rateType, BigDecimal ratePerNight, Date validityStart, Date validityEnd, Boolean disabled) {
@@ -77,6 +81,14 @@ public class RoomRate implements Serializable {
         this.validityStart = validityStart;
         this.validityEnd = validityEnd;
         this.disabled = disabled;
+        this.reservationList = new ArrayList<>();
+    }
+
+    public RoomRate(String name, RateType rateType, BigDecimal ratePerNight) {
+        this.name = name;
+        this.rateType = rateType;
+        this.ratePerNight = ratePerNight;
+        this.reservationList = new ArrayList<>();
     }
 
     public Long getRoomRateId() {

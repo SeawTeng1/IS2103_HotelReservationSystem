@@ -41,8 +41,6 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
     
-    
-    
     public EmployeeSessionBean()
     {
         validatorFactory = Validation.buildDefaultValidatorFactory();
@@ -59,7 +57,7 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
         if(employee.getPassword().equals(password)){
             return employee;
         } else {
-            throw new EmployeeInvalidPasswordException("Invalid Password please try again!");
+            throw new EmployeeInvalidPasswordException("Invalid username or password please try again!");
         }    
     }
     
@@ -104,7 +102,7 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
     @Override
     public Employee retrieveEmployeebyUsername(String username) throws EmployeeNotFoundException {
         try{
-            Query query = em.createQuery("SELECT e FROM Employee e WHERE e.username = :inUsername ");
+            Query query = em.createQuery("SELECT e FROM Employee e WHERE e.username = :inUsername");
             query.setParameter("inUsername", username);
             return (Employee)query.getSingleResult();
         } catch (NoResultException ex) {

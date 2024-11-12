@@ -17,6 +17,7 @@ import javax.ejb.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import session.stateless.RoomAllocationExceptionReportSessionBeanLocal;
+import util.exception.InputDataValidationException;
 import util.exception.ReportExistException;
 import util.exception.ReservationAddRoomException;
 import util.exception.ReservationAddRoomExceptionItemException;
@@ -38,16 +39,23 @@ public class RoomAllocationSessionBean implements RoomAllocationSessionBeanRemot
     private EntityManager em;
     
     
-    /** 22. Allocate Room to Current Day Reservations
-     * get all reservation which check in on current date
-     * get room by the required room type
-     * If the required room(s) for the reserved room type is not available, raise an exception in the exception report
-     * can auto upgrade one level only, if need to upgrade 2 level, don't auto assign
-     * trigger every day at 2am
+    /** *  22.Allocate Room to Current Day Reservations
+ get all reservation which check in on current date
+ get room by the required room type
+ If the required room(s) for the reserved room type is not available, raise an exception in the exception report
+ can auto upgrade one level only, if need to upgrade 2 level, don't auto assign
+ trigger every day at 2am
+     * @throws util.exception.ReservationForTodayNotFoundException
+     * @throws util.exception.RoomAddReservationException
+     * @throws util.exception.ReservationAddRoomException
+     * @throws util.exception.ReservationAddRoomExceptionItemException
+     * @throws util.exception.InputDataValidationException
     **/
     
     @Override
-    public void allocateReservationRoomDaily() throws ReservationForTodayNotFoundException, RoomAddReservationException, ReservationAddRoomException, ReservationAddRoomExceptionItemException {
+    public void allocateReservationRoomDaily() throws 
+            ReservationForTodayNotFoundException, RoomAddReservationException, 
+            ReservationAddRoomException, ReservationAddRoomExceptionItemException, InputDataValidationException {
         Date today = new Date();
         
         List<Reservation> reservationList = em.createQuery("SELECT r FROM Reservation r WHERE r.checkInDate = :today")

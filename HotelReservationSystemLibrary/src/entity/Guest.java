@@ -5,6 +5,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,7 +26,7 @@ import util.exception.GuestAddReservationException;
  */
 @Entity
 @Inheritance(strategy=InheritanceType.JOINED)
-public abstract class Guest implements Serializable {
+public class Guest implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -33,11 +34,11 @@ public abstract class Guest implements Serializable {
     private Long guestId;
     @Column(nullable = false, length = 24)
     @NotNull
-    @Size(min = 4, max = 24)
+    @Size(min = 1, max = 24)
     private String firstName;
     @Column(nullable = false, length = 24)
     @NotNull
-    @Size(min = 4, max = 24)
+    @Size(min = 1, max = 24)
     private String lastName;
     @NotNull
     @Size(min = 8, max = 24)
@@ -51,6 +52,7 @@ public abstract class Guest implements Serializable {
     private List<Reservation> reservationList;
 
     public Guest() {
+        this.reservationList = new ArrayList<>();
     }
 
     public Guest(String firstName, String lastName, String passportNumber, String password) {
@@ -58,6 +60,7 @@ public abstract class Guest implements Serializable {
         this.lastName = lastName;
         this.passportNumber = passportNumber;
         this.password = password;
+        this.reservationList = new ArrayList<>();
     }
     
     public Long getGuestId() {

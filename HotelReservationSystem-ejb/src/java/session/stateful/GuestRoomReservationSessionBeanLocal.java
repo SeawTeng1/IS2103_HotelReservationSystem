@@ -4,6 +4,7 @@
  */
 package session.stateful;
 
+import entity.Reservation;
 import entity.Room;
 import entity.RoomRate;
 import java.math.BigDecimal;
@@ -13,6 +14,8 @@ import javax.ejb.Local;
 import util.exception.AvailableRoomNotFoundException;
 import util.exception.GuestAddReservationException;
 import util.exception.GuestNotFoundException;
+import util.exception.InputDataValidationException;
+import util.exception.ReservationAddRoomException;
 import util.exception.RoomAddReservationException;
 import util.exception.RoomRateAddReservationException;
 import util.exception.RoomRateNotFoundException;
@@ -29,6 +32,10 @@ public interface GuestRoomReservationSessionBeanLocal {
 
     public RoomRate getCorrectRoomRate(String roomType, Date checkInDate, Date checkOutDate) throws RoomRateNotFoundException;
 
-    public void onlineReserve(List<Room> selectedRoom, Date checkInDate, Date checkOutDate, BigDecimal total, Long guestId) throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, GuestAddReservationException, RoomAddReservationException, GuestNotFoundException;
+    public Reservation onlineReserve(String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long guestId) throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, GuestAddReservationException, RoomAddReservationException, GuestNotFoundException, InputDataValidationException, AvailableRoomNotFoundException, ReservationAddRoomException;
+
+    public List<Room> searchAvailableRoom(String roomType, Date checkInDate, Date checkOutDate) throws AvailableRoomNotFoundException;
+
+    public List<Room> searchAvailableRoomWithLimit(String roomType, Date checkInDate, Date checkOutDate, Integer limit) throws AvailableRoomNotFoundException;
     
 }

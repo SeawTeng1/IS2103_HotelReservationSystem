@@ -12,6 +12,7 @@ import util.exception.InputDataValidationException;
 import util.exception.PartnerExistException;
 import util.exception.PartnerInvalidPasswordException;
 import util.exception.PartnerNotFoundException;
+import util.exception.ReservationForPartnerNotFoundException;
 import util.exception.ReservationListForPartnerNotFoundException;
 import util.exception.UnknownPersistenceException;
 
@@ -31,5 +32,7 @@ public interface PartnerSessionBeanLocal {
     public Partner retrievePartnerbyUsername(String username) throws PartnerNotFoundException;
 
     public List<Reservation> getReservationListByPartner(Long partnerId) throws ReservationListForPartnerNotFoundException;
-    
+
+    public Reservation getReservationDetailByPartner(Long partnerId, Long reservationId) throws ReservationForPartnerNotFoundException;
+
 }

@@ -12,8 +12,10 @@ import java.util.List;
 import javax.ejb.Local;
 import util.exception.GuestExistException;
 import util.exception.GuestNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidCredentialException;
 import util.exception.PersistentContextException;
+import util.exception.ReservationForGuestNotFoundException;
 import util.exception.ReservationListForGuestNotFoundException;
 
 /**
@@ -29,7 +31,7 @@ public interface GuestSessionBeanLocal {
 
     public Guest retrieveGuestByPassportNumber(String passportNumber) throws GuestNotFoundException;
 
-    public Guest createGuest(Guest guest) throws PersistentContextException, GuestExistException;
+    public Guest createGuest(Guest guest) throws PersistentContextException, GuestExistException, InputDataValidationException;
 
     public List<Reservation> getReservationListByGuest(Long guestId) throws ReservationListForGuestNotFoundException;
 
@@ -40,5 +42,7 @@ public interface GuestSessionBeanLocal {
     //public List<ExceptionItem> getRoomException(Long guestId) throws ReservationListForGuestNotFoundException;
 
     public List<RoomAllocationExceptionReport> getRoomException(Long guestId) throws ReservationListForGuestNotFoundException;
+
+    public Reservation getReservationDetailByGuest(Long guestId, Long reservationId) throws ReservationForGuestNotFoundException;
     
 }

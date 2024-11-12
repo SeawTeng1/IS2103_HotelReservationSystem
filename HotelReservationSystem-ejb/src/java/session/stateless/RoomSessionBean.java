@@ -80,9 +80,10 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
                     throw new RoomTypeDisabledException("This room type is disabled: " + roomTypeName);
                 }
                 newRoom.setRoomType(roomType);
-                roomType.getRoomList().add(newRoom);
                 em.persist(newRoom);
                 em.flush();
+                roomType.getRoomList().add(newRoom);
+                return newRoom;
             } catch(PersistenceException ex) {
                 if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
                     if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
@@ -94,7 +95,6 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
                     throw new UnknownPersistenceException(ex.getMessage());
                 }
             }
-            return newRoom;
         } else {
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
