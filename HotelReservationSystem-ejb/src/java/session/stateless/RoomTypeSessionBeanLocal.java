@@ -7,6 +7,7 @@ package session.stateless;
 import entity.RoomType;
 import java.util.List;
 import javax.ejb.Local;
+import util.exception.InputDataValidationException;
 import util.exception.RoomTypeDeleteException;
 import util.exception.RoomTypeExistException;
 import util.exception.RoomTypeNotFoundException;
@@ -27,7 +28,7 @@ public interface RoomTypeSessionBeanLocal {
 
     public RoomType retrieveRoomTypebyName(String roomTypeName) throws RoomTypeNotFoundException;
 
-    public RoomType createNewRoomType(RoomType newRoomType) throws RoomTypeExistException, UnknownPersistenceException;
+    public RoomType createNewRoomType(RoomType newRoomType) throws RoomTypeExistException, UnknownPersistenceException, InputDataValidationException;
 
     public void updateRoomType(RoomType roomType, String name) throws RoomTypeNotFoundException;
 

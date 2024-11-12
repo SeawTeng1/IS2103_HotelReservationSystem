@@ -8,22 +8,22 @@ package util.exception;
  *
  * @author priskilarebecca.p
  */
-public class InputDataValidationException extends Exception {
+public class ReservationNotFoundException extends Exception {
 
     /**
-     * Creates a new instance of <code>InputDataValidationException</code>
+     * Creates a new instance of <code>ReservationNotFoundException</code>
      * without detail message.
      */
-    public InputDataValidationException() {
+    public ReservationNotFoundException() {
     }
 
     /**
-     * Constructs an instance of <code>InputDataValidationException</code> with
+     * Constructs an instance of <code>ReservationNotFoundException</code> with
      * the specified detail message.
      *
      * @param msg the detail message.
      */
-    public InputDataValidationException(String msg) {
+    public ReservationNotFoundException(String msg) {
         super(msg);
     }
 }

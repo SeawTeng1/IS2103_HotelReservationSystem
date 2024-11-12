@@ -7,6 +7,7 @@ package session.stateless;
 import entity.Guest;
 import entity.Partner;
 import entity.Reservation;
+import entity.Room;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.Stateless;
@@ -20,6 +21,8 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.exception.EmployeeInvalidPasswordException;
+import util.exception.EmployeeNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.PartnerExistException;
 import util.exception.PartnerInvalidPasswordException;
@@ -37,22 +40,30 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
-    
+
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
 
-    public PartnerSessionBean() {
-        this.validatorFactory = Validation.buildDefaultValidatorFactory();
-        this.validator = validatorFactory.getValidator();
+
+
+    public PartnerSessionBean()
+    {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
-    
+
+    // Add business logic below. (Right-click in editor and choose
+    // "Insert Code > Add Business Method")
+
     //HoRs Management Client
     //5. Create New Partner
     @Override
-    public Partner createNewEmployee(Partner newPartner) throws PartnerExistException, UnknownPersistenceException, InputDataValidationException {
+    public Partner createNewPartner(Partner newPartner) throws PartnerExistException, UnknownPersistenceException, InputDataValidationException {
         Set<ConstraintViolation<Partner>>constraintViolations = validator.validate(newPartner);
-        if (constraintViolations.isEmpty()) {
-            try { 
+
+        if(constraintViolations.isEmpty())
+        {
+            try {
                 em.persist(newPartner);
                 em.flush();
 
@@ -72,18 +83,7 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
     }
-    
-    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Partner>>constraintViolations) {
-        String msg = "Input data validation error!:";
-            
-        for(ConstraintViolation constraintViolation:constraintViolations)
-        {
-            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
-        }
-        
-        return msg;
-    }
-    
+
     //6. View All Partners
 
     @Override
@@ -91,7 +91,7 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
         Query query = em.createQuery("SELECT p FROM Partner p");
         return query.getResultList();
     }
-    
+
     //Holiday Reservation System
     //1. Partner Login
     @Override
@@ -101,9 +101,9 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
             return partner;
         } else {
             throw new PartnerInvalidPasswordException("Invalid credential please try again!");
-        }    
+        }
     }
-    
+
     //2. Partner Search Room
     //3. Partner Reserve Room
     //4. View Partner Reservation Details
@@ -119,26 +119,26 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
             throw new PartnerNotFoundException("Employee does not exist: " + username);
         }
     }
-    
+
     /*
         5. View All Partner Reservations
         Display a list of reservation records for the partner.
     */
-    
+
     @Override
     public List<Reservation> getReservationListByPartner(Long partnerId) throws ReservationListForPartnerNotFoundException {
         List<Reservation> reservationList = em.createQuery(
                 "SELECT r FROM Reservation r WHERE r.partner.partnerId = :partnerId")
             .setParameter("partnerId", partnerId)
             .getResultList();
-        
+
         if (reservationList.size() < 1) {
             throw new ReservationListForPartnerNotFoundException("Reservation not found for this partner.");
         }
-        
+
         return reservationList;
     }
-    
+
     public Reservation getReservationDetailByPartner(Long partnerId, Long reservationId) throws ReservationForPartnerNotFoundException {
         try {
             Reservation reservation = (Reservation) em.createQuery(
@@ -146,10 +146,22 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
             .setParameter("partnerId", partnerId)
             .setParameter("reservationId", reservationId)
             .getSingleResult();
-            
+
             return reservation;
         } catch(NoResultException | NonUniqueResultException e) {
             throw new ReservationForPartnerNotFoundException("Reservation id " + reservationId +  " not found for this guest.");
         }
+    }
+
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Partner>>constraintViolations)
+    {
+        String msg = "Input data validation error!:";
+
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+
+        return msg;
     }
 }

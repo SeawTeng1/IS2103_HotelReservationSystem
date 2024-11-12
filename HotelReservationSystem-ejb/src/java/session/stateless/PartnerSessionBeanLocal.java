@@ -23,7 +23,7 @@ import util.exception.UnknownPersistenceException;
 @Local
 public interface PartnerSessionBeanLocal {
 
-    public Partner createNewEmployee(Partner newPartner) throws PartnerExistException, UnknownPersistenceException, InputDataValidationException;
+    public Partner createNewPartner(Partner newPartner) throws PartnerExistException, UnknownPersistenceException, InputDataValidationException;
 
     public List<Partner> viewAllPartners();
 
@@ -34,5 +34,5 @@ public interface PartnerSessionBeanLocal {
     public List<Reservation> getReservationListByPartner(Long partnerId) throws ReservationListForPartnerNotFoundException;
 
     public Reservation getReservationDetailByPartner(Long partnerId, Long reservationId) throws ReservationForPartnerNotFoundException;
-    
+
 }

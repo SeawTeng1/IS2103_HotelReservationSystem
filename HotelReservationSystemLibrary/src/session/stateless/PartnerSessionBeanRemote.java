@@ -22,16 +22,16 @@ import util.exception.UnknownPersistenceException;
  */
 @Remote
 public interface PartnerSessionBeanRemote {
-   public Partner createNewEmployee(Partner newPartner) throws PartnerExistException, UnknownPersistenceException, InputDataValidationException;
+   public Partner createNewPartner(Partner newPartner) throws PartnerExistException, UnknownPersistenceException, InputDataValidationException;
 
     public List<Partner> viewAllPartners();
 
     public Partner partnerLogin(String username, String password) throws PartnerNotFoundException, PartnerInvalidPasswordException;
 
-    public Partner retrievePartnerbyUsername(String username) throws PartnerNotFoundException; 
-    
+    public Partner retrievePartnerbyUsername(String username) throws PartnerNotFoundException;
+
     public List<Reservation> getReservationListByPartner(Long partnerId) throws ReservationListForPartnerNotFoundException;
-        
+
     public Reservation getReservationDetailByPartner(Long partnerId, Long reservationId) throws ReservationForPartnerNotFoundException;
-    
+
 }
