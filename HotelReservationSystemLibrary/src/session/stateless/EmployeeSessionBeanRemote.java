@@ -10,6 +10,7 @@ import javax.ejb.Remote;
 import util.exception.EmployeeExistException;
 import util.exception.EmployeeInvalidPasswordException;
 import util.exception.EmployeeNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -20,7 +21,7 @@ import util.exception.UnknownPersistenceException;
 public interface EmployeeSessionBeanRemote {
     public Employee employeeLogin(String username, String password) throws EmployeeNotFoundException, EmployeeInvalidPasswordException;
 
-    public Employee createNewEmployee(Employee newEmployee) throws EmployeeExistException, UnknownPersistenceException;
+    public Employee createNewEmployee(Employee newEmployee) throws EmployeeExistException, UnknownPersistenceException, InputDataValidationException;
 
     public List<Employee> viewAllEmployees();
 

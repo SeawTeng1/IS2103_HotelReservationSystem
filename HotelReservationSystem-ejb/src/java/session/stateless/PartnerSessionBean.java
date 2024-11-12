@@ -6,15 +6,22 @@ package session.stateless;
 
 import entity.Partner;
 import entity.Reservation;
+import entity.Room;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import util.exception.EmployeeInvalidPasswordException;
 import util.exception.EmployeeNotFoundException;
+import util.exception.InputDataValidationException;
 import util.exception.PartnerExistException;
 import util.exception.PartnerInvalidPasswordException;
 import util.exception.PartnerNotFoundException;
@@ -35,29 +42,47 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
         em.persist(object);
     }
     
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
+    
+    
+    public PartnerSessionBean()
+    {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
+    
     // Add business logic below. (Right-click in editor and choose
     // "Insert Code > Add Business Method")
     
     //HoRs Management Client
     //5. Create New Partner
     @Override
-    public Partner createNewEmployee(Partner newPartner) throws PartnerExistException, UnknownPersistenceException {
-        try { 
-            em.persist(newPartner);
-            em.flush();
-            
-        } catch(PersistenceException ex) {
-            if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
-                if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
-                    throw new PartnerExistException("Employee Already Exists!");
+    public Partner createNewPartner(Partner newPartner) throws PartnerExistException, UnknownPersistenceException, InputDataValidationException {
+        Set<ConstraintViolation<Partner>>constraintViolations = validator.validate(newPartner);
+        
+        if(constraintViolations.isEmpty())
+        {
+            try { 
+                em.persist(newPartner);
+                em.flush();
+
+            } catch(PersistenceException ex) {
+                if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
+                    if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
+                        throw new PartnerExistException("Employee Already Exists!");
+                    } else {
+                        throw new UnknownPersistenceException(ex.getMessage());
+                    }
                 } else {
                     throw new UnknownPersistenceException(ex.getMessage());
                 }
-            } else {
-                throw new UnknownPersistenceException(ex.getMessage());
             }
+            return newPartner;
+        } else {
+            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
-        return newPartner;
     }
     
     //6. View All Partners
@@ -113,5 +138,17 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
         }
         
         return reservationList;
+    }
+    
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Partner>>constraintViolations)
+    {
+        String msg = "Input data validation error!:";
+            
+        for(ConstraintViolation constraintViolation:constraintViolations)
+        {
+            msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
+        }
+        
+        return msg;
     }
 }

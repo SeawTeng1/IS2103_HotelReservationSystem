@@ -14,6 +14,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Max;
@@ -80,6 +81,10 @@ public class RoomType implements Serializable {
     
     @OneToMany(mappedBy = "RoomType", cascade = {}, fetch = FetchType.LAZY)
     private List<RoomRate> roomRateList;
+    
+    //unidirectional
+    @OneToOne
+    private RoomType higherRoomType;
 
     public RoomType() {
     }
@@ -314,6 +319,20 @@ public class RoomType implements Serializable {
      */
     public void setRoomRank(Integer roomRank) {
         this.roomRank = roomRank;
+    }
+
+    /**
+     * @return the higherRoomType
+     */
+    public RoomType getHigherRoomType() {
+        return higherRoomType;
+    }
+
+    /**
+     * @param higherRoomType the higherRoomType to set
+     */
+    public void setHigherRoomType(RoomType higherRoomType) {
+        this.higherRoomType = higherRoomType;
     }
 
 }
