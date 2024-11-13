@@ -23,12 +23,9 @@ import session.stateless.RoomSessionBeanLocal;
 import session.stateless.RoomTypeSessionBeanLocal;
 import util.exception.EmployeeExistException;
 import util.exception.EmployeeNotFoundException;
-import util.exception.GuestExistException;
 import util.exception.InputDataValidationException;
-import util.exception.PersistentContextException;
 import util.exception.RoomExistException;
 import util.exception.RoomRateExistException;
-import util.exception.RoomTypeAddRoomRateException;
 import util.exception.RoomTypeDisabledException;
 import util.exception.RoomTypeExistException;
 import util.exception.RoomTypeNotFoundException;
@@ -84,74 +81,50 @@ public class DataInitializationSessionBean {
 
             // add room type
             RoomType grand = new RoomType("Grand Suite");
-            grand = roomTypeSessionBeanLocal.createNewRoomType(grand);
+            grand = roomTypeSessionBeanLocal.createNewRoomType(grand, "None");
 
             RoomType junior = new RoomType("Junior Suite");
-            junior.setHigherRoomType(grand);
-            junior = roomTypeSessionBeanLocal.createNewRoomType(junior);
+            junior = roomTypeSessionBeanLocal.createNewRoomType(junior, "Grand Suite");
 
             RoomType family = new RoomType("Family Room");
-            family.setHigherRoomType(junior);
-            family = roomTypeSessionBeanLocal.createNewRoomType(family);
+            family = roomTypeSessionBeanLocal.createNewRoomType(family, "Junior Suite");
 
             RoomType premier = new RoomType("Premier Room");
-            premier.setHigherRoomType(family);
-            premier = roomTypeSessionBeanLocal.createNewRoomType(premier);
+            premier = roomTypeSessionBeanLocal.createNewRoomType(premier, "Family Room");
 
             RoomType deluxe = new RoomType("Deluxe Room");
-            deluxe.setHigherRoomType(premier);
-            deluxe = roomTypeSessionBeanLocal.createNewRoomType(deluxe);
+            deluxe = roomTypeSessionBeanLocal.createNewRoomType(deluxe, "Premier Room");
 
             // add room rate
             RoomRate deluxePub = new RoomRate("Deluxe Room Published", RateType.PUBLISHED, new BigDecimal(100));
-            deluxePub.setRoomType(deluxe);
-            deluxePub = roomRateSessionBeanLocal.createRoomRate(deluxePub);
-            deluxe.addRoomRate(deluxePub);
+            deluxePub = roomRateSessionBeanLocal.createRoomRate(deluxePub, "Deluxe Room");
 
             RoomRate deluxeNor = new RoomRate("Deluxe Room Normal", RateType.NORMAL, new BigDecimal(50));
-            deluxeNor.setRoomType(deluxe);
-            deluxeNor = roomRateSessionBeanLocal.createRoomRate(deluxeNor);
-            deluxe.addRoomRate(deluxeNor);
+            deluxeNor = roomRateSessionBeanLocal.createRoomRate(deluxeNor, "Deluxe Room");
 
             RoomRate premierPub = new RoomRate("Premier Room Published", RateType.PUBLISHED, new BigDecimal(200));
-            premierPub.setRoomType(premier);
-            premierPub = roomRateSessionBeanLocal.createRoomRate(premierPub);
-            premier.addRoomRate(premierPub);
+            premierPub = roomRateSessionBeanLocal.createRoomRate(premierPub, "Premier Room");
 
             RoomRate premierNor = new RoomRate("Premier Room Normal", RateType.NORMAL, new BigDecimal(100));
-            premierNor.setRoomType(premier);
-            premierNor = roomRateSessionBeanLocal.createRoomRate(premierNor);
-            premier.addRoomRate(premierNor);
+            premierNor = roomRateSessionBeanLocal.createRoomRate(premierNor, "Premier Room");
 
             RoomRate familyPub = new RoomRate("Family Room Published", RateType.PUBLISHED, new BigDecimal(300));
-            familyPub.setRoomType(family);
-            familyPub = roomRateSessionBeanLocal.createRoomRate(familyPub);
-            family.addRoomRate(familyPub);
+            familyPub = roomRateSessionBeanLocal.createRoomRate(familyPub, "Family Room");
 
             RoomRate familyNor = new RoomRate("Family Room Normal", RateType.NORMAL, new BigDecimal(150));
-            familyNor.setRoomType(family);
-            familyNor = roomRateSessionBeanLocal.createRoomRate(familyNor);
-            family.addRoomRate(familyNor);
+            familyNor = roomRateSessionBeanLocal.createRoomRate(familyNor, "Family Room");
 
             RoomRate juniorPub = new RoomRate("Junior Suite Published", RateType.PUBLISHED, new BigDecimal(400));
-            juniorPub.setRoomType(junior);
-            juniorPub = roomRateSessionBeanLocal.createRoomRate(juniorPub);
-            junior.addRoomRate(juniorPub);
+            juniorPub = roomRateSessionBeanLocal.createRoomRate(juniorPub, "Junior Suite");
 
             RoomRate juniorNor = new RoomRate("Junior Suite Normal", RateType.NORMAL, new BigDecimal(200));
-            juniorNor.setRoomType(junior);
-            juniorNor = roomRateSessionBeanLocal.createRoomRate(juniorNor);
-            junior.addRoomRate(juniorNor);
+            juniorNor = roomRateSessionBeanLocal.createRoomRate(juniorNor, "Junior Suite");
 
             RoomRate grandPub = new RoomRate("Grand Suite Published", RateType.PUBLISHED, new BigDecimal(500));
-            grandPub.setRoomType(grand);
-            grandPub = roomRateSessionBeanLocal.createRoomRate(grandPub);
-            grand.addRoomRate(grandPub);
+            grandPub = roomRateSessionBeanLocal.createRoomRate(grandPub, "Grand Suite");
 
             RoomRate grandNor = new RoomRate("Grand Suite Normal", RateType.NORMAL, new BigDecimal(250));
-            grandNor.setRoomType(grand);
-            grandNor = roomRateSessionBeanLocal.createRoomRate(grandNor);
-            grand.addRoomRate(grandNor);
+            grandNor = roomRateSessionBeanLocal.createRoomRate(grandNor, "Grand Suite");
 
             // room
             roomSessionBeanLocal.createNewRoom(new Room("0101", RoomStatus.AVAILABLE), "Deluxe Room");
@@ -186,7 +159,7 @@ public class DataInitializationSessionBean {
 
             // Testing
         }
-        catch(RoomTypeDisabledException | RoomExistException | RoomTypeNotFoundException | RoomTypeAddRoomRateException | PersistentContextException | RoomRateExistException | RoomTypeExistException | EmployeeExistException | UnknownPersistenceException | InputDataValidationException ex)
+        catch(RoomTypeDisabledException | RoomExistException | RoomTypeNotFoundException | RoomRateExistException | RoomTypeExistException | EmployeeExistException | UnknownPersistenceException | InputDataValidationException ex)
         {
             ex.printStackTrace();
         }

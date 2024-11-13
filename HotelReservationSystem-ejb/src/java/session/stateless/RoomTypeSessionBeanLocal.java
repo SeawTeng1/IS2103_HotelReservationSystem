@@ -27,14 +27,15 @@ public interface RoomTypeSessionBeanLocal {
     public RoomType retrieveRoomTypebyId(Long roomTypeId) throws RoomTypeNotFoundException;
 
     public RoomType retrieveRoomTypebyName(String roomTypeName) throws RoomTypeNotFoundException;
+    
+    public RoomType createNewRoomType(RoomType newRoomType, String higherRoomType) throws RoomTypeExistException, UnknownPersistenceException, InputDataValidationException, RoomTypeNotFoundException;
 
-    //public void updateRoomType(RoomType roomType, String name) throws RoomTypeNotFoundException;
-    //public void updateRoomType(RoomType roomType, String name) throws RoomTypeNotFoundException;
-
+    public void updateRoomType(RoomType roomType) throws RoomTypeNotFoundException, InputDataValidationException;
+    
     public void deleteRoomType(Long roomTypeId) throws RoomTypeNotFoundException, RoomTypeDeleteException;
 
     //public void insertNewRoomRank(Integer rank, RoomType newRoomType);
 
-    public void deleteRoomRank(RoomType deleteRoomType);
+    // public void deleteRoomRank(RoomType deleteRoomType);
 
 }
