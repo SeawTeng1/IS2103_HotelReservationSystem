@@ -322,19 +322,20 @@ public class RoomType implements Serializable {
         }
     }
 
-    /**
-     * @return the roomRank
-     */
+    
+    // @return the roomRank
+    
     public Integer getRoomRank() {
         return roomRank;
     }
 
-    /**
-     * @param roomRank the roomRank to set
-     */
+    
+     // @param roomRank the roomRank to set
+     
     public void setRoomRank(Integer roomRank) {
         this.roomRank = roomRank;
     }
+    
 
     /**
      * @return the higherRoomType
