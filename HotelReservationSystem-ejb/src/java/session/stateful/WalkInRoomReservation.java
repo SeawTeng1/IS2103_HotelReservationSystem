@@ -5,6 +5,7 @@
 package session.stateful;
 
 import entity.Employee;
+import entity.Guest;
 import entity.Reservation;
 import entity.Room;
 import entity.RoomRate;
@@ -34,9 +35,14 @@ import javax.validation.ValidatorFactory;
 import util.exception.AvailableRoomNotFoundException;
 import util.exception.EmployeeAddReservationException;
 import util.exception.EmployeeNotFoundException;
+import util.exception.GuestAddReservationException;
+import util.exception.GuestNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.ReservationAddRoomException;
+import util.exception.ReservationNotFoundException;
 import util.exception.RoomAddReservationException;
+import util.exception.RoomCheckInException;
+import util.exception.RoomCheckOutException;
 import util.exception.RoomRateAddReservationException;
 import util.exception.RoomRateNotFoundException;
 import util.exception.RoomTypeAddReservationException;
@@ -68,7 +74,8 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
     */
 
     @Override
-    public List<Room> searchAvailableRoom(String roomType, Date checkInDate, Date checkOutDate) throws AvailableRoomNotFoundException {
+    public List<Room> searchAvailableRoom(String roomType, Date checkInDate, Date checkoutDate) throws AvailableRoomNotFoundException {
+        // get room that can be used
         List<Room> roomList = em.createQuery(
                 "SELECT r FROM Room r WHERE r.roomType.name = :roomType AND r.disabled = :disabled AND r.roomStatus != :roomStatus")
             .setParameter("roomType", roomType)
@@ -79,23 +86,45 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
         if (roomList.size() < 1) {
             throw new AvailableRoomNotFoundException("No available room found, please try again.");
         }
-
+        
+        // get reservation that have not be checkin
+        List<Reservation> currReservation = em.createQuery("SELECT r FROM Reservation r WHERE r.roomType.name = :roomType AND r.checkInDate BETWEEN :checkInDate AND :checkoutDate AND r.checkOutDate BETWEEN :checkInDate AND :checkoutDate")
+            .setParameter("roomType", roomType)
+            .setParameter("checkInDate", checkInDate)
+            .setParameter("checkoutDate", checkoutDate)
+            .getResultList();
+        
         List<Room> availableRoom = new ArrayList<Room>();
         for (Room r : roomList) {
+            // get the reservation for current room
             List<Reservation> resList = r.getReservationList();
+
+
             if (!resList.isEmpty()) {
                 Reservation res = resList.get(resList.size() - 1);
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+                LocalDateTime parsedDateTime = LocalDateTime.parse(res.getCheckOutDate().toString(), dtf);
+                LocalDateTime today = LocalDateTime.parse(checkInDate.toString(), dtf);
+                
                 if (
-                    !res.getCheckOutDate().after(checkInDate) &&
-                    !res.getCheckInDate().before(checkOutDate)
+                    checkInDate.after(res.getCheckOutDate()) ||
+                    parsedDateTime.toLocalDate().isEqual(today.toLocalDate())
                 ) {
                     if (!availableRoom.contains(r)) {
                         availableRoom.add(r);
                     }
                 }
+                
+                if ((roomList.size() - currReservation.size()) == availableRoom.size()) {
+                    break;
+                }
             } else {
                 if (!availableRoom.contains(r)) {
                     availableRoom.add(r);
+                }
+                
+                if ((roomList.size() - currReservation.size()) == availableRoom.size()) {
+                    break;
                 }
             }
         }
@@ -104,39 +133,60 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
         return availableRoom;
     }
 
-    public List<Room> searchAvailableRoomWithLimit(String roomType, Date checkInDate, Date checkOutDate, Integer limit) throws AvailableRoomNotFoundException {
+    @Override
+    public List<Room> searchAvailableRoomWithLimit(String roomType, Date checkInDate, Date checkoutDate, Integer limit) throws AvailableRoomNotFoundException {
         Query query = em.createQuery(
                 "SELECT r FROM Room r WHERE r.roomType.name = :roomType AND r.disabled = :disabled AND r.roomStatus != :roomStatus")
             .setParameter("roomType", roomType)
             .setParameter("disabled", Boolean.FALSE)
             .setParameter("roomStatus", RoomStatus.UNAVAILABLE);
 
-        if (limit != 0) {
-            query.setMaxResults(limit);
-        }
-
         List<Room> roomList = query.getResultList();
         if (roomList.size() < 1) {
             throw new AvailableRoomNotFoundException("No available room found, please try again.");
         }
+        
+        // get reservation that have not be checkin
+        List<Reservation> currReservation = em.createQuery("SELECT r FROM Reservation r WHERE r.roomType.name = :roomType AND r.checkInDate BETWEEN :checkInDate AND :checkoutDate AND r.checkOutDate BETWEEN :checkInDate AND :checkoutDate")
+            .setParameter("roomType", roomType)
+            .setParameter("checkInDate", checkInDate)
+            .setParameter("checkoutDate", checkoutDate)
+            .getResultList();
 
         List<Room> availableRoom = new ArrayList<Room>();
         for (Room r : roomList) {
+            // get the reservation for current room
             List<Reservation> resList = r.getReservationList();
+
             if (!resList.isEmpty()) {
                 Reservation res = resList.get(resList.size() - 1);
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+                LocalDateTime parsedDateTime = LocalDateTime.parse(res.getCheckOutDate().toString(), dtf);
+                LocalDateTime today = LocalDateTime.parse(checkInDate.toString(), dtf);
                 if (
-                    !res.getCheckOutDate().after(checkInDate) &&
-                    !res.getCheckInDate().before(checkOutDate)
+                    checkInDate.after(res.getCheckOutDate()) ||
+                    parsedDateTime.toLocalDate().isEqual(today.toLocalDate())
                 ) {
                     if (!availableRoom.contains(r)) {
                         availableRoom.add(r);
                     }
                 }
+                
+                if ((roomList.size() - currReservation.size()) == availableRoom.size()) {
+                    break;
+                }
             } else {
                 if (!availableRoom.contains(r)) {
                     availableRoom.add(r);
                 }
+                
+                if ((roomList.size() - currReservation.size()) == availableRoom.size()) {
+                    break;
+                }
+            }
+            
+            if (availableRoom.size() == limit) {
+                break;
             }
         }
 
@@ -185,10 +235,10 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
         For same day check-in, allocate the required room(s) immediately if reservation is made after 2 am.
     */
     @Override
-    public Reservation walkInReserve (String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long employeeId)
+    public Reservation walkInReserve (String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long employeeId, Long guestId)
             throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, 
             EmployeeAddReservationException, AvailableRoomNotFoundException, RoomRateNotFoundException, ReservationAddRoomException, 
-            RoomAddReservationException, InputDataValidationException {
+            RoomAddReservationException, InputDataValidationException, EmployeeNotFoundException, GuestNotFoundException, GuestAddReservationException {
         
         List<Room> selectedRoom = this.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, noOfRoom);
 
@@ -215,7 +265,15 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
             
             Employee employee = em.find(Employee.class, employeeId);
             if (employee == null) {
-                throw new EmployeeAddReservationException("Reservation already added to Employee");
+                throw new EmployeeNotFoundException("Employee with id " + employeeId + " not found.");
+            }
+            
+            Guest guest = null;
+            if (guestId != null) {
+                guest = em.find(Guest.class, guestId);
+                if (guest == null) {
+                    throw new GuestNotFoundException("Guest with id " + guestId + " not found.");
+                }
             }
             
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
@@ -233,6 +291,10 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
             reservation.setRoomType(selectedRoom.get(0).getRoomType());
             reservation.setRoomRate(rate);
             reservation.setEmployee(employee);
+            
+            if (guest != null) {
+                reservation.setGuest(guest);
+            }
 
             // Room: add reservationList;
             // Room Rate: add reservationList;
@@ -243,12 +305,18 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
                 type.addReservation(reservation);
                 rate.addReservation(reservation);
                 employee.addReservation(reservation);
+                if (guest != null) {
+                    guest.addReservation(reservation);
+                }
 
                 em.persist(reservation);
+                em.flush();
             } catch (RoomTypeAddReservationException ex) {
                 throw new RoomTypeAddReservationException("Reservation already added to room type");
             } catch (RoomRateAddReservationException ex) {
                 throw new RoomRateAddReservationException("Reservation already added to room rate");
+            } catch (GuestAddReservationException ex) {
+                throw new GuestAddReservationException(ex.getMessage());
             }
 
             return reservation;
@@ -266,5 +334,54 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
         }
 
         return msg;
+    }
+    
+    @Override
+    public Reservation checkIn(Long reservationId) throws ReservationNotFoundException, RoomCheckInException  {
+        // get all the reservation for guest which will be check in today
+        Reservation reservation = em.find(Reservation.class, reservationId);
+        
+        if (reservation == null) {
+            throw new ReservationNotFoundException("Reservation Id " + reservationId + " not found.");
+        } else {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+            LocalDateTime parsedCheckInDate = LocalDateTime.parse(reservation.getCheckInDate().toString(), dtf);
+            LocalDateTime parsedCheckoutDate = LocalDateTime.parse(reservation.getCheckInDate().toString(), dtf);
+            LocalDateTime today = LocalDateTime.parse((new Date()).toString(), dtf);
+            
+            // user cannot check in if the checkindate is after today / check out date is over
+            if (
+                    reservation.getRoomList().isEmpty() && 
+                    reservation.getReport() == null && 
+                    (parsedCheckInDate.toLocalDate().isAfter(today.toLocalDate()) ||
+                    parsedCheckoutDate.toLocalDate().isBefore(today.toLocalDate()))
+                    
+            ) {
+                throw new RoomCheckInException("Room is not available to check in");
+            }
+            
+            reservation.setIsCheckIn(Boolean.TRUE);
+            em.merge(reservation);
+            
+            return reservation;
+        }
+    }
+    
+    @Override
+    public void checkOut(Long reservationId) throws ReservationNotFoundException, RoomCheckOutException {
+        Reservation reservation = em.find(Reservation.class, reservationId);
+        
+        if (reservation == null) {
+            throw new ReservationNotFoundException("Reservation Id " + reservationId + " not found.");
+        } else {
+            if (
+                reservation.getIsCheckIn() == false
+            ) {
+                throw new RoomCheckOutException("Room have not yet be check in");
+            }
+            
+            reservation.setIsCheckOut(Boolean.TRUE);
+            em.merge(reservation);
+        }
     }
 }

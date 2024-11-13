@@ -197,7 +197,7 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
             if (rate == null) {
                 throw new RoomRateNotFoundException("Published room rate for current room not found");
             }
-            
+
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
             LocalDateTime parsedDateTime = LocalDateTime.parse(checkInDate.toString(), dtf);
             LocalDateTime today = LocalDateTime.parse((new Date()).toString(), dtf);
@@ -223,8 +223,9 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
                 type.addReservation(reservation);
                 rate.addReservation(reservation);
                 guest.addReservation(reservation);
-                
+
                 em.persist(reservation);
+                em.flush();
             } catch (RoomTypeAddReservationException ex) {
                 throw new RoomTypeAddReservationException("Reservation already added to room type");
             } catch (RoomRateAddReservationException ex) {
@@ -232,7 +233,7 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
             } catch (GuestAddReservationException ex) {
                 throw new GuestAddReservationException("Reservation already added to Employee");
             }
-            
+
             return reservation;
         }  else {
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
