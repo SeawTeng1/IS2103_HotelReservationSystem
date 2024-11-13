@@ -159,7 +159,7 @@ public class MainApp {
 
                 if(response == 1)
                 {
-                    reserveHotel();
+                    searchReserveRoom();
                 }
                 else if(response == 2)
                 {
@@ -180,42 +180,6 @@ public class MainApp {
             }
             
             if(response == 4)
-            {
-                break;
-            }
-        }
-    }
-
-    public void reserveHotel() {
-        Scanner scanner = new Scanner(System.in);
-        Integer response = 0;
-        
-        while(true)
-        {
-            System.out.println("*** Welcome to HoRS Reservation System: Reserve Hotel Room ***\n");
-            System.out.println("1: Search and Reserve Hotel Room");
-            System.out.println("2: Exit\n");
-            response = 0;
-            
-            while(response < 1 || response > 2) {
-                System.out.print("> ");
-                response = scanner.nextInt();
-                
-                if(response == 1)
-                {
-                    searchReserveRoom();
-                }
-                else if(response == 2)
-                {
-                    break;
-                }
-                else
-                {
-                    System.out.println("Invalid option, please try again!\n");                
-                }
-            }
-            
-            if(response == 2)
             {
                 break;
             }

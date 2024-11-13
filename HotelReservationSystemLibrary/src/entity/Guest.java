@@ -18,6 +18,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlTransient;
 import util.exception.GuestAddReservationException;
 
 /**
@@ -49,6 +50,7 @@ public class Guest implements Serializable {
     private String passportNumber;
     
     @OneToMany(mappedBy = "Guest", cascade = {}, fetch = FetchType.LAZY)
+    @XmlTransient
     private List<Reservation> reservationList;
 
     public Guest() {
@@ -141,6 +143,7 @@ public class Guest implements Serializable {
     /**
      * @return the reservationList
      */
+    @XmlTransient
     public List<Reservation> getReservationList() {
         return reservationList;
     }

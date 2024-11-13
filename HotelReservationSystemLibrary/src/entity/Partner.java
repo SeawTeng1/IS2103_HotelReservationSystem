@@ -16,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlTransient;
 import util.exception.PartnerAddReservationException;
 
 /**
@@ -39,6 +40,7 @@ public class Partner implements Serializable {
     private String password;
     
     @OneToMany(mappedBy = "Partner", cascade = {}, fetch = FetchType.LAZY)
+    @XmlTransient
     private List<Reservation> reservationList;
 
     public Partner() {
@@ -115,6 +117,7 @@ public class Partner implements Serializable {
     /**
      * @return the reservationList
      */
+    @XmlTransient
     public List<Reservation> getReservationList() {
         return reservationList;
     }

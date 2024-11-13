@@ -70,7 +70,7 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
             } catch(PersistenceException ex) {
                 if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
                     if(ex.getCause().getCause() != null && ex.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
-                        throw new PartnerExistException("Employee Already Exists!");
+                        throw new PartnerExistException("Partner Already Exists!");
                     } else {
                         throw new UnknownPersistenceException(ex.getMessage());
                     }
@@ -116,7 +116,7 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
             query.setParameter("inUsername", username);
             return (Partner)query.getSingleResult();
         } catch (NoResultException ex) {
-            throw new PartnerNotFoundException("Employee does not exist: " + username);
+            throw new PartnerNotFoundException("Partner does not exist: " + username);
         }
     }
 
@@ -149,7 +149,7 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
 
             return reservation;
         } catch(NoResultException | NonUniqueResultException e) {
-            throw new ReservationForPartnerNotFoundException("Reservation id " + reservationId +  " not found for this guest.");
+            throw new ReservationForPartnerNotFoundException("Reservation id " + reservationId +  " not found for this partner.");
         }
     }
 

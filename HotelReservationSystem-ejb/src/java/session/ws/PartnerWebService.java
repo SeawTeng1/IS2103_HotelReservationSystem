@@ -29,6 +29,7 @@ import util.exception.InputDataValidationException;
 import util.exception.PartnerAddReservationException;
 import util.exception.PartnerInvalidPasswordException;
 import util.exception.PartnerNotFoundException;
+import util.exception.ReservationAddRoomException;
 import util.exception.ReservationForPartnerNotFoundException;
 import util.exception.ReservationListForPartnerNotFoundException;
 import util.exception.RoomAddReservationException;
@@ -59,12 +60,18 @@ public class PartnerWebService {
                 throws PartnerInvalidPasswordException, PartnerNotFoundException {
 
         Partner partner = this.partnerSessionBeanLocal.partnerLogin(username, password);
+
         em.detach(partner);
 
         for (Reservation reservation : partner.getReservationList()) {
             em.detach(reservation);
             reservation.setPartner(null);
+            
+            em.detach(reservation.getGuest());
+            reservation.setGuest(null);
         }
+        
+        partner.setReservationList(null);
 
         return partner;
     }
@@ -73,6 +80,54 @@ public class PartnerWebService {
     public Reservation getReservationDetailByPartner(@WebParam(name = "partnerId") Long partnerId, @WebParam(name = "reservationId") Long reservationId) throws ReservationForPartnerNotFoundException {
 
         Reservation reservation = this.partnerSessionBeanLocal.getReservationDetailByPartner(partnerId, reservationId);
+        
+        em.detach(reservation);
+        
+        em.detach(reservation.getGuest());
+        // reservation.setGuest(null);
+
+        if (reservation.getEmployee() != null) {
+            em.detach(reservation.getEmployee());
+            reservation.setEmployee(null);
+        }
+
+        em.detach(reservation.getPartner());
+        reservation.getPartner().setReservationList(null);
+
+        if (reservation.getRoomList().size() > 0) {
+            for (Room room : reservation.getRoomList()) {
+                em.detach(room);
+                room.setReservationList(null);
+                
+                em.detach(room.getRoomType());
+                room.setRoomType(null);
+            }
+        }
+        
+        em.detach(reservation.getRoomType());
+        if (reservation.getRoomType().getRoomList().size() > 0) {
+            for (Room room : reservation.getRoomType().getRoomList()) {
+                em.detach(room);
+                room.setRoomType(null);
+            }
+            
+            for (Reservation r : reservation.getRoomType().getReservationList()) {
+                em.detach(r);
+                r.setRoomType(null);
+            }
+        } 
+        reservation.getRoomType().setReservationList(null);
+        reservation.getRoomType().setRoomList(null);
+
+        em.detach(reservation.getRoomRate());
+        if (reservation.getRoomRate().getReservationList().size() > 0) {
+            for (Reservation r : reservation.getRoomRate().getReservationList()) {
+                em.detach(r);
+                r.setRoomType(null);
+            }
+        }
+        reservation.getRoomRate().setReservationList(null);
+        // reservation.setRoomRate(null);
 
         return reservation;
     }
@@ -86,23 +141,33 @@ public class PartnerWebService {
 
             em.detach(reservation.getGuest());
             reservation.getGuest().setReservationList(null);
-
+            
+            if (reservation.getEmployee() != null) {
+                em.detach(reservation.getEmployee());
+                reservation.getEmployee().setReservationList(null);
+            }
+            
             em.detach(reservation.getPartner());
             reservation.getPartner().setReservationList(null);
-
-            for (Room room : reservation.getRoomList()) {
-                em.detach(room);
-                room.setReservationList(null);
+            
+            if (reservation.getRoomList().size() > 0) {
+                for (Room room : reservation.getRoomList()) {
+                    em.detach(room);
+                    room.setReservationList(null);
+                }
             }
-
+            
             em.detach(reservation.getRoomType());
+            if (reservation.getRoomType().getRoomList().size() > 0) {
+                for (Room room : reservation.getRoomType().getRoomList()) {
+                    em.detach(room);
+                    room.setRoomType(null);
+                }
+            } 
             reservation.getRoomType().setReservationList(null);
 
             em.detach(reservation.getRoomRate());
             reservation.getRoomRate().setReservationList(null);
-
-            em.detach(reservation.getReport());
-            reservation.getReport().setReservation(null);
         }
 
         return reservationList;
@@ -121,11 +186,26 @@ public class PartnerWebService {
 
             em.detach(room.getRoomType());
             room.setRoomType(null);
-
+            
             for (Reservation reservation : room.getReservationList()) {
                 em.detach(reservation);
+                
+                em.detach(reservation.getGuest());
+                
+                for (Reservation r : reservation.getGuest().getReservationList()) {
+                    em.detach(reservation);
+                }
+                reservation.getGuest().setReservationList(null);
+                reservation.setGuest(null);
+                
+                for (Room r : reservation.getRoomList()) {
+                    em.detach(room);
+                }
                 reservation.setRoomList(null);
+                
             }
+            
+            room.setReservationList(null);
         }
         return roomList;
     }
@@ -152,7 +232,29 @@ public class PartnerWebService {
             @WebParam(name = "guestId") Long guestId
     ) throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException,
             PartnerAddReservationException, RoomAddReservationException, PartnerNotFoundException,
-            GuestNotFoundException, GuestAddReservationException, AvailableRoomNotFoundException, InputDataValidationException {
-        return this.partnerRoomReservationLocal.onlineReserve(roomType, noOfRoom, checkInDate, checkOutDate, partnerId, guestId);
+            GuestNotFoundException, GuestAddReservationException, AvailableRoomNotFoundException, InputDataValidationException, ReservationAddRoomException {
+        Reservation reservation = this.partnerRoomReservationLocal.onlineReserve(roomType, noOfRoom, checkInDate, checkOutDate, partnerId, guestId);
+        
+       em.detach(reservation);
+
+        em.detach(reservation.getGuest());
+        reservation.getGuest().setReservationList(null);
+
+        em.detach(reservation.getPartner());
+        reservation.getPartner().setReservationList(null);
+
+        for (Room room : reservation.getRoomList()) {
+            em.detach(room);
+            room.setReservationList(null);
+        }
+        reservation.setRoomList(null);
+
+        em.detach(reservation.getRoomType());
+        reservation.getRoomType().setReservationList(null);
+
+        em.detach(reservation.getRoomRate());
+        reservation.getRoomRate().setReservationList(null);
+
+        return reservation;
     }
 }
