@@ -26,7 +26,7 @@ import util.exception.UnknownPersistenceException;
 public interface RoomSessionBeanRemote {
     public Room createNewRoom(Room newRoom, String roomTypeName) throws RoomTypeNotFoundException, UnknownPersistenceException, RoomExistException, RoomTypeDisabledException, InputDataValidationException;
 
-    public void updateRoom(Room room, Integer roomNumber) throws RoomNotFoundException;
+    public void updateRoom(Room room) throws RoomNotFoundException, InputDataValidationException;
 
     public void deleteRoom(Long roomId) throws RoomNotFoundException, RoomDeleteException;
 
