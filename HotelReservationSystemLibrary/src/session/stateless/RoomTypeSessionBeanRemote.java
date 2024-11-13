@@ -27,7 +27,7 @@ public interface RoomTypeSessionBeanRemote {
 
     //public void updateRoomType(RoomType roomType, String name) throws RoomTypeNotFoundException;
 
-    //public RoomType createNewRoomType(RoomType newRoomType) throws RoomTypeExistException, UnknownPersistenceException, InputDataValidationException;
+    public RoomType createNewRoomType(RoomType newRoomType) throws RoomTypeExistException, UnknownPersistenceException, InputDataValidationException;
 
     public void deleteRoomType(Long roomTypeId) throws RoomTypeNotFoundException, RoomTypeDeleteException;
 
