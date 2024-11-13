@@ -42,6 +42,15 @@ public class SystemAdministrationModule {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
+
+    public SystemAdministrationModule(EmployeeSessionBeanRemote employeeSessionBeanRemote, PartnerSessionBeanRemote partnerSessionBeanRemote, Employee currentEmployee) {
+        this();
+        this.employeeSessionBeanRemote = employeeSessionBeanRemote;
+        this.partnerSessionBeanRemote = partnerSessionBeanRemote;
+        this.currentEmployee = currentEmployee;
+    }
+    
+    
     
     
     
@@ -57,7 +66,7 @@ public class SystemAdministrationModule {
         
         while(true)
         {
-            System.out.println("*** POS System :: System Administration ***\n");
+            System.out.println("*** HoR System :: System Administration ***\n");
             System.out.println("1: Create New Employee");
             System.out.println("2: View All Employees");
             System.out.println("-----------------------");
@@ -111,7 +120,7 @@ public class SystemAdministrationModule {
         Scanner scanner = new Scanner(System.in);
         Employee newEmployee = new Employee();
         
-        System.out.println("*** POS System :: System Administration :: Create New Employee ***\n");
+        System.out.println("*** HoR System :: System Administration :: Create New Employee ***\n");
         System.out.print("Enter Username> ");
         newEmployee.setUsername(scanner.nextLine().trim());
         
@@ -168,14 +177,14 @@ public class SystemAdministrationModule {
     {
         Scanner scanner = new Scanner(System.in);
         
-        System.out.println("*** POS System :: System Administration :: View All Employees ***\n");
+        System.out.println("*** HoR System :: System Administration :: View All Employees ***\n");
         
         List<Employee> employeeList = employeeSessionBeanRemote.viewAllEmployees();
-        System.out.printf("%8s%20s%20s%15s%20s%20s\n", "Employee ID", "Userame", "Access Right", "Password");
+        System.out.printf("%8s%24s%24s%24s\n", "Employee ID", "Userame", "Access Right", "Password");
 
         for(Employee employee:employeeList)
         {
-            System.out.printf("%8s%20s%20s%15s%20s%20s\n", employee.getEmployeeId().toString(), employee.getUsername(), employee.getRoleType().toString(), employee.getPassword());
+            System.out.printf("%8s%24s%24s%24s\n", employee.getEmployeeId().toString(), employee.getUsername(), employee.getRoleType().toString(), employee.getPassword());
         }
         
         System.out.print("Press any key to continue...> ");
@@ -199,7 +208,7 @@ public class SystemAdministrationModule {
         Scanner scanner = new Scanner(System.in);
         Partner newPartner = new Partner();
         
-        System.out.println("*** POS System :: System Administration :: Create New Partner ***\n");
+        System.out.println("*** HoR System :: System Administration :: Create New Partner ***\n");
         System.out.print("Enter Username> ");
         newPartner.setUsername(scanner.nextLine().trim());
         System.out.print("Enter Password> ");
@@ -250,14 +259,14 @@ public class SystemAdministrationModule {
     {
         Scanner scanner = new Scanner(System.in);
         
-        System.out.println("*** POS System :: System Administration :: View All Partners ***\n");
+        System.out.println("*** HoR System :: System Administration :: View All Partners ***\n");
         
         List<Partner> partnerList = partnerSessionBeanRemote.viewAllPartners();
-        System.out.printf("%8s%20s%20s%15s%20s%20s\n", "Partner ID", "Userame", "Password");
+        System.out.printf("%8s%24s%24s\n", "Partner ID", "Userame", "Password");
 
         for(Partner partner:partnerList)
         {
-            System.out.printf("%8s%20s%20s%15s%20s%20s\n", partner.getPartnerId().toString(), partner.getUsername(), partner.getPassword());
+            System.out.printf("%8s%24s%24s\n", partner.getPartnerId().toString(), partner.getUsername(), partner.getPassword());
         }
         
         System.out.print("Press any key to continue...> ");

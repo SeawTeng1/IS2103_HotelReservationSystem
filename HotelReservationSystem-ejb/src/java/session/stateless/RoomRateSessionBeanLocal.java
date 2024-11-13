@@ -5,11 +5,14 @@
 package session.stateless;
 
 import entity.RoomRate;
+import java.util.List;
 import javax.ejb.Local;
+import util.exception.InputDataValidationException;
 import util.exception.PersistentContextException;
 import util.exception.RoomRateExistException;
 import util.exception.RoomRateNotFoundException;
 import util.exception.RoomTypeRemoveRoomRateException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -18,12 +21,15 @@ import util.exception.RoomTypeRemoveRoomRateException;
 @Local
 public interface RoomRateSessionBeanLocal {
 
-    public RoomRate createRoomRate(RoomRate roomRate) throws RoomRateExistException, PersistentContextException;
+    //public RoomRate createRoomRate(RoomRate roomRate) throws RoomRateExistException, PersistentContextException;
 
     public RoomRate retrieveRoomRateById(Long roomRateId) throws RoomRateNotFoundException;
 
-    public RoomRate updateRoomRate(Long roomRateId, RoomRate roomRateUpdate) throws RoomRateNotFoundException, PersistentContextException;
+    public void updateRoomRate(Long roomRateId, RoomRate roomRateUpdate) throws RoomRateNotFoundException, PersistentContextException, InputDataValidationException;
 
     public void deleteRoomRate(Long roomRateId) throws RoomRateNotFoundException, RoomTypeRemoveRoomRateException, PersistentContextException;
     
+    public RoomRate createRoomRate(RoomRate roomRate, String roomTypeName) throws RoomRateExistException,  UnknownPersistenceException, InputDataValidationException;
+    
+    public List<RoomRate> viewAllRoomRates();
 }
