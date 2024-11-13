@@ -19,6 +19,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlTransient;
 import util.exception.EmployeeAddReservationException;
 
 /**
@@ -46,6 +47,7 @@ public class Employee implements Serializable {
     private RoleType roleType;
     
     @OneToMany(mappedBy = "Employee", cascade = {}, fetch = FetchType.LAZY)
+    @XmlTransient
     private List<Reservation> reservationList;
 
     public Employee() {
@@ -137,6 +139,7 @@ public class Employee implements Serializable {
     /**
      * @return the reservationList
      */
+    @XmlTransient
     public List<Reservation> getReservationList() {
         return reservationList;
     }

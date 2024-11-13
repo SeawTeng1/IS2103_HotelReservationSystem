@@ -22,6 +22,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlTransient;
 import util.exception.RoomTypeAddReservationException;
 import util.exception.RoomTypeAddRoomRateException;
 import util.exception.RoomTypeRemoveRoomRateException;
@@ -69,12 +70,14 @@ public class RoomType implements Serializable {
     private Integer roomRank; 
     
     @OneToMany(mappedBy = "RoomType", cascade = {}, fetch = FetchType.LAZY)
+    @XmlTransient
     private List<Room> roomList;
     
     @OneToMany(mappedBy = "RoomType", cascade = {}, fetch = FetchType.LAZY)
     private List<Reservation> reservationList;
     
     @OneToMany(mappedBy = "RoomType", cascade = {}, fetch = FetchType.LAZY)
+    @XmlTransient
     private List<RoomRate> roomRateList;
     
     //unidirectional
@@ -244,6 +247,7 @@ public class RoomType implements Serializable {
     /**
      * @return the roomList
      */
+    @XmlTransient
     public List<Room> getRoomList() {
         return roomList;
     }
@@ -284,6 +288,7 @@ public class RoomType implements Serializable {
     /**
      * @return the roomRateList
      */
+    @XmlTransient
     public List<RoomRate> getRoomRateList() {
         return roomRateList;
     }

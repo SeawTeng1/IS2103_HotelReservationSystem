@@ -88,18 +88,19 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
         }
         
         // get reservation that have not be checkin
-        List<Reservation> currReservation = em.createQuery("SELECT r FROM Reservation r WHERE r.roomType.name = :roomType AND r.checkInDate BETWEEN :checkInDate AND :checkoutDate AND r.checkOutDate BETWEEN :checkInDate AND :checkoutDate")
+        List<Reservation> currReservation = em.createQuery("SELECT r FROM Reservation r WHERE r.roomType.name = :roomType AND ((r.checkInDate BETWEEN :checkInDate AND :checkoutDate) OR (r.checkOutDate BETWEEN :checkInDate AND :checkoutDate) OR (r.checkInDate <= :checkInDate AND r.checkOutDate >= :checkoutDate))")
             .setParameter("roomType", roomType)
             .setParameter("checkInDate", checkInDate)
             .setParameter("checkoutDate", checkoutDate)
             .getResultList();
+        System.out.println(currReservation);
+        System.out.println("Room Type: " + roomType);
         
         List<Room> availableRoom = new ArrayList<Room>();
         for (Room r : roomList) {
             // get the reservation for current room
             List<Reservation> resList = r.getReservationList();
-
-
+            
             if (!resList.isEmpty()) {
                 Reservation res = resList.get(resList.size() - 1);
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);

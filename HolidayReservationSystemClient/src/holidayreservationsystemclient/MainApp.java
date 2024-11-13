@@ -88,7 +88,7 @@ public class MainApp {
         
         try {
             this.partner = this.service.getPartnerWebServicePort().partnerLogin(username, password);
-            System.out.println("Guest successfully login!");
+            System.out.println("Partner successfully login!");
         } catch (ws.partner.PartnerInvalidPasswordException_Exception | ws.partner.PartnerNotFoundException_Exception ex) {
             System.out.println(ex.getMessage());
         }
@@ -115,7 +115,7 @@ public class MainApp {
 
                 if(response == 1)
                 {
-                    reserveHotel();
+                    searchReserveRoom();
                 }
                 else if(response == 2)
                 {
@@ -136,42 +136,6 @@ public class MainApp {
             }
             
             if(response == 4)
-            {
-                break;
-            }
-        }
-    }
-
-    public void reserveHotel() {
-      Scanner scanner = new Scanner(System.in);
-        Integer response = 0;
-        
-        while(true)
-        {
-            System.out.println("*** Welcome to Holiday Reservation System: Reserve Hotel Room ***\n");
-            System.out.println("1: Search and Reserve Hotel Room");
-            System.out.println("2: Exit\n");
-            response = 0;
-            
-            while(response < 1 || response > 2) {
-                System.out.print(" > ");
-                response = scanner.nextInt();
-                
-                if(response == 1)
-                {
-                    searchReserveRoom();
-                }
-                else if(response == 2)
-                {
-                    break;
-                }
-                else
-                {
-                    System.out.println("Invalid option, please try again!\n");                
-                }
-            }
-            
-            if(response == 2)
             {
                 break;
             }
@@ -314,7 +278,7 @@ public class MainApp {
             if (!reservationList.isEmpty()) {
                 System.out.println("*** Reservations Records ***\n");
                 for (Reservation res : reservationList) {
-                    System.out.println(" Reservation Id: " + res.getReservationId());
+                    System.out.println("Reservation Id: " + res.getReservationId());
                     System.out.println("Guest Id: " + res.getGuest().getGuestId());
                     System.out.println("Check In Date: " + res.getCheckInDate());
                     System.out.println("Check Out Date: " + res.getCheckOutDate());
