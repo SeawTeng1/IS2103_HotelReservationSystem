@@ -458,7 +458,7 @@ public class HotelOperationModule {
         
         System.out.println("*** HoR System :: Hotel Operation :: Create New Room ***\n");
         System.out.print("Enter Room Number> ");
-        newRoom.setRoomNumber(scanner.nextInt());
+        newRoom.setRoomNumber(scanner.nextLine());
         newRoom.setRoomStatus(RoomStatus.AVAILABLE);
         newRoom.setDisabled(Boolean.FALSE);
         newRoom.setIsOccupied(Boolean.FALSE);
@@ -509,7 +509,7 @@ public class HotelOperationModule {
         //Room updateRoom = new Room();
         String input;
         BigDecimal inputDec;
-        Integer inputInt;
+        String inputStr;
         
         System.out.println("*** HoR System :: Hotel Operation :: Update Room ***\n");
         System.out.print("Enter Room Number> ");
@@ -527,10 +527,10 @@ public class HotelOperationModule {
             System.out.println("--------------------");
 
             System.out.print("Enter Room Number (blank if no change)> ");
-            inputInt = scanner.nextInt();
-            if(inputInt != null && inputInt > 0)
+            inputStr = scanner.nextLine();
+            if(inputStr != null)
             {
-                updateRoom.setRoomNumber(inputInt);
+                updateRoom.setRoomNumber(inputStr);
             }
 
             while(true)

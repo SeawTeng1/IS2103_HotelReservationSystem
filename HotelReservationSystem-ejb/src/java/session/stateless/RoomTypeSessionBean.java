@@ -55,6 +55,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     // "Insert Code > Add Business Method")
 
     //7. Create New Room Type
+    @Override
     public RoomType createNewRoomType(RoomType newRoomType, String higherRoomType) throws RoomTypeExistException, UnknownPersistenceException, InputDataValidationException, RoomTypeNotFoundException {
          Set<ConstraintViolation<RoomType>>constraintViolations = validator.validate(newRoomType);
 
