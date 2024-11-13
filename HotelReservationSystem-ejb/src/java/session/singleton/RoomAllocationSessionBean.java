@@ -17,6 +17,7 @@ import javax.ejb.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import session.stateless.RoomAllocationExceptionReportSessionBeanLocal;
+import util.exception.InputDataValidationException;
 import util.exception.ReportExistException;
 import util.exception.ReservationAddRoomException;
 import util.exception.ReservationAddRoomExceptionItemException;
@@ -129,6 +130,8 @@ public class RoomAllocationSessionBean implements RoomAllocationSessionBeanRemot
                                 Logger.getLogger(RoomAllocationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
                             } catch (ReportExistException ex) {
                                 Logger.getLogger(RoomAllocationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (InputDataValidationException ex) {
+                                Logger.getLogger(RoomAllocationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
 
@@ -150,6 +153,8 @@ public class RoomAllocationSessionBean implements RoomAllocationSessionBeanRemot
                     } catch (UnknownPersistenceException ex) {
                         Logger.getLogger(RoomAllocationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (ReportExistException ex) {
+                        Logger.getLogger(RoomAllocationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (InputDataValidationException ex) {
                         Logger.getLogger(RoomAllocationSessionBean.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     

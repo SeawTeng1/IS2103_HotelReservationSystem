@@ -102,18 +102,27 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     
     
     //13. Update Room: update details of room record and/or status
-    @Override
-    public void updateRoom(Room room, Integer roomNumber) throws RoomNotFoundException {
-        Room roomToUpdate = retrieveRoombyRoomNumber(roomNumber);
-        if (roomToUpdate != null) {
-            roomToUpdate.setRoomStatus(room.getRoomStatus());
-            roomToUpdate.setRoomType(room.getRoomType());
-            
-        } else {
-            throw new RoomNotFoundException("Room to be updated not found!");
-        }
+    //@Override
+    public void updateRoom(Room room) throws RoomNotFoundException, InputDataValidationException {
+        {
+        if(room != null && room.getRoomId()!= null)
+        {
+            Set<ConstraintViolation<Room>>constraintViolations = validator.validate(room);
         
-    }
+            if(constraintViolations.isEmpty())
+            {
+                Room roomUpdate = retrieveRoombyId(room.getRoomId());
+
+                roomUpdate.setRoomNumber(room.getRoomNumber());
+                roomUpdate.setRoomStatus(room.getRoomStatus());
+
+            } else {
+                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+            }
+        } else {
+            throw new RoomNotFoundException("Room ID not provided for room to be updated");
+        }
+    } }
     
     
     //14. Delete Room -- check if occupied --> if occupied mark as disabled, cannot be reserved anymore
@@ -176,7 +185,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
                 Integer numberOfRooms = reservation.getNumOfRoom();
                 List<Room> assignedRooms = new ArrayList<>();
                 RoomType roomType = reservation.getRoomType();
-                RoomType nextHigherRoomType = roomType.getHigherRoomType();
+                RoomType higherRoomType = roomType.getHigherRoomType();
 
                 Query queryRoom = em.createQuery("SELECT r FROM Room r WHERE r.roomType = :inRoomType AND r.roomStatus = :inStatus AND r.disabled = :inDisabled");
                 queryRoom.setParameter("inRoomType", roomType);
@@ -206,11 +215,11 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
                     }
 
                 } 
-                else if(roomsQuery.size() < numberOfRooms && nextHigherRoomType != null) 
+                else if(roomsQuery.size() < numberOfRooms && higherRoomType != null) 
                 {
                     // obtain list of all free room of the next higher type
                     Query queryRoomHigher = em.createQuery("SELECT r FROM Room r WHERE r.roomType = :inRoomType AND r.roomStatus = :inStatus AND r.disabled = :inDisabled");
-                    queryRoomHigher.setParameter("inRoomType", nextHigherRoomType);
+                    queryRoomHigher.setParameter("inRoomType", higherRoomType);
                     queryRoomHigher.setParameter("inStatus", RoomStatus.AVAILABLE);
                     queryRoomHigher.setParameter("inDisabled", false);
 

@@ -6,6 +6,7 @@ package session.stateless;
 
 import entity.Employee;
 import entity.Room;
+import entity.RoomRate;
 import entity.RoomType;
 import java.util.List;
 import java.util.Set;
@@ -54,13 +55,14 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     // "Insert Code > Add Business Method")
     
     //7. Create New Room Type
-    @Override
-    public RoomType createNewRoomType(RoomType newRoomType) throws RoomTypeExistException, UnknownPersistenceException, InputDataValidationException {
+    public RoomType createNewRoomType(RoomType newRoomType, String higherRoomType) throws RoomTypeExistException, UnknownPersistenceException, InputDataValidationException, RoomTypeNotFoundException {
          Set<ConstraintViolation<RoomType>>constraintViolations = validator.validate(newRoomType);
         
         if(constraintViolations.isEmpty()) {
             try { 
-                insertNewRoomRank(newRoomType.getRoomRank(), newRoomType);
+                if(!higherRoomType.equals("None")) {
+                    newRoomType.setHigherRoomType(retrieveRoomTypebyName(higherRoomType));
+                }
                 em.persist(newRoomType);
                 em.flush();
 
@@ -85,23 +87,34 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     
     //9. Update Room Type takes in the id of the room type you want to update to update the details of a particular existing room record with a new roomtype record
     @Override
-    public void updateRoomType(RoomType roomType, String name) throws RoomTypeNotFoundException {
-        RoomType roomTypeUpdate = retrieveRoomTypebyName(name); //use room type name to find "old" room type we intend to update
-        if (roomTypeUpdate != null) { //if unchanged in main it will be blank and roomTypeUpdate's detail wont be updated?
-            roomTypeUpdate.setDescription(roomType.getDescription());
-            roomTypeUpdate.setSize(roomType.getSize());
-            roomTypeUpdate.setBeds(roomType.getBeds());
-            roomTypeUpdate.setCapacity(roomType.getCapacity());
-            roomTypeUpdate.setAmenities(roomType.getAmenities());
+    public void updateRoomType(RoomType roomType) throws RoomTypeNotFoundException, InputDataValidationException {
+        if(roomType != null && roomType.getRoomTypeId() != null) {
+            
+            Set<ConstraintViolation<RoomType>>constraintViolations = validator.validate(roomType);
+            
+            if(constraintViolations.isEmpty()) {
+                
+                RoomType roomtypeToUpdate = retrieveRoomTypebyId(roomType.getRoomTypeId());
+                
+                    roomtypeToUpdate.setName(roomType.getName());
+                    roomtypeToUpdate.setDescription(roomType.getDescription());
+                    roomtypeToUpdate.setSize(roomType.getSize());
+                    roomtypeToUpdate.setBeds(roomType.getBeds());
+                    roomtypeToUpdate.setCapacity(roomType.getCapacity());
+                    roomtypeToUpdate.setAmenities(roomType.getAmenities());
+            } else {
+                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+            }
             
         } else {
-            throw new RoomTypeNotFoundException("Room Type to be updated not found!");
+            throw new RoomTypeNotFoundException("Room Type ID not provided for room type to be updated");
         }
     }
     
     //10. Delete Room Type
     @Override
     public void deleteRoomType(Long roomTypeId) throws RoomTypeNotFoundException, RoomTypeDeleteException {
+        
         RoomType roomTypeToDelete = retrieveRoomTypebyId(roomTypeId);
         // check if any rooms of room type are occupied else if occupied disable room type
         Query query = em.createQuery("SELECT r FROM Room r WHERE r.roomType.roomTypeId = :inRoomType AND room.isOccupied = :inIsOccupied");
@@ -139,7 +152,10 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         try{
             Query query = em.createQuery("SELECT rt FROM RoomType rt WHERE rt.name = :inName ");
             query.setParameter("inName", roomTypeName);
-            return (RoomType)query.getSingleResult();
+            RoomType roomType = (RoomType)query.getSingleResult();
+            roomType.getHigherRoomType();
+            roomType.getRoomRateList().size();
+            return roomType;
         } catch (NoResultException ex) {
             throw new RoomTypeNotFoundException("Room Type does not exist: " + roomTypeName);
         }
@@ -167,6 +183,14 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
                 rt.setRoomRank(rt.getRoomRank() - 1);
             }
         }       
+    }
+    
+    @Override
+    public void retrieveRoomRatesForRoomType(RoomType roomType) {
+        List<RoomRate> roomRateList = roomType.getRoomRateList();
+            for (RoomRate roomRate : roomRateList) {
+                System.out.println(" - " + roomRate.getName() + ": " + roomRate.getRatePerNight() + " dollars per night");
+            }
     }
     
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<RoomType>>constraintViolations)
