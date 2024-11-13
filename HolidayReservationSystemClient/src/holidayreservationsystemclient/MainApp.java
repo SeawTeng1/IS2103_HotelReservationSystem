@@ -317,7 +317,7 @@ public class MainApp {
                     System.out.println(" Reservation Id: " + res.getReservationId());
                     System.out.println("Guest Id: " + res.getGuest().getGuestId());
                     System.out.println("Check In Date: " + res.getCheckInDate());
-                    System.out.println(" Check Out Date: " + res.getCheckOutDate());
+                    System.out.println("Check Out Date: " + res.getCheckOutDate());
                     System.out.println("Room Type: " + res.getRoomType().getName());
                     System.out.println("No of Room: " + res.getNumOfRoom());
                     System.out.println("Total Price: " + res.getTotalPrice());

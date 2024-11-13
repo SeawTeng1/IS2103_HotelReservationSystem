@@ -77,7 +77,7 @@ public class PartnerRoomReservation implements PartnerRoomReservationRemote, Par
             throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException,
             PartnerAddReservationException, RoomAddReservationException, PartnerNotFoundException,
             GuestNotFoundException, GuestAddReservationException, AvailableRoomNotFoundException, InputDataValidationException, ReservationAddRoomException {
-         List<Room> selectedRoom = guestRoomReservationSessionBeanLocal.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, noOfRoom);
+        List<Room> selectedRoom = guestRoomReservationSessionBeanLocal.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, noOfRoom);
 
         BigDecimal total = new BigDecimal(0);
         total = guestRoomReservationSessionBeanLocal.getTotalPrice(roomType, checkInDate, checkOutDate, noOfRoom);
@@ -85,14 +85,12 @@ public class PartnerRoomReservation implements PartnerRoomReservationRemote, Par
         Reservation reservation = new Reservation(checkInDate, checkOutDate, total, noOfRoom);
         Set<ConstraintViolation<Reservation>>constraintViolations = validator.validate(reservation);
         if (constraintViolations.isEmpty()) {
-            em.persist(reservation);
-
             // Reservation: add roomList; roomType; roomRate;
             // add roomList only if the reservation is same day check in and is after 2am
             LocalDateTime now = LocalDateTime.now();
 
             // get room rate
-            RoomRate rate = guestRoomReservationSessionBeanLocal.getCorrectRoomRate(selectedRoom.get(0).getRoomType().getName(), checkInDate, checkOutDate);
+            RoomRate rate = guestRoomReservationSessionBeanLocal.getCorrectRoomRate(roomType, checkInDate, checkOutDate);
 
             Partner partner = em.find(Partner.class, partnerId);
             if (partner == null) {
@@ -135,6 +133,9 @@ public class PartnerRoomReservation implements PartnerRoomReservationRemote, Par
                 rate.addReservation(reservation);
                 partner.addReservation(reservation);
                 guest.addReservation(reservation);
+                
+                em.persist(reservation);
+                em.flush();
             } catch (RoomTypeAddReservationException ex) {
                 throw new RoomTypeAddReservationException("Reservation already added to room type");
             } catch (RoomRateAddReservationException ex) {
