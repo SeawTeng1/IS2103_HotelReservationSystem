@@ -57,7 +57,6 @@ public class FrontOfficeModule {
         this.currentEmployee = currentEmployee;
     }
 
-
     public void menuFrontOffice() throws InvalidAccessRightException
     {
         if(currentEmployee.getRoleType() != RoleType.GUEST_RELATION_OFFICER)
