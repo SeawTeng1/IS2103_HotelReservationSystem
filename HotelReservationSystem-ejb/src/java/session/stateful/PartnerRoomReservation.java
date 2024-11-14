@@ -36,6 +36,7 @@ import util.exception.InputDataValidationException;
 import util.exception.PartnerAddReservationException;
 import util.exception.PartnerNotFoundException;
 import util.exception.ReservationAddRoomException;
+import util.exception.ReservationExceedAvailableRoomNumberException;
 import util.exception.RoomAddReservationException;
 import util.exception.RoomRateAddReservationException;
 import util.exception.RoomRateNotFoundException;
@@ -76,9 +77,13 @@ public class PartnerRoomReservation implements PartnerRoomReservationRemote, Par
     public Reservation onlineReserve(String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long partnerId, Long guestId)
             throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException,
             PartnerAddReservationException, RoomAddReservationException, PartnerNotFoundException,
-            GuestNotFoundException, GuestAddReservationException, AvailableRoomNotFoundException, InputDataValidationException, ReservationAddRoomException {
+            GuestNotFoundException, GuestAddReservationException, AvailableRoomNotFoundException, InputDataValidationException, ReservationAddRoomException, ReservationExceedAvailableRoomNumberException {
         List<Room> selectedRoom = guestRoomReservationSessionBeanLocal.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, noOfRoom);
-
+        
+        if (selectedRoom.size() < noOfRoom) {
+            throw new ReservationExceedAvailableRoomNumberException("The is insufficient rooms to be reserved");
+        }
+        
         BigDecimal total = new BigDecimal(0);
         total = guestRoomReservationSessionBeanLocal.getTotalPrice(roomType, checkInDate, checkOutDate, noOfRoom);
 

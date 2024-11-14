@@ -17,6 +17,7 @@ import util.exception.GuestAddReservationException;
 import util.exception.GuestNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.ReservationAddRoomException;
+import util.exception.ReservationExceedAvailableRoomNumberException;
 import util.exception.ReservationNotFoundException;
 import util.exception.RoomAddReservationException;
 import util.exception.RoomCheckInException;
@@ -37,7 +38,7 @@ public interface WalkInRoomReservationRemote {
     public Reservation walkInReserve (String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long employeeId, Long guestId)
             throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, 
             EmployeeAddReservationException, AvailableRoomNotFoundException, RoomRateNotFoundException, ReservationAddRoomException, 
-            RoomAddReservationException, InputDataValidationException, EmployeeNotFoundException, GuestNotFoundException, GuestAddReservationException;
+            RoomAddReservationException, InputDataValidationException, EmployeeNotFoundException, GuestNotFoundException, GuestAddReservationException, ReservationExceedAvailableRoomNumberException;
 
     public BigDecimal getTotalPrice(String roomType, Date checkInDate, Date checkOutDate, Integer numOfRoom) throws RoomRateNotFoundException, AvailableRoomNotFoundException;
     

@@ -41,6 +41,7 @@ import util.exception.RoomAddReservationException;
 import util.exception.RoomRateAddReservationException;
 import util.exception.RoomRateNotFoundException;
 import util.exception.RoomTypeAddReservationException;
+import util.exception.ReservationExceedAvailableRoomNumberException;
 
 /**
  *
@@ -136,7 +137,7 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
         List<RoomRate> specialRateList = em.createQuery(
                 "SELECT rr FROM RoomRate rr WHERE "
                         + "rr.roomType.name = :roomType AND (rr.rateType = :peakType OR rr.rateType = :promoType)"
-                        + "AND rr.validityStart >= :checkInDate AND rr.validityEnd <= :checkOutDate"
+                        + "AND rr.validityStart BETWEEN :checkInDate AND :checkOutDate AND rr.validityEnd BETWEEN :checkInDate AND :checkOutDate"
             )
             .setParameter("roomType", roomType)
             .setParameter("peakType", RateType.PEAK)
@@ -172,9 +173,13 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
     public Reservation onlineReserve (String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long guestId)
             throws RoomRateNotFoundException, RoomTypeAddReservationException,
             RoomRateAddReservationException, GuestAddReservationException, RoomAddReservationException,
-            GuestNotFoundException, InputDataValidationException, AvailableRoomNotFoundException, ReservationAddRoomException {
+            GuestNotFoundException, InputDataValidationException, AvailableRoomNotFoundException, ReservationAddRoomException, ReservationExceedAvailableRoomNumberException {
 
         List<Room> selectedRoom = this.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, noOfRoom);
+
+        if (selectedRoom.size() < noOfRoom) {
+            throw new ReservationExceedAvailableRoomNumberException("The is insufficient rooms to be reserved");
+        }
 
         BigDecimal total = new BigDecimal(0);
         total = this.getTotalPrice(roomType, checkInDate, checkOutDate, noOfRoom);

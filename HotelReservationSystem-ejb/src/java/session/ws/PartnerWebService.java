@@ -16,8 +16,6 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import session.stateful.GuestRoomReservationSessionBeanLocal;
 import session.stateful.PartnerRoomReservationLocal;
@@ -30,6 +28,7 @@ import util.exception.PartnerAddReservationException;
 import util.exception.PartnerInvalidPasswordException;
 import util.exception.PartnerNotFoundException;
 import util.exception.ReservationAddRoomException;
+import util.exception.ReservationExceedAvailableRoomNumberException;
 import util.exception.ReservationForPartnerNotFoundException;
 import util.exception.ReservationListForPartnerNotFoundException;
 import util.exception.RoomAddReservationException;
@@ -232,7 +231,7 @@ public class PartnerWebService {
             @WebParam(name = "guestId") Long guestId
     ) throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException,
             PartnerAddReservationException, RoomAddReservationException, PartnerNotFoundException,
-            GuestNotFoundException, GuestAddReservationException, AvailableRoomNotFoundException, InputDataValidationException, ReservationAddRoomException {
+            GuestNotFoundException, GuestAddReservationException, AvailableRoomNotFoundException, InputDataValidationException, ReservationAddRoomException, ReservationExceedAvailableRoomNumberException {
         Reservation reservation = this.partnerRoomReservationLocal.onlineReserve(roomType, noOfRoom, checkInDate, checkOutDate, partnerId, guestId);
         
        em.detach(reservation);
