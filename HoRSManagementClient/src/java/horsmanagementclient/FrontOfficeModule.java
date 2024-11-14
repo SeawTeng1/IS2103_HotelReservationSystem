@@ -73,7 +73,7 @@ public class FrontOfficeModule {
             System.out.println("1: Search and Reserve Hotel Room");
             System.out.println("2: Check-in Guest");
             System.out.println("3: Check-out Guest");
-            System.out.println("3: Back\n");
+            System.out.println("4: Back\n");
             response = 0;
 
             while(response < 1 || response > 4)
@@ -181,6 +181,7 @@ public class FrontOfficeModule {
             String registed = scanner.nextLine();
             Long guestId = null;
             if (registed.equals("Y")) {
+                System.out.print("Enter Guest Id > ");
                 guestId = scanner.nextLong();
             }
 
@@ -228,16 +229,16 @@ public class FrontOfficeModule {
             System.out.println("Check In Date: " +
                     ZonedDateTime.parse(reservation.getCheckInDate().toString(), inputFormatter).format(outputFormatter));
             System.out.println("Check Out Date: " +
-                    ZonedDateTime.parse(reservation.getIsCheckOut().toString(), inputFormatter).format(outputFormatter));
+                    ZonedDateTime.parse(reservation.getCheckOutDate().toString(), inputFormatter).format(outputFormatter));
             System.out.println("Room Type: " + reservation.getRoomType().getName());
             System.out.println("No of Room: " + reservation.getNumOfRoom());
-            System.out.println("Total Price: " + reservation.getTotalPrice());
+            System.out.println("Total Price: " + reservation.getTotalPrice() + "\n");
 
             if (!reservation.getRoomList().isEmpty()) {
                 System.out.println("*** Check In Room(s) ***");
                 for (Room room : reservation.getRoomList()) {
                     System.out.println("Room Number: " + room.getRoomNumber());
-                    System.out.println("Room Type: " + room.getRoomType());
+                    System.out.println("Room Type: " + room.getRoomType().getName());
                     System.out.println("-----------------------------------------------");
                 }
             }

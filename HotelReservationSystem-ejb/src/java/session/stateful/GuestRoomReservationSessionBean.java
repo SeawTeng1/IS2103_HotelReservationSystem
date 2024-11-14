@@ -178,7 +178,7 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
         List<Room> selectedRoom = this.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, noOfRoom);
 
         if (selectedRoom.size() < noOfRoom) {
-            throw new ReservationExceedAvailableRoomNumberException("The is insufficient rooms to be reserved");
+            throw new ReservationExceedAvailableRoomNumberException("There is insufficient rooms to be reserved");
         }
 
         BigDecimal total = new BigDecimal(0);
