@@ -46,6 +46,7 @@ import util.exception.RoomTypeDeleteException;
 import util.exception.RoomTypeNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidAccessRightException;
+import util.exception.NoReservationsFoundException;
 import util.exception.RoomTypeExistException;
 import util.exception.RoomTypeRemoveRoomRateException;
 import util.exception.UnknownPersistenceException;
@@ -104,7 +105,8 @@ public class HotelOperationModule {
                     System.out.println("8: View Room Allocation Exception Report");
                     System.out.println("-----------------------");
                     System.out.println("9: Allocate Room to Current Day Reservations");
-                    System.out.println("10: Back\n");
+                    System.out.println("-----------------------");
+                    System.out.println("10: Logout\n");
                     response = 0;
 
                     while(response < 1 || response > 9)
@@ -159,7 +161,7 @@ public class HotelOperationModule {
                         }
                     }
 
-                    if(response == 9)
+                    if(response == 10)
                     {
                         break;
                     }
@@ -205,7 +207,7 @@ public class HotelOperationModule {
                         }
                     }
 
-                    if(response == 6)
+                    if(response == 4)
                     {
                         break;
                     }
@@ -225,15 +227,72 @@ public class HotelOperationModule {
         newRoomType.setName(scanner.nextLine().trim());
         System.out.print("Enter a Description of the Room Type> ");
         newRoomType.setDescription(scanner.nextLine().trim());
+        
         System.out.print("Enter the Size of the Room Type> ");
-        newRoomType.setSize(scanner.nextBigDecimal());
+        String input = scanner.nextLine().trim(); // Read input and trim whitespace
+
+        if (input.isEmpty()) {
+            System.out.println("No size entered. Skipping size assignment.");
+            // Optionally, set a default value or leave it as null
+            newRoomType.setSize(null); // Assuming size can be null in your RoomType entity
+        } else {
+            try {
+                BigDecimal size = new BigDecimal(input); // Parse the input as BigDecimal
+                newRoomType.setSize(size);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid size entered. Please enter a valid number.");
+                return; // Exit or prompt again based on your requirements
+            }
+        }
+        
+        //System.out.print("Enter the Size of the Room Type> ");
+        //String input = scanner.nextLine().trim();
+        //try {
+            //BigDecimal size = new BigDecimal(input);
+            //newRoomType.setSize(size);
+        //} catch (NumberFormatException e) {
+            //System.out.println("Invalid input. Please enter a valid number.");
+        //}
+        
+        //System.out.print("Enter the Number of Beds in the Room Type> ");
+        //newRoomType.setBeds(Integer.parseInt(scanner.nextLine().trim()));
+        //System.out.print("Enter the Capacity of the Room Type> ");
+        //newRoomType.setCapacity(Integer.parseInt(scanner.nextLine().trim()));
+        // Number of Beds
         System.out.print("Enter the Number of Beds in the Room Type> ");
-        newRoomType.setBeds(scanner.nextInt());
+        String bedsInput = scanner.nextLine().trim();
+        if (bedsInput.isEmpty()) {
+            System.out.println("No number of beds entered. Skipping beds assignment.");
+            newRoomType.setBeds(null); // Assuming beds can be null in your RoomType entity
+        } else {
+            try {
+                int numberOfBeds = Integer.parseInt(bedsInput); // Parse input as integer
+                newRoomType.setBeds(numberOfBeds);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input for number of beds. Please enter a valid number.");
+                return; // Exit or handle as needed
+            }
+        }
+
+        // Capacity
         System.out.print("Enter the Capacity of the Room Type> ");
-        newRoomType.setCapacity(scanner.nextInt());
+        String capacityInput = scanner.nextLine().trim();
+        if (capacityInput.isEmpty()) {
+            System.out.println("No capacity entered. Skipping capacity assignment.");
+            newRoomType.setCapacity(null); // Assuming capacity can be null in your RoomType entity
+        } else {
+            try {
+                int capacity = Integer.parseInt(capacityInput); // Parse input as integer
+                newRoomType.setCapacity(capacity);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input for capacity. Please enter a valid number.");
+                return; // Exit or handle as needed
+            }
+        }
+        
         System.out.print("Enter the Amenities in the Room Type> ");
         newRoomType.setAmenities(scanner.nextLine().trim());
-        System.out.print("Enter Higher Room Type Name. Enter 'None' if there is no Higher Room Type> ");
+        System.out.print("Enter Next Higher Room Type Name. Enter 'None' if there is no Higher Room Type> ");
         String higherRoomType = scanner.nextLine().trim();
         newRoomType.setDisabled(Boolean.FALSE);
         
@@ -257,11 +316,14 @@ public class HotelOperationModule {
             }
             catch(UnknownPersistenceException ex)
             {
-                System.out.println("An unknown error has occurred while creating the new staff!: " + ex.getMessage() + "\n");
+                System.out.println("An unknown error has occurred while creating the new Room Type!: " + ex.getMessage() + "\n");
             }
             catch(InputDataValidationException ex)
             {
                 System.out.println(ex.getMessage() + "\n");
+            } 
+            catch (NumberFormatException ex) {
+                System.out.println("Invalid input. Please enter a valid number.");
             }
         }
         else
@@ -343,24 +405,30 @@ public class HotelOperationModule {
         }
         
         System.out.print("Enter Room Type Size (blank if no change)> ");
-        inputDec = scanner.nextBigDecimal();
-        if(inputDec.compareTo(BigDecimal.ZERO) > 0)
+        input = scanner.nextLine().trim();
+        
+        if(input.length() > 0)
         {
-            roomType.setSize(inputDec);
+           try {
+                BigDecimal size = new BigDecimal(input);
+                roomType.setSize(size);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid number.");
+            }
         }
         
         System.out.print("Enter Room Type Number of Beds (blank if no change)> ");
-        inputInt = scanner.nextInt();
-        if(inputInt != null)
+        input = scanner.nextLine().trim();
+        if(input.length() > 0)
         {
-            roomType.setBeds(inputInt);
+            roomType.setBeds(Integer.parseInt(input));
         }
         
         System.out.print("Enter Room Type Capacity (blank if no change)> ");
-        inputInt = scanner.nextInt();
-        if(inputInt != null)
+        input = scanner.nextLine().trim();
+        if(input.length() > 0)
         {
-            roomType.setCapacity(inputInt);
+            roomType.setCapacity(Integer.parseInt(input));
         }
         
         System.out.print("Enter Room Type Amenities (blank if no change)> ");
@@ -383,7 +451,7 @@ public class HotelOperationModule {
             catch (RoomTypeNotFoundException ex) 
             {
                 System.out.println("An error has occurred while updating room type: " + ex.getMessage() + "\n");
-            } catch (InputDataValidationException ex) {
+            } catch (InputDataValidationException | RoomTypeExistException ex) {
                 System.out.println(ex.getMessage() + "\n");
             }
         } else {
@@ -406,7 +474,7 @@ public class HotelOperationModule {
             try
             {
                 roomTypeSessionBeanRemote.deleteRoomType(roomType.getRoomTypeId());
-                System.out.println("RoomType deleted successfully!\n");
+                System.out.println("Room Type deleted successfully!\n");
             }
             catch (RoomTypeNotFoundException | RoomTypeDeleteException ex) 
             {
@@ -442,10 +510,7 @@ public class HotelOperationModule {
             }
             // display room rates for each room type
             System.out.println("Room Type Rates: ");
-            List<RoomRate> roomRateList = roomType.getRoomRateList();
-            for (RoomRate roomRate : roomRateList) {
-                System.out.println(" - " + roomRate.getName() + ": " + roomRate.getRatePerNight() + " dollars per night");
-            }
+            roomTypeSessionBeanRemote.retrieveRoomRatesForRoomType(roomType);
             System.out.println("---------------------");
         }
         System.out.print("Press any key to continue...> ");
@@ -463,6 +528,7 @@ public class HotelOperationModule {
         newRoom.setDisabled(Boolean.FALSE);
         newRoom.setIsOccupied(Boolean.FALSE);
         
+        roomTypeSessionBeanRemote.viewAllRoomTypeNames();
         System.out.print("Enter Room Type for Room> ");
         String roomTypeName = scanner.nextLine().trim();
         
@@ -513,7 +579,7 @@ public class HotelOperationModule {
         
         System.out.println("*** HoR System :: Hotel Operation :: Update Room ***\n");
         System.out.print("Enter Room Number> ");
-        Integer roomNumber = scanner.nextInt();
+        String roomNumber = scanner.nextLine().trim();
         
         //should we view room details before we update??
         try
@@ -559,8 +625,8 @@ public class HotelOperationModule {
                 try
                 {
                     roomSessionBeanRemote.updateRoom(updateRoom);
-                    System.out.println("Room Type updated successfully!\n");
-                } catch (InputDataValidationException ex) {
+                    System.out.println("Room updated successfully!\n");
+                } catch (InputDataValidationException | RoomExistException ex) {
                     System.out.println(ex.getMessage() + "\n");
                 }
             } else {
@@ -577,7 +643,7 @@ public class HotelOperationModule {
         String input;
         System.out.println("*** HoR System :: Hotel Operation :: Delete Room ***\n");
         System.out.print("Enter Room Number to be Deleted> ");
-        Integer roomNumber = scanner.nextInt();
+        String roomNumber = scanner.nextLine().trim();
        
         Room room;
         try {
@@ -612,11 +678,11 @@ public class HotelOperationModule {
         System.out.println("*** HoR System :: Hotel Operation :: View All Rooms ***\n");
         
         List<Room> roomList = roomSessionBeanRemote.viewAllRooms();
-        System.out.printf("%8s%4s%30s%24s%24s%24s\n", "Room ID", "Room Number", "Room Status", "Room Type", "Is Room Disabled?", "Is Room Occupied?");
+        System.out.printf("%8s%10s%20s%20s%24s%24s\n", "Room ID", "Room Number", "Room Status", "Room Type", "Is Room Disabled?", "Is Room Occupied?");
 
         for(Room room:roomList)
         {
-            System.out.printf("%8s%4s%30s%24s%24s%24s\n", room.getRoomId().toString(), room.getRoomNumber().toString(), room.getRoomStatus(), room.getRoomType().getName(), room.getDisabled(), room.getIsOccupied());
+            System.out.printf("%8s%10s%20s%20s%24s%24s\n", room.getRoomId().toString(), room.getRoomNumber().toString(), room.getRoomStatus(), room.getRoomType().getName(), room.getDisabled(), room.getIsOccupied());
         }
         
         System.out.print("Press any key to continue...> ");
@@ -624,13 +690,28 @@ public class HotelOperationModule {
     }
 
     private void doViewRoomAllocationExceptionReport() {
-        System.out.println("*** HoR System :: Hotel Operation :: View Room Allocation Exception Report ***\n");
-        System.out.printf("%8s%30s%24s\n","Room Allocation Exception Report ID", "Exception Type", "Reservation ID");
-        for(RoomAllocationExceptionReport report : roomAllocationExceptionReportSessionBeanRemote.viewAllReports()){
-              
-            System.out.printf("%8s%30s%24s\n", report.getRoomAllocationExceptionReportId(), report.getDetails(), report.getReservation().getReservationId());
-        }
+        try {
+            System.out.println("*** HoR System :: Hotel Operation :: View Room Allocation Exception Report ***\n");
+            Scanner scanner = new Scanner (System.in);
+            Date reportDate;
+            SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
+
+            System.out.print("Enter the Report Date (dd/mm/yyyy)> ");
+            reportDate = date.parse(scanner.nextLine().trim());
+            
+            System.out.printf("%8s%30s%24s\n","Room Allocation Exception Report ID", "Exception Type", "Reservation ID");
+            for(RoomAllocationExceptionReport report : roomAllocationExceptionReportSessionBeanRemote.viewReportsbyDate(reportDate)){
+
+                System.out.printf("%8s%30s%24s\n", report.getRoomAllocationExceptionReportId(), report.getDetails(), report.getReservation().getReservationId());
+            }
+        } 
+        catch (ParseException ex) 
+        {
+            System.out.println("Invalid date input, please try again!");
+        } 
     }
+    
+    
 
     private void doAllocateRoomToCurrentDayReservations() {
         try {
@@ -652,7 +733,7 @@ public class HotelOperationModule {
         {
             System.out.println("Invalid date input, please try again!");
         } 
-        catch (ReservationNotFoundException | ReportExistException ex) 
+        catch (ReservationNotFoundException | ReportExistException | NoReservationsFoundException ex) 
         {
             System.out.println("An error occurred: " + ex.getMessage());
         }
@@ -839,10 +920,12 @@ public class HotelOperationModule {
             }
             
             System.out.print("Enter Room Rate per Night (blank if no change)> ");
-            inputDec = scanner.nextBigDecimal();
-            if(inputDec.compareTo(BigDecimal.ZERO) > 0)
-            {
-                updateRoomRate.setRatePerNight(inputDec);
+            input = scanner.nextLine().trim();
+            try {
+                BigDecimal price = new BigDecimal(input);
+                updateRoomRate.setRatePerNight(price);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid number.");
             }
             
             /*System.out.print("Enter Room Rate per Night (blank if no change)> ");
