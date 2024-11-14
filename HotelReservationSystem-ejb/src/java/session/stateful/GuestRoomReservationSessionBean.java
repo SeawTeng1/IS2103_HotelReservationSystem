@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateful;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -128,26 +129,31 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
     public RoomRate getCorrectRoomRate(String roomType, Date checkInDate, Date checkOutDate) throws RoomRateNotFoundException {
         // get rate type normal for this room type
         // then search for any room rate that have validity start and end within the check in and check out
-        RoomRate normalRate = (RoomRate) em.createQuery(
-                "SELECT rr FROM RoomRate rr WHERE rr.roomType.name = :roomType AND rr.rateType = :rateType")
-            .setParameter("roomType", roomType)
-            .setParameter("rateType", RateType.NORMAL)
-            .getSingleResult();
+        RoomRate normalRate = null;
+        try {
+            normalRate = (RoomRate) em.createQuery(
+                "SELECT rr FROM RoomRate rr WHERE rr.roomType.name = :roomType AND rr.rateType = :rateType AND rr.disabled = :disabled")
+                .setParameter("roomType", roomType)
+                .setParameter("rateType", RateType.NORMAL)
+                .setParameter("disabled", Boolean.FALSE)
+                .getSingleResult();
+        }    catch (NoResultException ex) {
+            System.out.println(0);
+        }
 
         List<RoomRate> specialRateList = em.createQuery(
-                "SELECT rr FROM RoomRate rr WHERE "
-                        + "rr.roomType.name = :roomType AND (rr.rateType = :peakType OR rr.rateType = :promoType)"
-                        + "AND rr.validityStart BETWEEN :checkInDate AND :checkOutDate AND rr.validityEnd BETWEEN :checkInDate AND :checkOutDate"
+                "SELECT rr FROM RoomRate rr WHERE rr.roomType.name = :roomType AND (rr.rateType = :peakType OR rr.rateType = :promoType) AND rr.validityStart <= :checkInDate AND rr.validityEnd >= :checkOutDate  AND rr.disabled = :disabled"
             )
             .setParameter("roomType", roomType)
             .setParameter("peakType", RateType.PEAK)
             .setParameter("promoType", RateType.PROMOTION)
             .setParameter("checkInDate", checkInDate)
             .setParameter("checkOutDate", checkOutDate)
+            .setParameter("disabled", Boolean.FALSE)
             .getResultList();
 
-        if (normalRate == null) {
-            throw new RoomRateNotFoundException("Room rate for current room not found");
+        if (normalRate == null && specialRateList.isEmpty()) {
+            throw new RoomRateNotFoundException("Room rate for current room type not found");
         }
 
         RoomRate specialRate = null;
@@ -178,7 +184,7 @@ public class GuestRoomReservationSessionBean implements GuestRoomReservationSess
         List<Room> selectedRoom = this.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, noOfRoom);
 
         if (selectedRoom.size() < noOfRoom) {
-            throw new ReservationExceedAvailableRoomNumberException("The is insufficient rooms to be reserved");
+            throw new ReservationExceedAvailableRoomNumberException("There is insufficient rooms to be reserved");
         }
 
         BigDecimal total = new BigDecimal(0);

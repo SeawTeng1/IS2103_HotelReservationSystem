@@ -15,6 +15,8 @@ import enumeration.RateType;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -502,7 +504,6 @@ public class HotelOperationModule {
    
     }
 
-    
     //different from update room type because no input...
     private void doUpdateRoom() {
         Scanner scanner = new Scanner(System.in);
@@ -667,7 +668,7 @@ public class HotelOperationModule {
     }
 
     private void doCreateNewRoomRate() {
-        try {  
+        // try {  
             Scanner scanner = new Scanner(System.in);
             RoomRate newRoomRate = new RoomRate();
 
@@ -680,7 +681,7 @@ public class HotelOperationModule {
                 System.out.print("Select Room Rate Type (1: PUBLISHED, 2: NORMAL, 3: PEAK, 4: PROMOTION)> ");
                 Integer rateTypeInt = scanner.nextInt();
 
-                if(rateTypeInt >= 1 && rateTypeInt <= 2)
+                if(rateTypeInt >= 1 && rateTypeInt <= 4)
                 {
                     newRoomRate.setRateType(RateType.values()[rateTypeInt-1]);
                     break;
@@ -694,15 +695,37 @@ public class HotelOperationModule {
             System.out.print("Enter the Rate per Night> ");
             newRoomRate.setRatePerNight(scanner.nextBigDecimal());
             scanner.nextLine();
-            SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
+            // SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
 
             //only peak and promotion have valid end and valid start!!! else dont need!!!
             if(newRoomRate.getRateType().equals(RateType.PEAK) || newRoomRate.getRateType().equals(RateType.PROMOTION)) {
-                    System.out.print("Enter validity start date (dd/mm/yyyy)> ");
-                    newRoomRate.setValidityStart(date.parse(scanner.nextLine().trim()));
+                Date validityStart;
+                Date validityEnd;
+                while (true) {
+                    System.out.print("Enter validity start date (MM/DD/YYYY)> ");
+                    validityStart = new Date(scanner.nextLine().trim());
+                    validityStart.setTime(validityStart.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
 
-                    System.out.print("Enter validity end date (dd/mm/yyyy)> ");
-                    newRoomRate.setValidityEnd(date.parse(scanner.nextLine().trim()));
+                    System.out.print("Enter validity end date (MM/DD/YYYY) ");
+                    validityEnd = new Date(scanner.nextLine().trim());
+                    validityEnd.setTime(validityEnd.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
+
+                    if (validityStart.before(new Date())) {
+                        System.out.println("Validity Start Date cannot be a past date");
+                    } else if (validityEnd.before(new Date())) {
+                        System.out.println("Validity End Date cannot be a past date");
+                    } else if (validityStart.after(validityEnd)) {
+                        System.out.println("Validity Start Date cannot be after Validity End Date");
+                    } else {
+                        break;
+                    }
+                }
+                validityStart.setTime(validityStart.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
+                newRoomRate.setValidityStart(validityStart);
+
+
+                validityEnd.setTime(validityEnd.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
+                newRoomRate.setValidityEnd(validityEnd);
             }
 
             System.out.println("");
@@ -733,7 +756,7 @@ public class HotelOperationModule {
                 {
                     System.out.println("An error has occurred while creating the new Room Rate!: The name already exist\n");
                 }
-                catch(UnknownPersistenceException ex)
+                catch(UnknownPersistenceException | RoomTypeNotFoundException ex)
                 {
                     System.out.println("An unknown error has occurred while creating the new staff!: " + ex.getMessage() + "\n");
                 }
@@ -744,9 +767,11 @@ public class HotelOperationModule {
             } else {
                 showInputDataValidationErrorsForRoomRate(constraintViolations);
             } 
-        } catch (ParseException ex) {
+        // } 
+        /*
+        catch (ParseException ex) {
             System.out.println("Invalid date input, please try again!!\n");
-        }
+        } */
     }
 
     private void doViewRoomRateDetails() {
@@ -767,12 +792,17 @@ public class HotelOperationModule {
             System.out.println("Room Rate per Night: " + roomRate.getRatePerNight());
             //only peak and promotion have valid end and valid start!!! else dont have!!!
             if(roomRate.getRateType().equals(RateType.PEAK) || roomRate.getRateType().equals(RateType.PROMOTION)) {
-                System.out.println("Room Rate Validity Start Date: " + roomRate.getValidityStart());
-                System.out.println("Room Rate Validity End Date: " + roomRate.getValidityEnd());
+                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy");
+                DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
+                
+                System.out.println("Room Rate Validity Start Date: " + 
+                        ZonedDateTime.parse(roomRate.getValidityStart().toString(), inputFormatter).format(outputFormatter));
+                System.out.println("Room Rate Validity End Date: " + 
+                        ZonedDateTime.parse(roomRate.getValidityEnd().toString(), inputFormatter).format(outputFormatter));
             }
             
             System.out.println("Is Room Rate Disabled? " + roomRate.getDisabled());
-            System.out.println("What Room Type is the Room Rate associated to?: " + roomRate.getRoomType());
+            System.out.println("What Room Type is the Room Rate associated to?: " + roomRate.getRoomType().getName());
             
             System.out.println("---------------------");
             System.out.println("1: Update Room Rate");
@@ -806,6 +836,7 @@ public class HotelOperationModule {
         System.out.println("*** HoR System :: Hotel Operation :: Update Room Rate ***\n");
         System.out.print("Enter Room Rate Id> ");
         Long roomRateId = scanner.nextLong();
+        scanner.nextLine();
         
         try
         {
@@ -838,13 +869,13 @@ public class HotelOperationModule {
                 }
             }
             
-            System.out.print("Enter Room Rate per Night (blank if no change)> ");
+            System.out.print("Enter Room Rate per Night (input -1 if no change)> ");
             inputDec = scanner.nextBigDecimal();
             if(inputDec.compareTo(BigDecimal.ZERO) > 0)
             {
                 updateRoomRate.setRatePerNight(inputDec);
             }
-            
+            scanner.nextLine();
             /*System.out.print("Enter Room Rate per Night (blank if no change)> ");
             inputDec = scanner.nextBigDecimal();
             if(input != null)
@@ -852,19 +883,44 @@ public class HotelOperationModule {
                 updateRoomRate.setRatePerNight(inputDec);
             }*/
             
-            SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
-            if(roomRate.getRateType().equals(RateType.PEAK) || roomRate.getRateType().equals(RateType.PROMOTION)) {
-                System.out.print("Enter start date (dd/mm/yyyy) (blank if no change)> ");
-                input = scanner.nextLine().trim();
-                if(input.length() > 0) {
-                    roomRate.setValidityStart(date.parse(input));
-                }
-                
+            // SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
+            if(updateRoomRate.getRateType().equals(RateType.PEAK) || updateRoomRate.getRateType().equals(RateType.PROMOTION)) {
+                while (true) {
+                    System.out.print("Enter start date (MM/DD/YYYY) (blank if no change)> ");
+                    String validityStart = scanner.nextLine().trim();
+                    Date startDate = null;
+                    if (validityStart.length() > 0) {
+                        startDate = new Date(validityStart);
+                        startDate.setTime(startDate.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
+                    }
 
-                System.out.print("Enter end date (dd/mm/yyyy) (blank if no change)> ");
-                input = scanner.nextLine().trim();
-                if(input.length() > 0) {
-                    roomRate.setValidityEnd(date.parse(input));
+                    System.out.print("Enter end date (MM/DD/YYYY) (blank if no change)> ");
+                    String validityEnd = scanner.nextLine().trim();
+                    Date endDate = null;
+                    if (validityEnd.length() > 0) {
+                        endDate = new Date(validityEnd);
+                        endDate.setTime(endDate.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
+                    }
+                    
+                    if (startDate != null && startDate.before(new Date())) {
+                        System.out.println("Validity Start Date cannot be a past date");
+                    } else if (endDate != null && endDate.before(new Date())) {
+                        System.out.println("Validity End Date cannot be a past date");
+                    } else if (startDate != null && endDate != null && startDate.after(endDate)) {
+                        System.out.println("Validity Start Date cannot be after Validity End Date");
+                    } else if (startDate != null && endDate == null && startDate.after(roomRate.getValidityEnd())) {
+                        System.out.println("Validity Start Date cannot be after Validity End Date");
+                    } else if (startDate == null && endDate != null && roomRate.getValidityStart().after(endDate)) {
+                        System.out.println("Validity Start Date cannot be after Validity End Date");
+                    } else {
+                        if (validityStart.length() > 0) {
+                            updateRoomRate.setValidityStart(startDate);
+                        }
+                        if (validityEnd.length() > 0) {
+                            updateRoomRate.setValidityEnd(endDate);
+                        }
+                        break;
+                    }
                 }
             }
             
@@ -880,7 +936,7 @@ public class HotelOperationModule {
             if(input.length() > 0) {
                 try {
                     RoomType updateRoomType = roomTypeSessionBeanRemote.retrieveRoomTypebyName(input);
-                    roomRate.setRoomType(updateRoomType);
+                    updateRoomRate.setRoomType(updateRoomType);
                 } catch (RoomTypeNotFoundException ex) {
                     System.out.println("An error occurred: " + ex.getMessage());
                 }
@@ -893,13 +949,13 @@ public class HotelOperationModule {
                 {
                     roomRateSessionBeanRemote.updateRoomRate(roomRateId, updateRoomRate);
                     System.out.println("Room Rate updated successfully!\n");
-                } catch (InputDataValidationException | RoomRateNotFoundException | PersistentContextException ex) {
+                } catch (InputDataValidationException | RoomRateNotFoundException | RoomRateExistException | PersistentContextException ex) {
                     System.out.println("An error occurred: " + ex.getMessage());
                 }
             } else {
              showInputDataValidationErrorsForRoomRate(constraintViolations);
             }
-        } catch (ParseException | RoomRateNotFoundException ex) {
+        } catch (RoomRateNotFoundException ex) {
              System.out.println("An error occurred: " + ex.getMessage());
         }
         
@@ -915,7 +971,7 @@ public class HotelOperationModule {
         //Room room;
         //try {
             //room = roomSessionBeanRemote.retrieveRoombyRoomNumber(roomNumber);
-            System.out.printf("Confirm Delete Room Rate %s (Room Rate ID: %d) for Room Type %s (Enter 'Y' to Delete)> ", roomRate.getName(), roomRate.getRoomRateId(), roomRate.getRoomType());
+            System.out.printf("Confirm Delete Room Rate %s (Room Rate ID: %d) for Room Type %s (Enter 'Y' to Delete)> ", roomRate.getName(), roomRate.getRoomRateId(), roomRate.getRoomType().getName());
             input = scanner.nextLine().trim();
 
             if(input.equals("Y"))
@@ -942,11 +998,11 @@ public class HotelOperationModule {
     
     private void doViewAllRoomRates() {
         Scanner scanner = new Scanner(System.in);
-        SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
+        // SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
         System.out.println("*** HoR System :: Hotel Operation :: View All Room Rates ***\n");
         
         List<RoomRate> roomRateList = roomRateSessionBeanRemote.viewAllRoomRates();
-        System.out.printf("%8s%40s%24s%24s%24s%24s\n","Rate ID", "Rate Name", "Rate Type", "Rate Per Night","Validity Start Date", "Validity End Date");
+        System.out.printf("%8s%40s%24s%24s%24s%24s%24s\n","Rate ID", "Rate Name", "Rate Type", "Rate Per Night","Validity Start Date", "Validity End Date", "Disabled");
 
         for(RoomRate roomRate:roomRateList)
         {
@@ -954,16 +1010,19 @@ public class HotelOperationModule {
             String validEndDate = "";
             
             //!! check validity for PEAK and PROMOTION!!!
+            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy");
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
+            
             if(roomRate.getRateType().equals(RateType.PEAK) || roomRate.getRateType().equals(RateType.PROMOTION)) {
-                validStartDate = "" + date.format(roomRate.getValidityStart());
-                validEndDate = "" + date.format(roomRate.getValidityEnd());
+                validStartDate = "" + ZonedDateTime.parse(roomRate.getValidityStart().toString(), inputFormatter).format(outputFormatter);
+                validEndDate = "" + ZonedDateTime.parse(roomRate.getValidityEnd().toString(), inputFormatter).format(outputFormatter);
             }
-            System.out.printf("%8s%40s%24s%24s%24s%24s\n",roomRate.getRoomRateId(),roomRate.getName(), roomRate.getRateType(), 
-                    roomRate.getRatePerNight(), validStartDate, validEndDate);
+            System.out.printf("%8s%40s%24s%24s%24s%24s%24s\n",roomRate.getRoomRateId(),roomRate.getName(), roomRate.getRateType(), 
+                    roomRate.getRatePerNight(), validStartDate, validEndDate, roomRate.getDisabled());
         }
         
-        System.out.print("Press any key to continue...> ");
-        scanner.nextLine();
+        // System.out.print("Press any key to continue...> ");
+        // scanner.nextLine();
     }
     
     private void showInputDataValidationErrorsForRoomType(Set<ConstraintViolation<RoomType>>constraintViolations)

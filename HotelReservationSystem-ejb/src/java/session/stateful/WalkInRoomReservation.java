@@ -210,9 +210,10 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
 
         try {
             RoomRate rate = (RoomRate) em.createQuery(
-                "SELECT rr FROM RoomRate rr WHERE rr.roomType.name = :roomType AND rr.rateType = :rateType")
+                "SELECT rr FROM RoomRate rr WHERE rr.roomType.name = :roomType AND rr.rateType = :rateType AND rr.disabled = :disabled")
             .setParameter("roomType", roomType)
             .setParameter("rateType", RateType.PUBLISHED)
+            .setParameter("disabled", Boolean.FALSE)
             .getSingleResult();
 
             try {
@@ -231,7 +232,7 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
             }
 
         } catch (NoResultException ex) {
-            throw new RoomRateNotFoundException("Published room rate for current room not found");
+            throw new RoomRateNotFoundException("Published room rate for current room type not found");
         }
 
         return total;
@@ -252,7 +253,7 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
         List<Room> selectedRoom = this.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, noOfRoom);
 
         if (selectedRoom.size() < noOfRoom) {
-            throw new ReservationExceedAvailableRoomNumberException("The is insufficient rooms to be reserved");
+            throw new ReservationExceedAvailableRoomNumberException("There is insufficient rooms to be reserved");
         }
 
         BigDecimal total = new BigDecimal(0);
@@ -269,7 +270,7 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
             try {
                 rate = (RoomRate) em.createQuery(
                         "SELECT rr FROM RoomRate rr WHERE rr.roomType.name = :roomType AND rr.rateType = :rateType")
-                    .setParameter("roomType", selectedRoom.get(0).getRoomType())
+                    .setParameter("roomType", roomType)
                     .setParameter("rateType", RateType.PUBLISHED)
                     .getSingleResult();
             }  catch (NoResultException ex) {
