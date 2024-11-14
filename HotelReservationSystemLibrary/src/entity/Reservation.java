@@ -72,7 +72,7 @@ public class Reservation implements Serializable {
     
     @ManyToMany
     @JoinTable(name = "ReservationRecord", joinColumns =
-    @JoinColumn(name = "ROOM_ID"), inverseJoinColumns = @JoinColumn(name = "RESERVATION_ID"))
+    @JoinColumn(name = "RESERVATION_ID"), inverseJoinColumns = @JoinColumn(name = "ROOM_ID"))
     private List<Room> roomList;
     
     @ManyToOne(optional = false, cascade = {}, fetch = FetchType.EAGER)

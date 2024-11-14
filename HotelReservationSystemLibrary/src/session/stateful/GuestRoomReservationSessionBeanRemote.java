@@ -16,6 +16,7 @@ import util.exception.GuestAddReservationException;
 import util.exception.GuestNotFoundException;
 import util.exception.InputDataValidationException;
 import util.exception.ReservationAddRoomException;
+import util.exception.ReservationExceedAvailableRoomNumberException;
 import util.exception.RoomAddReservationException;
 import util.exception.RoomRateAddReservationException;
 import util.exception.RoomRateNotFoundException;
@@ -32,7 +33,7 @@ public interface GuestRoomReservationSessionBeanRemote {
 
     public RoomRate getCorrectRoomRate(String roomType, Date checkInDate, Date checkOutDate) throws RoomRateNotFoundException;
 
-    public Reservation onlineReserve(String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long guestId) throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, GuestAddReservationException, RoomAddReservationException, GuestNotFoundException, InputDataValidationException, AvailableRoomNotFoundException, ReservationAddRoomException;
+    public Reservation onlineReserve(String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long guestId) throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException, GuestAddReservationException, RoomAddReservationException, GuestNotFoundException, InputDataValidationException, AvailableRoomNotFoundException, ReservationAddRoomException, ReservationExceedAvailableRoomNumberException;
     
     public List<Room> searchAvailableRoom(String roomType, Date checkInDate, Date checkOutDate) throws AvailableRoomNotFoundException;
 

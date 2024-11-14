@@ -5,6 +5,8 @@
 package holidayreservationsystemclient;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -195,11 +197,17 @@ public class MainApp {
             } 
         }
         
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy");
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
         if (count < 1) {
-            System.out.println("No Available Room between " + checkInDate.toString() + " to " + checkOutDate.toString());
+            System.out.println("No Available Room between " 
+                    + ZonedDateTime.parse(checkInDate.toString(), inputFormatter).format(outputFormatter) 
+                    + " to " + ZonedDateTime.parse(checkOutDate.toString(), inputFormatter).format(outputFormatter));
         } else {
             if (this.partner != null) {
-                System.out.println("*** Reserve Hotel Room between" + checkInDate.toString() + " to " + checkOutDate.toString() + " ***");
+                System.out.println("*** Reserve Hotel Room between " + 
+                        ZonedDateTime.parse(checkInDate.toString(), inputFormatter).format(outputFormatter)
+                        + " to " + ZonedDateTime.parse(checkOutDate.toString(), inputFormatter).format(outputFormatter) + " ***");
                 System.out.print("Enter Room Type> ");
                 String roomType = scanner.nextLine().trim();
 
@@ -225,6 +233,9 @@ public class MainApp {
                         ws.partner.PartnerNotFoundException_Exception |
                         ws.partner.AvailableRoomNotFoundException_Exception |
                         ws.partner.GuestAddReservationException_Exception |
+                        ws.partner.ReservationExceedAvailableRoomNumberException_Exception |
+                        ws.partner.InputDataValidationException_Exception |
+                        ws.partner.ReservationAddRoomException_Exception |
                         ws.partner.GuestNotFoundException_Exception ex) {
                     System.out.println(ex.getMessage());
                 }
@@ -253,14 +264,18 @@ public class MainApp {
         System.out.print("Enter Reservation Id > ");
         Long reservationId = scanner.nextLong();
         
+        // DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
         try {
             Reservation reservation = this.service.getPartnerWebServicePort().getReservationDetailByPartner(this.partner.getPartnerId(), reservationId);
             
             if (reservation != null) {
                 System.out.println("Reservation Id: " + reservation.getReservationId());
                 System.out.println("Guest Id: " + reservation.getGuest().getGuestId());
-                System.out.println("Check In Date: " + reservation.getCheckInDate());
-                System.out.println("Check Out Date: " + reservation.getCheckOutDate());
+                System.out.println("Check In Date: " 
+                            + ZonedDateTime.parse(reservation.getCheckInDate().toString()).format(outputFormatter));
+                    System.out.println("Check Out Date: " 
+                            + ZonedDateTime.parse(reservation.getCheckOutDate().toString()).format(outputFormatter));
                 System.out.println("Room Type: " + reservation.getRoomType().getName());
                 System.out.println("No of Room: " + reservation.getNumOfRoom());
                 System.out.println("Total Price: " + reservation.getTotalPrice());
@@ -275,13 +290,17 @@ public class MainApp {
         try {
             List<Reservation> reservationList = this.service.getPartnerWebServicePort().getReservationListByPartner(this.partner.getPartnerId());
             
+            // DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mmZ");
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
             if (!reservationList.isEmpty()) {
                 System.out.println("*** Reservations Records ***\n");
                 for (Reservation res : reservationList) {
                     System.out.println("Reservation Id: " + res.getReservationId());
                     System.out.println("Guest Id: " + res.getGuest().getGuestId());
-                    System.out.println("Check In Date: " + res.getCheckInDate());
-                    System.out.println("Check Out Date: " + res.getCheckOutDate());
+                    System.out.println("Check In Date: " 
+                            + ZonedDateTime.parse(res.getCheckInDate().toString()).format(outputFormatter));
+                    System.out.println("Check Out Date: " 
+                            + ZonedDateTime.parse(res.getCheckOutDate().toString()).format(outputFormatter));
                     System.out.println("Room Type: " + res.getRoomType().getName());
                     System.out.println("No of Room: " + res.getNumOfRoom());
                     System.out.println("Total Price: " + res.getTotalPrice());
