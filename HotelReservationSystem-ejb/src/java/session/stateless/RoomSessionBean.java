@@ -9,9 +9,12 @@ import entity.Room;
 import entity.RoomAllocationExceptionReport;
 import entity.RoomType;
 import enumeration.RoomStatus;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -274,7 +277,6 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
                         RoomAllocationExceptionReport roomReport = new RoomAllocationExceptionReport();
                         roomReport.setDetails("Room allocation exception, no room allocated");
                         roomReport = roomAllocationExceptionReportSessionBeanLocal.createReport(roomReport, reservation.getReservationId());
-
                     }
                 } // when there is a higher room type
                 else // higher room type doesn't exist
@@ -287,7 +289,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
 
 
                 // Associating rooms and reservation
-                for(Room room: assignedRooms) 
+                for (Room room: assignedRooms) 
                 {
                     reservation.getRoomList().add(room);
                     room.getReservationList().add(reservation);
@@ -300,14 +302,24 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
      
     private Boolean checkRoomAvail(Room room){
         List<Reservation> reservations = room.getReservationList();
-        Boolean isFree = true;
-        for(Reservation r : reservations){
-            if(r.getCheckOutDate().after(new Date())){
-                isFree = false;
-                break;
-            } else {
-            }
+        Boolean isFree = false;
+                
+        if (reservations.isEmpty()) {
+            return true;
         }
+        
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+        Reservation res = reservations.get(reservations.size() - 1);
+        LocalDateTime parsedDateTime = LocalDateTime.parse(res.getCheckOutDate().toString(), dtf);
+        LocalDateTime today = LocalDateTime.parse(res.getCheckInDate().toString(), dtf);
+        
+        if(res.getCheckInDate().after(res.getCheckOutDate()) ||
+            parsedDateTime.toLocalDate().isEqual(today.toLocalDate()) ||
+            res.getIsCheckOut() == Boolean.TRUE
+        ){
+            isFree = true;
+        }
+        
         return isFree;
     }
 

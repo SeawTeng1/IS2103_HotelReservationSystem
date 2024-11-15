@@ -691,25 +691,27 @@ public class HotelOperationModule {
     }
 
     private void doViewRoomAllocationExceptionReport() {
-        try {
+        //try {
             System.out.println("*** HoR System :: Hotel Operation :: View Room Allocation Exception Report ***\n");
             Scanner scanner = new Scanner (System.in);
             Date reportDate;
-            SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
+            // SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
 
-            System.out.print("Enter the Report Date (dd/mm/yyyy)> ");
-            reportDate = date.parse(scanner.nextLine().trim());
+            System.out.print("Enter the Report Date (MM/DD/YYYY)> ");
+            reportDate = new Date(scanner.nextLine().trim());
+            reportDate.setTime(reportDate.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
 
             System.out.printf("%8s%30s%24s\n","Room Allocation Exception Report ID", "Exception Type", "Reservation ID");
             for(RoomAllocationExceptionReport report : roomAllocationExceptionReportSessionBeanRemote.viewReportsbyDate(reportDate)){
 
                 System.out.printf("%8s%30s%24s\n", report.getRoomAllocationExceptionReportId(), report.getDetails(), report.getReservation().getReservationId());
             }
-        }
+       // }
+        /*
         catch (ParseException ex)
         {
             System.out.println("Invalid date input, please try again!");
-        }
+        }*/
     }
 
 
@@ -722,18 +724,20 @@ public class HotelOperationModule {
             System.out.println("*** HoR System :: Hotel Operation :: Allocate Room To Current Day Reservations ***\n");
 
             Date checkinDate;
-            SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
+            // SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
 
-            System.out.print("Enter the Check-in Date (dd/mm/yyyy)> ");
-            checkinDate = date.parse(scanner.nextLine().trim());
+            System.out.print("Enter the Check-in Date (MM/DD/YYYY)> ");
+            checkinDate = new Date(scanner.nextLine().trim());
+            checkinDate.setTime(checkinDate.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
 
             roomSessionBeanRemote.allocateRoomToReservation(checkinDate);
-
+            System.out.println("Room allocated successfully.");
         }
+        /*
         catch (ParseException ex)
         {
             System.out.println("Invalid date input, please try again!");
-        }
+        }*/
         catch (ReservationNotFoundException | ReportExistException | NoReservationsFoundException ex)
         {
             System.out.println("An error occurred: " + ex.getMessage());

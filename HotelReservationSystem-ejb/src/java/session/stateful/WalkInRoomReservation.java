@@ -47,6 +47,7 @@ import util.exception.RoomCheckOutException;
 import util.exception.RoomRateAddReservationException;
 import util.exception.RoomRateNotFoundException;
 import util.exception.RoomTypeAddReservationException;
+import util.exception.RoomTypeNotFoundException;
 
 /**
  *
@@ -77,6 +78,18 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
     @Override
     public List<Room> searchAvailableRoom(String roomType, Date checkInDate, Date checkoutDate) throws AvailableRoomNotFoundException {
         // get room that can be used
+        List<Room> availableRoom = new ArrayList<Room>();
+        try{
+            Query query = em.createQuery("SELECT rt FROM RoomType rt WHERE rt.name = :inName");
+            query.setParameter("inName", roomType);
+            RoomType type = (RoomType)query.getSingleResult();
+            if (type.getDisabled()) {
+                return availableRoom;
+            }
+        } catch (NoResultException ex) {
+            throw new AvailableRoomNotFoundException("No available room found, please try again.");
+        }
+        
         List<Room> roomList = em.createQuery(
                 "SELECT r FROM Room r WHERE r.roomType.name = :roomType AND r.disabled = :disabled AND r.roomStatus != :roomStatus")
             .setParameter("roomType", roomType)
@@ -95,13 +108,17 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
             .setParameter("checkoutDate", checkoutDate)
             .setParameter("isCheckOut", Boolean.FALSE)
             .getResultList();
+        
+        Integer totalReservation = 0;
+        for (Reservation res : currReservation) {
+            totalReservation += res.getNumOfRoom();
+        }
 
-        List<Room> availableRoom = new ArrayList<Room>();
         for (Room r : roomList) {
             // get the reservation for current room
             List<Reservation> resList = r.getReservationList();
 
-            if (currReservation.size() >= roomList.size()) {
+            if (totalReservation >= roomList.size()) {
                 break;
             }
 
@@ -121,7 +138,7 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
                     }
                 }
 
-                if ((roomList.size() - currReservation.size()) == availableRoom.size()) {
+                if ((roomList.size() - totalReservation) == availableRoom.size()) {
                     break;
                 }
             } else {
@@ -129,7 +146,7 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
                     availableRoom.add(r);
                 }
 
-                if ((roomList.size() - currReservation.size()) == availableRoom.size()) {
+                if ((roomList.size() - totalReservation) == availableRoom.size()) {
                     break;
                 }
             }
@@ -141,6 +158,18 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
 
     @Override
     public List<Room> searchAvailableRoomWithLimit(String roomType, Date checkInDate, Date checkoutDate, Integer limit) throws AvailableRoomNotFoundException {
+        List<Room> availableRoom = new ArrayList<Room>();
+        try{
+            Query query = em.createQuery("SELECT rt FROM RoomType rt WHERE rt.name = :inName");
+            query.setParameter("inName", roomType);
+            RoomType type = (RoomType)query.getSingleResult();
+            if (type.getDisabled()) {
+                return availableRoom;
+            }
+        } catch (NoResultException ex) {
+            throw new AvailableRoomNotFoundException("No available room found, please try again.");
+        }
+        
         Query query = em.createQuery(
                 "SELECT r FROM Room r WHERE r.roomType.name = :roomType AND r.disabled = :disabled AND r.roomStatus != :roomStatus")
             .setParameter("roomType", roomType)
@@ -159,14 +188,17 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
             .setParameter("checkoutDate", checkoutDate)
             .setParameter("isCheckOut", Boolean.FALSE)
             .getResultList();
+        
+        Integer totalReservation = 0;
+        for (Reservation res : currReservation) {
+            totalReservation += res.getNumOfRoom();
+        }
 
-
-        List<Room> availableRoom = new ArrayList<Room>();
         for (Room r : roomList) {
             // get the reservation for current room
             List<Reservation> resList = r.getReservationList();
 
-            if (currReservation.size() >= roomList.size()) {
+            if (totalReservation >= roomList.size()) {
                 break;
             }
 
@@ -185,7 +217,7 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
                     }
                 }
 
-                if ((roomList.size() - currReservation.size()) == availableRoom.size()) {
+                if ((roomList.size() - totalReservation) == availableRoom.size()) {
                     break;
                 }
             } else {
@@ -193,7 +225,7 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
                     availableRoom.add(r);
                 }
 
-                if ((roomList.size() - currReservation.size()) == availableRoom.size()) {
+                if ((roomList.size() - totalReservation) == availableRoom.size()) {
                     break;
                 }
             }
