@@ -89,10 +89,11 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
         }
 
         // get reservation that have not be checkin
-        List<Reservation> currReservation = em.createQuery("SELECT r FROM Reservation r WHERE r.roomType.name = :roomType AND ((r.checkInDate BETWEEN :checkInDate AND :checkoutDate) OR (r.checkOutDate BETWEEN :checkInDate AND :checkoutDate) OR (r.checkInDate <= :checkInDate AND r.checkOutDate >= :checkoutDate))")
+        List<Reservation> currReservation = em.createQuery("SELECT r FROM Reservation r WHERE r.roomType.name = :roomType AND r.isCheckOut = :isCheckOut AND ((r.checkInDate BETWEEN :checkInDate AND :checkoutDate) OR (r.checkOutDate BETWEEN :checkInDate AND :checkoutDate) OR (r.checkInDate <= :checkInDate AND r.checkOutDate >= :checkoutDate))")
             .setParameter("roomType", roomType)
             .setParameter("checkInDate", checkInDate)
             .setParameter("checkoutDate", checkoutDate)
+            .setParameter("isCheckOut", Boolean.FALSE)
             .getResultList();
 
         List<Room> availableRoom = new ArrayList<Room>();
@@ -112,7 +113,8 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
 
                 if (
                     checkInDate.after(res.getCheckOutDate()) ||
-                    parsedDateTime.toLocalDate().isEqual(today.toLocalDate())
+                    parsedDateTime.toLocalDate().isEqual(today.toLocalDate()) ||
+                    res.getIsCheckOut() == Boolean.TRUE
                 ) {
                     if (!availableRoom.contains(r)) {
                         availableRoom.add(r);
@@ -151,10 +153,11 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
         }
 
         // get reservation that have not be checkin
-        List<Reservation> currReservation = em.createQuery("SELECT r FROM Reservation r WHERE r.roomType.name = :roomType AND ((r.checkInDate BETWEEN :checkInDate AND :checkoutDate) OR (r.checkOutDate BETWEEN :checkInDate AND :checkoutDate) OR (r.checkInDate <= :checkInDate AND r.checkOutDate >= :checkoutDate))")
+        List<Reservation> currReservation = em.createQuery("SELECT r FROM Reservation r WHERE r.roomType.name = :roomType AND r.isCheckOut = :isCheckOut AND ((r.checkInDate BETWEEN :checkInDate AND :checkoutDate) OR (r.checkOutDate BETWEEN :checkInDate AND :checkoutDate) OR (r.checkInDate <= :checkInDate AND r.checkOutDate >= :checkoutDate))")
             .setParameter("roomType", roomType)
             .setParameter("checkInDate", checkInDate)
             .setParameter("checkoutDate", checkoutDate)
+            .setParameter("isCheckOut", Boolean.FALSE)
             .getResultList();
 
 
@@ -174,7 +177,8 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
                 LocalDateTime today = LocalDateTime.parse(checkInDate.toString(), dtf);
                 if (
                     checkInDate.after(res.getCheckOutDate()) ||
-                    parsedDateTime.toLocalDate().isEqual(today.toLocalDate())
+                    parsedDateTime.toLocalDate().isEqual(today.toLocalDate()) ||
+                    res.getIsCheckOut() == Boolean.TRUE
                 ) {
                     if (!availableRoom.contains(r)) {
                         availableRoom.add(r);
@@ -364,6 +368,10 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
             LocalDateTime today = LocalDateTime.parse((new Date()).toString(), dtf);
 
             // user cannot check in if the checkindate is after today / check out date is over
+            if (reservation.getIsCheckIn()) {
+                throw new RoomCheckInException("This reservation have already been checked in");
+            }
+            
             if (
                     reservation.getRoomList().isEmpty() &&
                     reservation.getReport() == null &&
@@ -373,9 +381,22 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
             ) {
                 throw new RoomCheckInException("Room is not available to check in");
             }
+            
+            List<Room> roomList = reservation.getRoomList();
+            if (roomList.size() > 0) {
+                for (Room room : roomList) {
+                    room.setIsOccupied(Boolean.TRUE);
+                }
+            }
 
             reservation.setIsCheckIn(Boolean.TRUE);
             em.merge(reservation);
+            
+            if (roomList.size() > 0) {
+                for (Room room : roomList) {
+                    em.merge(room);
+                }
+            }
 
             return reservation;
         }
@@ -393,9 +414,26 @@ public class WalkInRoomReservation implements WalkInRoomReservationRemote, WalkI
             ) {
                 throw new RoomCheckOutException("Room have not yet be check in");
             }
+            
+            if (reservation.getIsCheckOut()) {
+                throw new RoomCheckOutException("This reservation have already been checked out");
+            }
+            
+            List<Room> roomList = reservation.getRoomList();
+            if (roomList.size() > 0) {
+                for (Room room : roomList) {
+                    room.setIsOccupied(Boolean.FALSE);
+                }
+            }
 
             reservation.setIsCheckOut(Boolean.TRUE);
             em.merge(reservation);
+            
+            if (roomList.size() > 0) {
+                for (Room room : roomList) {
+                    em.merge(room);
+                }
+            }
         }
     }
 }
