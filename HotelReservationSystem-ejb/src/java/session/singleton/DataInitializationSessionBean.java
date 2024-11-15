@@ -77,7 +77,7 @@ public class DataInitializationSessionBean {
             employeeSessionBeanLocal.createNewEmployee(new Employee("sysadmin", "password", RoleType.SYSTEM_ADMINISTRATOR));
             employeeSessionBeanLocal.createNewEmployee(new Employee("opmanager", "password", RoleType.OPERATION_MANAGER));
             employeeSessionBeanLocal.createNewEmployee(new Employee("salesmanager", "password", RoleType.SALES_MANAGER));
-            employeeSessionBeanLocal.createNewEmployee(new Employee("guestrelo", "password", RoleType.GUEST_RELATION_OFFICER));
+            employeeSessionBeanLocal.createNewEmployee(new Employee("guestrole", "password", RoleType.GUEST_RELATION_OFFICER));
 
             // add room type
             RoomType grand = new RoomType("Grand Suite");

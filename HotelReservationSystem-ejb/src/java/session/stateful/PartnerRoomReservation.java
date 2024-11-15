@@ -36,6 +36,7 @@ import util.exception.InputDataValidationException;
 import util.exception.PartnerAddReservationException;
 import util.exception.PartnerNotFoundException;
 import util.exception.ReservationAddRoomException;
+import util.exception.ReservationExceedAvailableRoomNumberException;
 import util.exception.RoomAddReservationException;
 import util.exception.RoomRateAddReservationException;
 import util.exception.RoomRateNotFoundException;
@@ -76,8 +77,12 @@ public class PartnerRoomReservation implements PartnerRoomReservationRemote, Par
     public Reservation onlineReserve(String roomType, Integer noOfRoom, Date checkInDate, Date checkOutDate, Long partnerId, Long guestId)
             throws RoomRateNotFoundException, RoomTypeAddReservationException, RoomRateAddReservationException,
             PartnerAddReservationException, RoomAddReservationException, PartnerNotFoundException,
-            GuestNotFoundException, GuestAddReservationException, AvailableRoomNotFoundException, InputDataValidationException, ReservationAddRoomException {
+            GuestNotFoundException, GuestAddReservationException, AvailableRoomNotFoundException, InputDataValidationException, ReservationAddRoomException, ReservationExceedAvailableRoomNumberException {
         List<Room> selectedRoom = guestRoomReservationSessionBeanLocal.searchAvailableRoomWithLimit(roomType, checkInDate, checkOutDate, noOfRoom);
+
+        if (selectedRoom.size() < noOfRoom) {
+            throw new ReservationExceedAvailableRoomNumberException("There is insufficient rooms to be reserved");
+        }
 
         BigDecimal total = new BigDecimal(0);
         total = guestRoomReservationSessionBeanLocal.getTotalPrice(roomType, checkInDate, checkOutDate, noOfRoom);
@@ -105,7 +110,7 @@ public class PartnerRoomReservation implements PartnerRoomReservationRemote, Par
             if (rate == null) {
                 throw new RoomRateNotFoundException("Published room rate for current room not found");
             }
-            
+
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
             LocalDateTime parsedDateTime = LocalDateTime.parse(checkInDate.toString(), dtf);
             LocalDateTime today = LocalDateTime.parse((new Date()).toString(), dtf);
@@ -133,7 +138,7 @@ public class PartnerRoomReservation implements PartnerRoomReservationRemote, Par
                 rate.addReservation(reservation);
                 partner.addReservation(reservation);
                 guest.addReservation(reservation);
-                
+
                 em.persist(reservation);
                 em.flush();
             } catch (RoomTypeAddReservationException ex) {
@@ -145,7 +150,7 @@ public class PartnerRoomReservation implements PartnerRoomReservationRemote, Par
             }  catch (GuestAddReservationException ex) {
                 throw new GuestAddReservationException("Reservation already added to Employee");
             }
-            
+
             return reservation;
         }   else {
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
