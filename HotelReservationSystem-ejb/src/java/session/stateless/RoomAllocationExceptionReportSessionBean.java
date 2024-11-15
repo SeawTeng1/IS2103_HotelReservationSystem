@@ -7,6 +7,7 @@ package session.stateless;
 import entity.Reservation;
 import entity.Room;
 import entity.RoomAllocationExceptionReport;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.Stateless;
@@ -87,6 +88,12 @@ public class RoomAllocationExceptionReportSessionBean implements RoomAllocationE
         Query query = em.createQuery("SELECT r FROM RoomAllocationExceptionReport r");
         return query.getResultList();
     }
+    
+    public List<RoomAllocationExceptionReport> viewReportsbyDate(Date reportDate) {
+    Query query = em.createQuery("SELECT r FROM RoomAllocationExceptionReport r WHERE r.reportDate = :reportDate");
+        query.setParameter("reportDate", reportDate);
+        return query.getResultList();
+    }   
     
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<RoomAllocationExceptionReport>>constraintViolations)
     {

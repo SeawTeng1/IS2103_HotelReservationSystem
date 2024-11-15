@@ -73,7 +73,7 @@ public class SystemAdministrationModule {
             System.out.println("3: Create New Partner");
             System.out.println("4: View All Partners");
             System.out.println("-----------------------");
-            System.out.println("5: Back\n");
+            System.out.println("5: Logout\n");
             response = 0;
             
             while(response < 1 || response > 5)
@@ -180,11 +180,11 @@ public class SystemAdministrationModule {
         System.out.println("*** HoR System :: System Administration :: View All Employees ***\n");
         
         List<Employee> employeeList = employeeSessionBeanRemote.viewAllEmployees();
-        System.out.printf("%8s%24s%24s%24s\n", "Employee ID", "Userame", "Access Right", "Password");
+        System.out.printf("%8s%20s%20s\n", "Employee ID", "Userame", "Access Right");
 
         for(Employee employee:employeeList)
         {
-            System.out.printf("%8s%24s%24s%24s\n", employee.getEmployeeId().toString(), employee.getUsername(), employee.getRoleType().toString(), employee.getPassword());
+            System.out.printf("%8s%20s%20s\n", employee.getEmployeeId().toString(), employee.getUsername(), employee.getRoleType().toString());
         }
         
         System.out.print("Press any key to continue...> ");

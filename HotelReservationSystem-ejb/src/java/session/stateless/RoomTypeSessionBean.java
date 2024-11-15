@@ -88,16 +88,28 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
 
     //9. Update Room Type takes in the id of the room type you want to update to update the details of a particular existing room record with a new roomtype record
     @Override
-    public void updateRoomType(RoomType roomType) throws RoomTypeNotFoundException, InputDataValidationException {
+    public void updateRoomType(RoomType roomType) throws RoomTypeNotFoundException, InputDataValidationException, RoomTypeExistException {
         if(roomType != null && roomType.getRoomTypeId() != null) {
-
+            //try {
             Set<ConstraintViolation<RoomType>>constraintViolations = validator.validate(roomType);
 
             if(constraintViolations.isEmpty()) {
 
                 RoomType roomtypeToUpdate = retrieveRoomTypebyId(roomType.getRoomTypeId());
 
-                    roomtypeToUpdate.setName(roomType.getName());
+                 // Check if the room type name is being updated
+                if (!roomtypeToUpdate.getName().equals(roomType.getName())) {
+                    try {
+                        // Check if the new name already exists
+                        RoomType existingRoomType = retrieveRoomTypebyName(roomType.getName());
+                        if (existingRoomType != null && !existingRoomType.getRoomTypeId().equals(roomType.getRoomTypeId())) {
+                            throw new RoomTypeExistException("Room Type Name already exists!");
+                        }
+                    } catch (RoomTypeNotFoundException e) {
+                        // Room type name does not exist, proceed with the update
+                        roomtypeToUpdate.setName(roomType.getName());
+                    }
+                }  
                     roomtypeToUpdate.setDescription(roomType.getDescription());
                     roomtypeToUpdate.setSize(roomType.getSize());
                     roomtypeToUpdate.setBeds(roomType.getBeds());
@@ -135,6 +147,15 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     public List<RoomType> viewAllRoomTypes() {
         Query query = em.createQuery("SELECT rt FROM RoomType rt");
         return query.getResultList();
+    }
+    
+    @Override
+    public void viewAllRoomTypeNames() {
+        Query query = em.createQuery("SELECT rt.name FROM RoomType rt");
+        List<String> names = query.getResultList();
+        for (String name : names) {
+                System.out.println(name);
+        }
     }
 
     //Other methods
@@ -190,10 +211,14 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
 
     @Override
     public void retrieveRoomRatesForRoomType(RoomType roomType) {
-        List<RoomRate> roomRateList = roomType.getRoomRateList();
+        if (!roomType.getRoomRateList().isEmpty()) {
+            List<RoomRate> roomRateList = roomType.getRoomRateList();
             for (RoomRate roomRate : roomRateList) {
                 System.out.println(" - " + roomRate.getName() + ": " + roomRate.getRatePerNight() + " dollars per night");
             }
+        } else {
+            System.out.println("No room rates!");
+        }
     }
 
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<RoomType>>constraintViolations)

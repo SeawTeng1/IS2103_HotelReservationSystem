@@ -80,7 +80,7 @@ public class MainApp {
                     try
                     {
                         doLogin();
-                        System.out.println("Login successful!\n");
+                        //System.out.println("Login successful!\n");
                         
                         if(currentEmployee != null && currentEmployee.getRoleType()==RoleType.SYSTEM_ADMINISTRATOR){
                             systemAdministrationModule = new SystemAdministrationModule(employeeSessionBeanRemote, partnerSessionBeanRemote, currentEmployee);
@@ -136,10 +136,13 @@ public class MainApp {
         {
             try {
                 currentEmployee = employeeSessionBeanRemote.employeeLogin(username, password);
+                System.out.println("Login successful!\n");
             } catch (EmployeeNotFoundException ex) {
                 System.out.println("An error has occurred while doing login: " + ex.getMessage() + "\n");
             } catch (EmployeeInvalidPasswordException ex) {
                 System.out.println("An error has occurred while doing login: " + ex.getMessage() + "\n");
+            } catch (Exception e) {
+                System.out.println("An unexpected error occurred: " + e.getMessage());
             }
         }
         else
