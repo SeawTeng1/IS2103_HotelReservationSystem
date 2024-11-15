@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.InputDataValidationException;
+import util.exception.NoReservationsFoundException;
 import util.exception.ReportExistException;
 import util.exception.ReservationNotFoundException;
 import util.exception.RoomDeleteException;
@@ -26,7 +27,7 @@ import util.exception.UnknownPersistenceException;
 public interface RoomSessionBeanRemote {
     public Room createNewRoom(Room newRoom, String roomTypeName) throws RoomTypeNotFoundException, UnknownPersistenceException, RoomExistException, RoomTypeDisabledException, InputDataValidationException;
 
-    public void updateRoom(Room room) throws RoomNotFoundException, InputDataValidationException;
+    public void updateRoom(Room room) throws RoomNotFoundException, InputDataValidationException, RoomExistException;
 
     public void deleteRoom(Long roomId) throws RoomNotFoundException, RoomDeleteException;
 
@@ -34,7 +35,7 @@ public interface RoomSessionBeanRemote {
 
     public Room retrieveRoombyId(Long roomId) throws RoomNotFoundException;
 
-    public Room retrieveRoombyRoomNumber(Integer roomNumber) throws RoomNotFoundException;
+    public Room retrieveRoombyRoomNumber(String roomNumber) throws RoomNotFoundException;
     
-    public void allocateRoomToReservation(Date checkinDate) throws ReservationNotFoundException, UnknownPersistenceException, InputDataValidationException, ReportExistException;
+    public void allocateRoomToReservation(Date checkinDate) throws ReservationNotFoundException, UnknownPersistenceException, InputDataValidationException, ReportExistException, NoReservationsFoundException;
 }

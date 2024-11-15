@@ -25,6 +25,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.InputDataValidationException;
+import util.exception.NoReservationsFoundException;
 import util.exception.ReportExistException;
 import util.exception.ReservationNotFoundException;
 import util.exception.RoomDeleteException;
@@ -103,7 +104,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     
     //13. Update Room: update details of room record and/or status
     //@Override
-    public void updateRoom(Room room) throws RoomNotFoundException, InputDataValidationException {
+    public void updateRoom(Room room) throws RoomNotFoundException, InputDataValidationException, RoomExistException {
         {
         if(room != null && room.getRoomId()!= null)
         {
@@ -113,7 +114,18 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
             {
                 Room roomUpdate = retrieveRoombyId(room.getRoomId());
 
-                roomUpdate.setRoomNumber(room.getRoomNumber());
+                if (!roomUpdate.getRoomNumber().equals(room.getRoomNumber())) {
+                    try {
+                        // Check if the new room number already exists
+                        Room existingRoom = retrieveRoombyRoomNumber(room.getRoomNumber());
+                        if (existingRoom != null && !existingRoom.getRoomId().equals(room.getRoomId())) {
+                            throw new RoomExistException("Room Number already exists!");
+                        }
+                    } catch (RoomNotFoundException e) {
+                        // Room number does not exist, proceed with the update
+                        roomUpdate.setRoomNumber(room.getRoomNumber());
+                    }
+                }                  
                 roomUpdate.setRoomStatus(room.getRoomStatus());
 
             } else {
@@ -158,7 +170,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     }
     
     @Override
-    public Room retrieveRoombyRoomNumber(Integer roomNumber) throws RoomNotFoundException {
+    public Room retrieveRoombyRoomNumber(String roomNumber) throws RoomNotFoundException {
         try {
             Query query = em.createQuery("SELECT r FROM Room r WHERE r.roomNumber = :inRoomNumber");
             query.setParameter("inRoomNumber", roomNumber);
@@ -168,12 +180,15 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
         }
     }
     
-     public void allocateRoomToReservation(Date checkinDate) throws ReservationNotFoundException, UnknownPersistenceException, InputDataValidationException, ReportExistException {
+     public void allocateRoomToReservation(Date checkInDate) throws ReservationNotFoundException, UnknownPersistenceException, InputDataValidationException, ReportExistException, NoReservationsFoundException {
         
-        Query query = em.createQuery("SELECT res FROM Reservation res WHERE res.checkinDate = :inCheckinDate");
-        query.setParameter("inCheckinDate", checkinDate);
+        Query query = em.createQuery("SELECT res FROM Reservation res WHERE res.checkInDate = :inCheckInDate");
+        query.setParameter("inCheckInDate", checkInDate);
         
         List<Reservation> reservations = (List<Reservation>) query.getResultList();
+        if (reservations == null || reservations.isEmpty()) {
+            throw new NoReservationsFoundException("No reservations found for the date: " + checkInDate);
+        }
         
         for(Reservation reservation : reservations) {
             

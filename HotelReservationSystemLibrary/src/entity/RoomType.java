@@ -69,14 +69,14 @@ public class RoomType implements Serializable {
     // for the upgrade of room
     private Integer roomRank; 
     
-    @OneToMany(mappedBy = "RoomType", cascade = {}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "RoomType", cascade = {}, fetch = FetchType.EAGER)
     @XmlTransient
     private List<Room> roomList;
     
-    @OneToMany(mappedBy = "RoomType", cascade = {}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "RoomType", cascade = {}, fetch = FetchType.EAGER)
     private List<Reservation> reservationList;
     
-    @OneToMany(mappedBy = "RoomType", cascade = {}, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "RoomType", cascade = {}, fetch = FetchType.EAGER)
     @XmlTransient
     private List<RoomRate> roomRateList;
     

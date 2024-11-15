@@ -73,7 +73,8 @@ public class FrontOfficeModule {
             System.out.println("1: Search and Reserve Hotel Room");
             System.out.println("2: Check-in Guest");
             System.out.println("3: Check-out Guest");
-            System.out.println("4: Back\n");
+            System.out.println("-----------------------");
+            System.out.println("3: Logout\n");
             response = 0;
 
             while(response < 1 || response > 4)

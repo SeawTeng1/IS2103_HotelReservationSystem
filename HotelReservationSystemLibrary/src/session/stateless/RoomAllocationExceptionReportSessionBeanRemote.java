@@ -5,6 +5,7 @@
 package session.stateless;
 
 import entity.RoomAllocationExceptionReport;
+import java.util.Date;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.InputDataValidationException;
@@ -20,5 +21,7 @@ public interface RoomAllocationExceptionReportSessionBeanRemote {
     public RoomAllocationExceptionReport createReport(RoomAllocationExceptionReport newReport, Long reservationId) throws UnknownPersistenceException, ReportExistException, InputDataValidationException;
 
     public List<RoomAllocationExceptionReport> viewAllReports();
+    
+     public List<RoomAllocationExceptionReport> viewReportsbyDate(Date reportDate);
     
 }
