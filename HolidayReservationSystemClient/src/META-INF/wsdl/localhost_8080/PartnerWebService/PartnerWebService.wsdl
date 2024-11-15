@@ -4,14 +4,59 @@
 <xsd:import namespace="http://ws.session/" schemaLocation="http://localhost:8080/PartnerWebService/PartnerWebService?xsd=1"/>
 </xsd:schema>
 </types>
+<message name="getReservationDetailByPartner">
+<part name="parameters" element="tns:getReservationDetailByPartner"/>
+</message>
+<message name="getReservationDetailByPartnerResponse">
+<part name="parameters" element="tns:getReservationDetailByPartnerResponse"/>
+</message>
+<message name="ReservationForPartnerNotFoundException">
+<part name="fault" element="tns:ReservationForPartnerNotFoundException"/>
+</message>
+<message name="searchAvailableRoom">
+<part name="parameters" element="tns:searchAvailableRoom"/>
+</message>
+<message name="searchAvailableRoomResponse">
+<part name="parameters" element="tns:searchAvailableRoomResponse"/>
+</message>
+<message name="AvailableRoomNotFoundException">
+<part name="fault" element="tns:AvailableRoomNotFoundException"/>
+</message>
+<message name="getReservationListByPartner">
+<part name="parameters" element="tns:getReservationListByPartner"/>
+</message>
+<message name="getReservationListByPartnerResponse">
+<part name="parameters" element="tns:getReservationListByPartnerResponse"/>
+</message>
+<message name="ReservationListForPartnerNotFoundException">
+<part name="fault" element="tns:ReservationListForPartnerNotFoundException"/>
+</message>
+<message name="getTotalPrice">
+<part name="parameters" element="tns:getTotalPrice"/>
+</message>
+<message name="getTotalPriceResponse">
+<part name="parameters" element="tns:getTotalPriceResponse"/>
+</message>
+<message name="RoomRateNotFoundException">
+<part name="fault" element="tns:RoomRateNotFoundException"/>
+</message>
+<message name="partnerLogin">
+<part name="parameters" element="tns:partnerLogin"/>
+</message>
+<message name="partnerLoginResponse">
+<part name="parameters" element="tns:partnerLoginResponse"/>
+</message>
+<message name="PartnerInvalidPasswordException">
+<part name="fault" element="tns:PartnerInvalidPasswordException"/>
+</message>
+<message name="PartnerNotFoundException">
+<part name="fault" element="tns:PartnerNotFoundException"/>
+</message>
 <message name="onlineReserve">
 <part name="parameters" element="tns:onlineReserve"/>
 </message>
 <message name="onlineReserveResponse">
 <part name="parameters" element="tns:onlineReserveResponse"/>
-</message>
-<message name="RoomRateNotFoundException">
-<part name="fault" element="tns:RoomRateNotFoundException"/>
 </message>
 <message name="RoomTypeAddReservationException">
 <part name="fault" element="tns:RoomTypeAddReservationException"/>
@@ -25,58 +70,49 @@
 <message name="RoomAddReservationException">
 <part name="fault" element="tns:RoomAddReservationException"/>
 </message>
-<message name="PartnerNotFoundException">
-<part name="fault" element="tns:PartnerNotFoundException"/>
-</message>
 <message name="GuestNotFoundException">
 <part name="fault" element="tns:GuestNotFoundException"/>
 </message>
 <message name="GuestAddReservationException">
 <part name="fault" element="tns:GuestAddReservationException"/>
 </message>
-<message name="AvailableRoomNotFoundException">
-<part name="fault" element="tns:AvailableRoomNotFoundException"/>
+<message name="InputDataValidationException">
+<part name="fault" element="tns:InputDataValidationException"/>
 </message>
-<message name="partnerLogin">
-<part name="parameters" element="tns:partnerLogin"/>
+<message name="ReservationAddRoomException">
+<part name="fault" element="tns:ReservationAddRoomException"/>
 </message>
-<message name="partnerLoginResponse">
-<part name="parameters" element="tns:partnerLoginResponse"/>
-</message>
-<message name="PartnerInvalidPasswordException">
-<part name="fault" element="tns:PartnerInvalidPasswordException"/>
-</message>
-<message name="getTotalPrice">
-<part name="parameters" element="tns:getTotalPrice"/>
-</message>
-<message name="getTotalPriceResponse">
-<part name="parameters" element="tns:getTotalPriceResponse"/>
-</message>
-<message name="searchAvailableRoom">
-<part name="parameters" element="tns:searchAvailableRoom"/>
-</message>
-<message name="searchAvailableRoomResponse">
-<part name="parameters" element="tns:searchAvailableRoomResponse"/>
-</message>
-<message name="getReservationDetailByPartner">
-<part name="parameters" element="tns:getReservationDetailByPartner"/>
-</message>
-<message name="getReservationDetailByPartnerResponse">
-<part name="parameters" element="tns:getReservationDetailByPartnerResponse"/>
-</message>
-<message name="ReservationForPartnerNotFoundException">
-<part name="fault" element="tns:ReservationForPartnerNotFoundException"/>
-</message>
-<message name="getReservationListByPartner">
-<part name="parameters" element="tns:getReservationListByPartner"/>
-</message>
-<message name="getReservationListByPartnerResponse">
-<part name="parameters" element="tns:getReservationListByPartnerResponse"/>
-</message>
-<message name="ReservationListForPartnerNotFoundException">
-<part name="fault" element="tns:ReservationListForPartnerNotFoundException"/>
+<message name="ReservationExceedAvailableRoomNumberException">
+<part name="fault" element="tns:ReservationExceedAvailableRoomNumberException"/>
 </message>
 <portType name="PartnerWebService">
+<operation name="getReservationDetailByPartner">
+<input wsam:Action="http://ws.session/PartnerWebService/getReservationDetailByPartnerRequest" message="tns:getReservationDetailByPartner"/>
+<output wsam:Action="http://ws.session/PartnerWebService/getReservationDetailByPartnerResponse" message="tns:getReservationDetailByPartnerResponse"/>
+<fault message="tns:ReservationForPartnerNotFoundException" name="ReservationForPartnerNotFoundException" wsam:Action="http://ws.session/PartnerWebService/getReservationDetailByPartner/Fault/ReservationForPartnerNotFoundException"/>
+</operation>
+<operation name="searchAvailableRoom">
+<input wsam:Action="http://ws.session/PartnerWebService/searchAvailableRoomRequest" message="tns:searchAvailableRoom"/>
+<output wsam:Action="http://ws.session/PartnerWebService/searchAvailableRoomResponse" message="tns:searchAvailableRoomResponse"/>
+<fault message="tns:AvailableRoomNotFoundException" name="AvailableRoomNotFoundException" wsam:Action="http://ws.session/PartnerWebService/searchAvailableRoom/Fault/AvailableRoomNotFoundException"/>
+</operation>
+<operation name="getReservationListByPartner">
+<input wsam:Action="http://ws.session/PartnerWebService/getReservationListByPartnerRequest" message="tns:getReservationListByPartner"/>
+<output wsam:Action="http://ws.session/PartnerWebService/getReservationListByPartnerResponse" message="tns:getReservationListByPartnerResponse"/>
+<fault message="tns:ReservationListForPartnerNotFoundException" name="ReservationListForPartnerNotFoundException" wsam:Action="http://ws.session/PartnerWebService/getReservationListByPartner/Fault/ReservationListForPartnerNotFoundException"/>
+</operation>
+<operation name="getTotalPrice">
+<input wsam:Action="http://ws.session/PartnerWebService/getTotalPriceRequest" message="tns:getTotalPrice"/>
+<output wsam:Action="http://ws.session/PartnerWebService/getTotalPriceResponse" message="tns:getTotalPriceResponse"/>
+<fault message="tns:AvailableRoomNotFoundException" name="AvailableRoomNotFoundException" wsam:Action="http://ws.session/PartnerWebService/getTotalPrice/Fault/AvailableRoomNotFoundException"/>
+<fault message="tns:RoomRateNotFoundException" name="RoomRateNotFoundException" wsam:Action="http://ws.session/PartnerWebService/getTotalPrice/Fault/RoomRateNotFoundException"/>
+</operation>
+<operation name="partnerLogin">
+<input wsam:Action="http://ws.session/PartnerWebService/partnerLoginRequest" message="tns:partnerLogin"/>
+<output wsam:Action="http://ws.session/PartnerWebService/partnerLoginResponse" message="tns:partnerLoginResponse"/>
+<fault message="tns:PartnerInvalidPasswordException" name="PartnerInvalidPasswordException" wsam:Action="http://ws.session/PartnerWebService/partnerLogin/Fault/PartnerInvalidPasswordException"/>
+<fault message="tns:PartnerNotFoundException" name="PartnerNotFoundException" wsam:Action="http://ws.session/PartnerWebService/partnerLogin/Fault/PartnerNotFoundException"/>
+</operation>
 <operation name="onlineReserve">
 <input wsam:Action="http://ws.session/PartnerWebService/onlineReserveRequest" message="tns:onlineReserve"/>
 <output wsam:Action="http://ws.session/PartnerWebService/onlineReserveResponse" message="tns:onlineReserveResponse"/>
@@ -89,37 +125,79 @@
 <fault message="tns:GuestNotFoundException" name="GuestNotFoundException" wsam:Action="http://ws.session/PartnerWebService/onlineReserve/Fault/GuestNotFoundException"/>
 <fault message="tns:GuestAddReservationException" name="GuestAddReservationException" wsam:Action="http://ws.session/PartnerWebService/onlineReserve/Fault/GuestAddReservationException"/>
 <fault message="tns:AvailableRoomNotFoundException" name="AvailableRoomNotFoundException" wsam:Action="http://ws.session/PartnerWebService/onlineReserve/Fault/AvailableRoomNotFoundException"/>
-</operation>
-<operation name="partnerLogin">
-<input wsam:Action="http://ws.session/PartnerWebService/partnerLoginRequest" message="tns:partnerLogin"/>
-<output wsam:Action="http://ws.session/PartnerWebService/partnerLoginResponse" message="tns:partnerLoginResponse"/>
-<fault message="tns:PartnerInvalidPasswordException" name="PartnerInvalidPasswordException" wsam:Action="http://ws.session/PartnerWebService/partnerLogin/Fault/PartnerInvalidPasswordException"/>
-<fault message="tns:PartnerNotFoundException" name="PartnerNotFoundException" wsam:Action="http://ws.session/PartnerWebService/partnerLogin/Fault/PartnerNotFoundException"/>
-</operation>
-<operation name="getTotalPrice">
-<input wsam:Action="http://ws.session/PartnerWebService/getTotalPriceRequest" message="tns:getTotalPrice"/>
-<output wsam:Action="http://ws.session/PartnerWebService/getTotalPriceResponse" message="tns:getTotalPriceResponse"/>
-<fault message="tns:AvailableRoomNotFoundException" name="AvailableRoomNotFoundException" wsam:Action="http://ws.session/PartnerWebService/getTotalPrice/Fault/AvailableRoomNotFoundException"/>
-<fault message="tns:RoomRateNotFoundException" name="RoomRateNotFoundException" wsam:Action="http://ws.session/PartnerWebService/getTotalPrice/Fault/RoomRateNotFoundException"/>
-</operation>
-<operation name="searchAvailableRoom">
-<input wsam:Action="http://ws.session/PartnerWebService/searchAvailableRoomRequest" message="tns:searchAvailableRoom"/>
-<output wsam:Action="http://ws.session/PartnerWebService/searchAvailableRoomResponse" message="tns:searchAvailableRoomResponse"/>
-<fault message="tns:AvailableRoomNotFoundException" name="AvailableRoomNotFoundException" wsam:Action="http://ws.session/PartnerWebService/searchAvailableRoom/Fault/AvailableRoomNotFoundException"/>
-</operation>
-<operation name="getReservationDetailByPartner">
-<input wsam:Action="http://ws.session/PartnerWebService/getReservationDetailByPartnerRequest" message="tns:getReservationDetailByPartner"/>
-<output wsam:Action="http://ws.session/PartnerWebService/getReservationDetailByPartnerResponse" message="tns:getReservationDetailByPartnerResponse"/>
-<fault message="tns:ReservationForPartnerNotFoundException" name="ReservationForPartnerNotFoundException" wsam:Action="http://ws.session/PartnerWebService/getReservationDetailByPartner/Fault/ReservationForPartnerNotFoundException"/>
-</operation>
-<operation name="getReservationListByPartner">
-<input wsam:Action="http://ws.session/PartnerWebService/getReservationListByPartnerRequest" message="tns:getReservationListByPartner"/>
-<output wsam:Action="http://ws.session/PartnerWebService/getReservationListByPartnerResponse" message="tns:getReservationListByPartnerResponse"/>
-<fault message="tns:ReservationListForPartnerNotFoundException" name="ReservationListForPartnerNotFoundException" wsam:Action="http://ws.session/PartnerWebService/getReservationListByPartner/Fault/ReservationListForPartnerNotFoundException"/>
+<fault message="tns:InputDataValidationException" name="InputDataValidationException" wsam:Action="http://ws.session/PartnerWebService/onlineReserve/Fault/InputDataValidationException"/>
+<fault message="tns:ReservationAddRoomException" name="ReservationAddRoomException" wsam:Action="http://ws.session/PartnerWebService/onlineReserve/Fault/ReservationAddRoomException"/>
+<fault message="tns:ReservationExceedAvailableRoomNumberException" name="ReservationExceedAvailableRoomNumberException" wsam:Action="http://ws.session/PartnerWebService/onlineReserve/Fault/ReservationExceedAvailableRoomNumberException"/>
 </operation>
 </portType>
 <binding name="PartnerWebServicePortBinding" type="tns:PartnerWebService">
 <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+<operation name="getReservationDetailByPartner">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="ReservationForPartnerNotFoundException">
+<soap:fault name="ReservationForPartnerNotFoundException" use="literal"/>
+</fault>
+</operation>
+<operation name="searchAvailableRoom">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="AvailableRoomNotFoundException">
+<soap:fault name="AvailableRoomNotFoundException" use="literal"/>
+</fault>
+</operation>
+<operation name="getReservationListByPartner">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="ReservationListForPartnerNotFoundException">
+<soap:fault name="ReservationListForPartnerNotFoundException" use="literal"/>
+</fault>
+</operation>
+<operation name="getTotalPrice">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="AvailableRoomNotFoundException">
+<soap:fault name="AvailableRoomNotFoundException" use="literal"/>
+</fault>
+<fault name="RoomRateNotFoundException">
+<soap:fault name="RoomRateNotFoundException" use="literal"/>
+</fault>
+</operation>
+<operation name="partnerLogin">
+<soap:operation soapAction=""/>
+<input>
+<soap:body use="literal"/>
+</input>
+<output>
+<soap:body use="literal"/>
+</output>
+<fault name="PartnerInvalidPasswordException">
+<soap:fault name="PartnerInvalidPasswordException" use="literal"/>
+</fault>
+<fault name="PartnerNotFoundException">
+<soap:fault name="PartnerNotFoundException" use="literal"/>
+</fault>
+</operation>
 <operation name="onlineReserve">
 <soap:operation soapAction=""/>
 <input>
@@ -155,71 +233,14 @@
 <fault name="AvailableRoomNotFoundException">
 <soap:fault name="AvailableRoomNotFoundException" use="literal"/>
 </fault>
-</operation>
-<operation name="partnerLogin">
-<soap:operation soapAction=""/>
-<input>
-<soap:body use="literal"/>
-</input>
-<output>
-<soap:body use="literal"/>
-</output>
-<fault name="PartnerInvalidPasswordException">
-<soap:fault name="PartnerInvalidPasswordException" use="literal"/>
+<fault name="InputDataValidationException">
+<soap:fault name="InputDataValidationException" use="literal"/>
 </fault>
-<fault name="PartnerNotFoundException">
-<soap:fault name="PartnerNotFoundException" use="literal"/>
+<fault name="ReservationAddRoomException">
+<soap:fault name="ReservationAddRoomException" use="literal"/>
 </fault>
-</operation>
-<operation name="getTotalPrice">
-<soap:operation soapAction=""/>
-<input>
-<soap:body use="literal"/>
-</input>
-<output>
-<soap:body use="literal"/>
-</output>
-<fault name="AvailableRoomNotFoundException">
-<soap:fault name="AvailableRoomNotFoundException" use="literal"/>
-</fault>
-<fault name="RoomRateNotFoundException">
-<soap:fault name="RoomRateNotFoundException" use="literal"/>
-</fault>
-</operation>
-<operation name="searchAvailableRoom">
-<soap:operation soapAction=""/>
-<input>
-<soap:body use="literal"/>
-</input>
-<output>
-<soap:body use="literal"/>
-</output>
-<fault name="AvailableRoomNotFoundException">
-<soap:fault name="AvailableRoomNotFoundException" use="literal"/>
-</fault>
-</operation>
-<operation name="getReservationDetailByPartner">
-<soap:operation soapAction=""/>
-<input>
-<soap:body use="literal"/>
-</input>
-<output>
-<soap:body use="literal"/>
-</output>
-<fault name="ReservationForPartnerNotFoundException">
-<soap:fault name="ReservationForPartnerNotFoundException" use="literal"/>
-</fault>
-</operation>
-<operation name="getReservationListByPartner">
-<soap:operation soapAction=""/>
-<input>
-<soap:body use="literal"/>
-</input>
-<output>
-<soap:body use="literal"/>
-</output>
-<fault name="ReservationListForPartnerNotFoundException">
-<soap:fault name="ReservationListForPartnerNotFoundException" use="literal"/>
+<fault name="ReservationExceedAvailableRoomNumberException">
+<soap:fault name="ReservationExceedAvailableRoomNumberException" use="literal"/>
 </fault>
 </operation>
 </binding>
