@@ -82,13 +82,13 @@ public class MainApp {
                         doLogin();
                         //System.out.println("Login successful!\n");
                         
-                        if(currentEmployee != null && currentEmployee.getRoleType()==RoleType.SYSTEM_ADMINISTRATOR){
+                        if (currentEmployee != null && currentEmployee.getRoleType() == RoleType.SYSTEM_ADMINISTRATOR){
                             systemAdministrationModule = new SystemAdministrationModule(employeeSessionBeanRemote, partnerSessionBeanRemote, currentEmployee);
                             systemAdministrationModule.menuSystemAdministration();                            
-                        } else if (currentEmployee != null && (currentEmployee.getRoleType()==RoleType.OPERATION_MANAGER || currentEmployee.getRoleType()==RoleType.SALES_MANAGER)){
+                        } else if (currentEmployee != null && (currentEmployee.getRoleType() == RoleType.OPERATION_MANAGER || currentEmployee.getRoleType()==RoleType.SALES_MANAGER)){
                             hotelOperationModule = new HotelOperationModule(employeeSessionBeanRemote, roomSessionBeanRemote, roomTypeSessionBeanRemote ,roomAllocationExceptionReportSessionBeanRemote, roomRateSessionBeanRemote, currentEmployee);
                             hotelOperationModule.menuHotelOperation();          
-                        } else { //for GUEST_RELATION_OFFICER
+                        } else if (currentEmployee != null && currentEmployee.getRoleType() == RoleType.GUEST_RELATION_OFFICER) { //for GUEST_RELATION_OFFICER
                             frontOfficeModule = new FrontOfficeModule(employeeSessionBeanRemote, guestSessionBeanRemote, walkInReservationRemote, currentEmployee);
                             frontOfficeModule.menuFrontOffice();
                             
