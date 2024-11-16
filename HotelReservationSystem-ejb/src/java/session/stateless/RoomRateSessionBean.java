@@ -40,27 +40,27 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
-    
+
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
-    
-    
-    
+
+
+
     public RoomRateSessionBean()
     {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
-    
+
     // 17. Create New Room Rate
     @Override
     public RoomRate createRoomRate(RoomRate roomRate, String roomTypeName) throws RoomRateExistException, UnknownPersistenceException, InputDataValidationException, RoomTypeNotFoundException
     {
-        
+
         try {
             RoomType roomType;
             roomType = roomTypeSessionBeanLocal.retrieveRoomTypebyName(roomTypeName);
-        
+
             Set<ConstraintViolation<RoomRate>>constraintViolations = validator.validate(roomRate);
             if(constraintViolations.isEmpty())
             {
@@ -92,7 +92,7 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
         }
          return roomRate;
     }
-    
+
     // 18. View Room Rate Details
     @Override
     public RoomRate retrieveRoomRateById(Long roomRateId) throws RoomRateNotFoundException {
@@ -102,31 +102,31 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
         }
         return roomRate;
     }
-    
+
     public Boolean roomRateCheckName(String roomRateName, Long roomRateId) {
         try {
             Query query = em.createQuery("SELECT rr FROM RoomRate rr WHERE rr.name = :inName");
             query.setParameter("inName", roomRateName);
             RoomRate roomType = (RoomRate)query.getSingleResult();
-            
+
             return roomType.getRoomRateId().equals(roomRateId);
         } catch (NoResultException ex) {
             System.out.println("");
         }
-        
+
         return true;
     }
-    
+
     // 19. Update Room Rate
     @Override
     public void updateRoomRate(Long roomRateId, RoomRate roomRateUpdate) throws RoomRateExistException, RoomRateNotFoundException, PersistentContextException, InputDataValidationException {
         if(roomRateUpdate != null)
         {
             Set<ConstraintViolation<RoomRate>>constraintViolations = validator.validate(roomRateUpdate);
-        
+
             if(constraintViolations.isEmpty())
             {
- 
+
                 try {
                     RoomRate roomRate = em.find(RoomRate.class, roomRateId);
 
@@ -136,14 +136,14 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
                     roomRate.setRatePerNight(roomRateUpdate.getRatePerNight());
                     roomRate.setValidityStart(roomRateUpdate.getValidityStart());
                     roomRate.setValidityEnd(roomRateUpdate.getValidityEnd());
-                    
+
                     if (!roomRateCheckName(roomRateUpdate.getName(), roomRateId)) {
                         throw new RoomRateExistException("Room Rate with same name exist");
                     }
                     //}
 
                     em.merge(roomRate);
-                    
+
                 } catch (PersistenceException ex) {
                     if(ex.getCause() != null && ex.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException"))
                     {
@@ -162,8 +162,8 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
             }
         }
         //return roomRateUpdate;
-    } 
-     
+    }
+
     // 20. Delete Room Rate
     @Override
     public void deleteRoomRate(Long roomRateId) throws RoomRateNotFoundException, RoomTypeRemoveRoomRateException, PersistentContextException {
@@ -171,7 +171,7 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
         if (roomRate == null) {
             throw new RoomRateNotFoundException("Room Rate ID " + roomRateId + " not found.");
         }
-        
+
         // if there is any reservation do not delete the room rate because it might still be access in the future
         if (!roomRate.getReservationList().isEmpty()) {
             try {
@@ -193,25 +193,25 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
             }
         }
     }
-    
+
     //21. View All Room Rates
     @Override
     public List<RoomRate> viewAllRoomRates()
     {
         Query query = em.createQuery("SELECT rr FROM RoomRate rr");
-        
+
         return query.getResultList();
     }
-    
+
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<RoomRate>>constraintViolations)
     {
         String msg = "Input data validation error!:";
-            
+
         for(ConstraintViolation constraintViolation:constraintViolations)
         {
             msg += "\n\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage();
         }
-        
+
         return msg;
     }
 }

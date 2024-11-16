@@ -729,7 +729,6 @@ public class HotelOperationModule {
             System.out.print("Enter the Check-in Date (MM/DD/YYYY)> ");
             checkinDate = new Date(scanner.nextLine().trim());
             checkinDate.setTime(checkinDate.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
-
             roomSessionBeanRemote.allocateRoomToReservation(checkinDate);
             System.out.println("Room allocated successfully.");
         }
@@ -790,7 +789,7 @@ public class HotelOperationModule {
                     System.out.print("Enter validity start date (MM/DD/YYYY)> ");
                     validityStart = new Date(scanner.nextLine().trim());
                     validityStart.setTime(validityStart.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
-
+                    
                     System.out.print("Enter validity end date (MM/DD/YYYY) ");
                     validityEnd = new Date(scanner.nextLine().trim());
                     validityEnd.setTime(validityEnd.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
@@ -805,11 +804,8 @@ public class HotelOperationModule {
                         break;
                     }
                 }
-                validityStart.setTime(validityStart.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
+                
                 newRoomRate.setValidityStart(validityStart);
-
-
-                validityEnd.setTime(validityEnd.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
                 newRoomRate.setValidityEnd(validityEnd);
             }
 

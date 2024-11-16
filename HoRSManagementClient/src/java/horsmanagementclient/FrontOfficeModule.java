@@ -74,7 +74,7 @@ public class FrontOfficeModule {
             System.out.println("2: Check-in Guest");
             System.out.println("3: Check-out Guest");
             System.out.println("-----------------------");
-            System.out.println("3: Logout\n");
+            System.out.println("4: Logout\n");
             response = 0;
 
             while(response < 1 || response > 4)
