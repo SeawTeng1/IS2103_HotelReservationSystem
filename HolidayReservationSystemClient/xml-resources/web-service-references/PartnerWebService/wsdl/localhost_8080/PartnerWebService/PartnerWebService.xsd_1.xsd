@@ -30,6 +30,10 @@
 
 <xs:element name="RoomTypeAddReservationException" type="tns:RoomTypeAddReservationException"/>
 
+<xs:element name="getAllRoomTypeNames" type="tns:getAllRoomTypeNames"/>
+
+<xs:element name="getAllRoomTypeNamesResponse" type="tns:getAllRoomTypeNamesResponse"/>
+
 <xs:element name="getReservationDetailByPartner" type="tns:getReservationDetailByPartner"/>
 
 <xs:element name="getReservationDetailByPartnerResponse" type="tns:getReservationDetailByPartnerResponse"/>
@@ -53,6 +57,32 @@
 <xs:element name="searchAvailableRoom" type="tns:searchAvailableRoom"/>
 
 <xs:element name="searchAvailableRoomResponse" type="tns:searchAvailableRoomResponse"/>
+
+<xs:complexType name="getTotalPrice">
+<xs:sequence>
+<xs:element name="roomType" type="xs:string" minOccurs="0"/>
+<xs:element name="checkInDate" type="xs:dateTime" minOccurs="0"/>
+<xs:element name="checkOutDate" type="xs:dateTime" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="getTotalPriceResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:decimal" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="AvailableRoomNotFoundException">
+<xs:sequence>
+<xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="RoomRateNotFoundException">
+<xs:sequence>
+<xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
 
 <xs:complexType name="getReservationListByPartner">
 <xs:sequence>
@@ -169,32 +199,6 @@
 </xs:sequence>
 </xs:complexType>
 
-<xs:complexType name="getTotalPrice">
-<xs:sequence>
-<xs:element name="roomType" type="xs:string" minOccurs="0"/>
-<xs:element name="checkInDate" type="xs:dateTime" minOccurs="0"/>
-<xs:element name="checkOutDate" type="xs:dateTime" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="getTotalPriceResponse">
-<xs:sequence>
-<xs:element name="return" type="xs:decimal" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="AvailableRoomNotFoundException">
-<xs:sequence>
-<xs:element name="message" type="xs:string" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
-<xs:complexType name="RoomRateNotFoundException">
-<xs:sequence>
-<xs:element name="message" type="xs:string" minOccurs="0"/>
-</xs:sequence>
-</xs:complexType>
-
 <xs:complexType name="partnerLogin">
 <xs:sequence>
 <xs:element name="username" type="xs:string" minOccurs="0"/>
@@ -302,6 +306,16 @@
 <xs:complexType name="ReservationExceedAvailableRoomNumberException">
 <xs:sequence>
 <xs:element name="message" type="xs:string" minOccurs="0"/>
+</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="getAllRoomTypeNames">
+<xs:sequence/>
+</xs:complexType>
+
+<xs:complexType name="getAllRoomTypeNamesResponse">
+<xs:sequence>
+<xs:element name="return" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 </xs:sequence>
 </xs:complexType>
 
