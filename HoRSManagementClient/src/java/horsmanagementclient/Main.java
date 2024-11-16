@@ -19,7 +19,6 @@ import session.stateless.RoomTypeSessionBeanRemote;
  * @author Toh Seaw Teng
  */
 public class Main {
-
     @EJB
     private static WalkInRoomReservationRemote walkInRoomReservationRemote;
 
@@ -44,6 +43,7 @@ public class Main {
 
     @EJB
     private static EmployeeSessionBeanRemote employeeSessionBeanRemote;
+    
     
     
     /**

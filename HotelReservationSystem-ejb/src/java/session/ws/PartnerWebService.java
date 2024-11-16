@@ -20,6 +20,7 @@ import javax.persistence.PersistenceContext;
 import session.stateful.GuestRoomReservationSessionBeanLocal;
 import session.stateful.PartnerRoomReservationLocal;
 import session.stateless.PartnerSessionBeanLocal;
+import session.stateless.RoomTypeSessionBeanLocal;
 import util.exception.AvailableRoomNotFoundException;
 import util.exception.GuestAddReservationException;
 import util.exception.GuestNotFoundException;
@@ -44,12 +45,15 @@ import util.exception.RoomTypeAddReservationException;
 @Stateless()
 public class PartnerWebService {
 
+    @EJB()
+    private RoomTypeSessionBeanLocal roomTypeSessionBeanLocal;
     @EJB
     private GuestRoomReservationSessionBeanLocal guestRoomReservationSessionBeanLocal;
     @EJB
     private PartnerRoomReservationLocal partnerRoomReservationLocal;
     @EJB
     private PartnerSessionBeanLocal partnerSessionBeanLocal;
+    
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
@@ -81,13 +85,13 @@ public class PartnerWebService {
         Reservation reservation = this.partnerSessionBeanLocal.getReservationDetailByPartner(partnerId, reservationId);
         
         em.detach(reservation);
-        
+
         em.detach(reservation.getGuest());
-        // reservation.setGuest(null);
+        reservation.getGuest().setReservationList(null);
 
         if (reservation.getEmployee() != null) {
             em.detach(reservation.getEmployee());
-            reservation.setEmployee(null);
+            reservation.getEmployee().setReservationList(null);
         }
 
         em.detach(reservation.getPartner());
@@ -97,36 +101,20 @@ public class PartnerWebService {
             for (Room room : reservation.getRoomList()) {
                 em.detach(room);
                 room.setReservationList(null);
-                
-                em.detach(room.getRoomType());
-                room.setRoomType(null);
             }
         }
-        
+
         em.detach(reservation.getRoomType());
         if (reservation.getRoomType().getRoomList().size() > 0) {
             for (Room room : reservation.getRoomType().getRoomList()) {
                 em.detach(room);
                 room.setRoomType(null);
             }
-            
-            for (Reservation r : reservation.getRoomType().getReservationList()) {
-                em.detach(r);
-                r.setRoomType(null);
-            }
         } 
         reservation.getRoomType().setReservationList(null);
-        reservation.getRoomType().setRoomList(null);
 
         em.detach(reservation.getRoomRate());
-        if (reservation.getRoomRate().getReservationList().size() > 0) {
-            for (Reservation r : reservation.getRoomRate().getReservationList()) {
-                em.detach(r);
-                r.setRoomType(null);
-            }
-        }
         reservation.getRoomRate().setReservationList(null);
-        // reservation.setRoomRate(null);
 
         return reservation;
     }
@@ -219,6 +207,11 @@ public class PartnerWebService {
         BigDecimal roomRate = this.guestRoomReservationSessionBeanLocal.getTotalPrice(roomType, checkInDate, checkOutDate, 1);
         
         return roomRate;
+    }
+    
+    @WebMethod(operationName = "getAllRoomTypeNames")
+    public List<String> getAllRoomTypeNames() {
+        return this.roomTypeSessionBeanLocal.getAllRoomTypeNames();
     }
 
     @WebMethod(operationName = "onlineReserve")

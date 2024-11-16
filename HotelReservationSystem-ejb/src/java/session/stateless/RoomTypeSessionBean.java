@@ -8,6 +8,7 @@ import entity.Employee;
 import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.Stateless;
@@ -145,16 +146,24 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     //11. View All Room Types
     @Override
     public List<RoomType> viewAllRoomTypes() {
-        Query query = em.createQuery("SELECT rt FROM RoomType rt");
+        Query query = em.createQuery("SELECT rt FROM RoomType rt WHERE rt.disabled = :disabled").setParameter("disabled", Boolean.FALSE);
         return query.getResultList();
     }
     
     @Override
+    public List<String> getAllRoomTypeNames() {
+        Query query = em.createQuery("SELECT rt.name FROM RoomType rt WHERE rt.disabled = :disabled").setParameter("disabled", Boolean.FALSE);
+        List<String> names = query.getResultList();
+        
+        return names;
+    }
+    
+    @Override
     public void viewAllRoomTypeNames() {
-        Query query = em.createQuery("SELECT rt.name FROM RoomType rt");
+        Query query = em.createQuery("SELECT rt.name FROM RoomType rt WHERE rt.disabled = :disabled").setParameter("disabled", Boolean.FALSE);
         List<String> names = query.getResultList();
         for (String name : names) {
-                System.out.println(name);
+            System.out.println(name);
         }
     }
 

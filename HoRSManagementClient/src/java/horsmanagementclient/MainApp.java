@@ -79,8 +79,8 @@ public class MainApp {
                 {
                     try
                     {
+                        this.currentEmployee = null;
                         doLogin();
-                        //System.out.println("Login successful!\n");
                         
                         if (currentEmployee != null && currentEmployee.getRoleType() == RoleType.SYSTEM_ADMINISTRATOR){
                             systemAdministrationModule = new SystemAdministrationModule(employeeSessionBeanRemote, partnerSessionBeanRemote, currentEmployee);
@@ -89,9 +89,8 @@ public class MainApp {
                             hotelOperationModule = new HotelOperationModule(employeeSessionBeanRemote, roomSessionBeanRemote, roomTypeSessionBeanRemote ,roomAllocationExceptionReportSessionBeanRemote, roomRateSessionBeanRemote, currentEmployee);
                             hotelOperationModule.menuHotelOperation();          
                         } else if (currentEmployee != null && currentEmployee.getRoleType() == RoleType.GUEST_RELATION_OFFICER) { //for GUEST_RELATION_OFFICER
-                            frontOfficeModule = new FrontOfficeModule(employeeSessionBeanRemote, guestSessionBeanRemote, walkInReservationRemote, currentEmployee);
+                            frontOfficeModule = new FrontOfficeModule(employeeSessionBeanRemote, guestSessionBeanRemote, walkInReservationRemote, currentEmployee, roomTypeSessionBeanRemote);
                             frontOfficeModule.menuFrontOffice();
-                            
                         }
                     }
                     catch(InvalidLoginCredentialException ex) 

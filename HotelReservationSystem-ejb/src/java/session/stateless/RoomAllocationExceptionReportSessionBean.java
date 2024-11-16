@@ -90,8 +90,11 @@ public class RoomAllocationExceptionReportSessionBean implements RoomAllocationE
     }
     
     public List<RoomAllocationExceptionReport> viewReportsbyDate(Date reportDate) {
-    Query query = em.createQuery("SELECT r FROM RoomAllocationExceptionReport r WHERE r.reportDate = :reportDate");
+        Date nextDay = new Date(reportDate.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
+        
+        Query query = em.createQuery("SELECT r FROM RoomAllocationExceptionReport r WHERE r.reportDate >= :reportDate and r.reportDate <= :nextDay");
         query.setParameter("reportDate", reportDate);
+        query.setParameter("nextDay", nextDay);
         return query.getResultList();
     }   
     

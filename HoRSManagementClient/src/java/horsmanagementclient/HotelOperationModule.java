@@ -106,7 +106,7 @@ public class HotelOperationModule {
                     System.out.println("-----------------------");
                     System.out.println("8: View Room Allocation Exception Report");
                     System.out.println("-----------------------");
-                    System.out.println("9: Allocate Room to Current Day Reservations");
+                    System.out.println("9: Allocate Room to Reservations");
                     System.out.println("-----------------------");
                     System.out.println("10: Logout\n");
                     response = 0;
@@ -595,7 +595,7 @@ public class HotelOperationModule {
 
             System.out.print("Enter Room Number (blank if no change)> ");
             inputStr = scanner.nextLine();
-            if(inputStr != null)
+            if(inputStr.length() > 0)
             {
                 updateRoom.setRoomNumber(inputStr);
             }
@@ -619,9 +619,8 @@ public class HotelOperationModule {
                     System.out.println("Invalid option, please try again!\n");
                 }
             }
-
+            
             Set<ConstraintViolation<Room>>constraintViolations = validator.validate(updateRoom);
-
             if(constraintViolations.isEmpty()) {
                 try
                 {
@@ -699,12 +698,12 @@ public class HotelOperationModule {
 
             System.out.print("Enter the Report Date (MM/DD/YYYY)> ");
             reportDate = new Date(scanner.nextLine().trim());
-            reportDate.setTime(reportDate.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
-
-            System.out.printf("%8s%30s%24s\n","Room Allocation Exception Report ID", "Exception Type", "Reservation ID");
-            for(RoomAllocationExceptionReport report : roomAllocationExceptionReportSessionBeanRemote.viewReportsbyDate(reportDate)){
-
-                System.out.printf("%8s%30s%24s\n", report.getRoomAllocationExceptionReportId(), report.getDetails(), report.getReservation().getReservationId());
+            
+            for( RoomAllocationExceptionReport report : roomAllocationExceptionReportSessionBeanRemote.viewReportsbyDate(reportDate)){
+                System.out.println("\nRoom Allocation Exception Report ID: " + report.getRoomAllocationExceptionReportId());
+                System.out.println("Room Allocation Exception Detail: " + report.getDetails());
+                System.out.println("Reservation ID: " + report.getReservation().getReservationId());
+                System.out.println("=================================================================");
             }
        // }
         /*
@@ -721,7 +720,7 @@ public class HotelOperationModule {
             Scanner scanner = new Scanner (System.in);
             String inputDate = "";
 
-            System.out.println("*** HoR System :: Hotel Operation :: Allocate Room To Current Day Reservations ***\n");
+            System.out.println("*** HoR System :: Hotel Operation :: Allocate Room ToReservations ***\n");
 
             Date checkinDate;
             // SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");

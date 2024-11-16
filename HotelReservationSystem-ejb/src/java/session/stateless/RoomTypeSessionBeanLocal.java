@@ -40,4 +40,6 @@ public interface RoomTypeSessionBeanLocal {
     
     public void viewAllRoomTypeNames();
 
+    public List<String> getAllRoomTypeNames();
+
 }
