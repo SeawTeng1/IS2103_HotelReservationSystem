@@ -193,6 +193,8 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
             throw new NoReservationsFoundException("No reservations found for the date: " + checkInDate);
         }
         
+        Date today = new Date();
+        
         for(Reservation reservation : reservations) {
             
             // Check if reservation is already allocated by checking the size of its rooms list.
@@ -268,6 +270,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
                         }
 
                         RoomAllocationExceptionReport roomReport = new RoomAllocationExceptionReport();
+                        roomReport.setReportDate(today);
                         roomReport.setDetails("Room allocation exception, a Room of higher type was assigned!");
                         roomReport = roomAllocationExceptionReportSessionBeanLocal.createReport(roomReport, reservation.getReservationId());
 
@@ -275,6 +278,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
                     else // nextHigherRoomType exists but not enough total free rooms for reservations
                     {
                         RoomAllocationExceptionReport roomReport = new RoomAllocationExceptionReport();
+                        roomReport.setReportDate(today);
                         roomReport.setDetails("Room allocation exception, no room allocated");
                         roomReport = roomAllocationExceptionReportSessionBeanLocal.createReport(roomReport, reservation.getReservationId());
                     }
@@ -282,6 +286,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
                 else // higher room type doesn't exist
                 {
                     RoomAllocationExceptionReport roomReport = new RoomAllocationExceptionReport();
+                    roomReport.setReportDate(today);
                     roomReport.setDetails("Room allocation exception, no room allocated!");
                     roomReport = roomAllocationExceptionReportSessionBeanLocal.createReport(roomReport, reservation.getReservationId());
 

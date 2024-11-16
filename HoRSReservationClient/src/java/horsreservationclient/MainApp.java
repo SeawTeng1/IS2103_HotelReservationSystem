@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Scanner;
 import session.stateful.GuestRoomReservationSessionBeanRemote;
 import session.stateless.GuestSessionBeanRemote;
+import session.stateless.RoomTypeSessionBeanRemote;
 import util.exception.AvailableRoomNotFoundException;
 import util.exception.GuestAddReservationException;
 import util.exception.GuestExistException;
@@ -39,15 +40,17 @@ import util.exception.RoomTypeAddReservationException;
 public class MainApp {
     private GuestSessionBeanRemote guestSessionBeanRemote;
     private GuestRoomReservationSessionBeanRemote guestRoomReservationSessionBeanRemote;
+    private RoomTypeSessionBeanRemote roomTypeSessionBeanRemote;
     private Guest guest;
-    private static List<String> roomTypeList = Arrays.asList("Deluxe Room", "Premier Room", "Family Room", "Junior Suite", "Grand Suite");
+    private static List<String> roomTypeList;
     
     public MainApp() {
     }
 
-    public MainApp(GuestSessionBeanRemote guestSessionBeanRemote, GuestRoomReservationSessionBeanRemote guestRoomReservationSessionBeanRemote) {
+    public MainApp(GuestSessionBeanRemote guestSessionBeanRemote, GuestRoomReservationSessionBeanRemote guestRoomReservationSessionBeanRemote, RoomTypeSessionBeanRemote roomTypeSessionBeanRemote) {
         this.guestSessionBeanRemote = guestSessionBeanRemote;
         this.guestRoomReservationSessionBeanRemote = guestRoomReservationSessionBeanRemote;
+        this.roomTypeSessionBeanRemote = roomTypeSessionBeanRemote;
         this.guest = null;
     }
     
@@ -223,6 +226,8 @@ public class MainApp {
         
         System.out.println("*** Available Room Types ***\n");
         Integer count = 0;
+        
+        this.roomTypeList = this.roomTypeSessionBeanRemote.getAllRoomTypeNames();
         for (String type : roomTypeList) {
             try {
                 List<Room> roomList = this.guestRoomReservationSessionBeanRemote.searchAvailableRoom(type, checkInDate, checkOutDate);

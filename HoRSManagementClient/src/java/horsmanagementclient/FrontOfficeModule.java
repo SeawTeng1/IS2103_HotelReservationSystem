@@ -18,6 +18,7 @@ import java.util.Scanner;
 import session.stateful.WalkInRoomReservationRemote;
 import session.stateless.EmployeeSessionBeanRemote;
 import session.stateless.GuestSessionBeanRemote;
+import session.stateless.RoomTypeSessionBeanRemote;
 import util.exception.AvailableRoomNotFoundException;
 import util.exception.EmployeeAddReservationException;
 import util.exception.EmployeeNotFoundException;
@@ -44,17 +45,25 @@ public class FrontOfficeModule {
     private GuestSessionBeanRemote GuestSessionBeanRemote;
     private WalkInRoomReservationRemote walkInRoomReservationRemote;
     private Employee currentEmployee;
+    private RoomTypeSessionBeanRemote roomTypeSessionBeanRemote;
 
-    private static List<String> roomTypeList = Arrays.asList("Deluxe Room", "Premier Room", "Family Room", "Junior Suite", "Grand Suite");
+    private static List<String> roomTypeList;
 
     public FrontOfficeModule() {
     }
 
-    public FrontOfficeModule(EmployeeSessionBeanRemote employeeSessionBeanRemote, GuestSessionBeanRemote GuestSessionBeanRemote, WalkInRoomReservationRemote walkInRoomReservationRemote, Employee currentEmployee) {
+    public FrontOfficeModule(
+            EmployeeSessionBeanRemote employeeSessionBeanRemote, 
+            GuestSessionBeanRemote GuestSessionBeanRemote, 
+            WalkInRoomReservationRemote walkInRoomReservationRemote, 
+            Employee currentEmployee,
+            RoomTypeSessionBeanRemote roomTypeSessionBeanRemote
+    ) {
         this.employeeSessionBeanRemote = employeeSessionBeanRemote;
         this.GuestSessionBeanRemote = GuestSessionBeanRemote;
         this.walkInRoomReservationRemote = walkInRoomReservationRemote;
         this.currentEmployee = currentEmployee;
+        this.roomTypeSessionBeanRemote = roomTypeSessionBeanRemote;
     }
 
     public void menuFrontOffice() throws InvalidAccessRightException
@@ -74,7 +83,7 @@ public class FrontOfficeModule {
             System.out.println("2: Check-in Guest");
             System.out.println("3: Check-out Guest");
             System.out.println("-----------------------");
-            System.out.println("3: Logout\n");
+            System.out.println("4: Logout\n");
             response = 0;
 
             while(response < 1 || response > 4)
@@ -141,6 +150,7 @@ public class FrontOfficeModule {
 
         System.out.println("*** Available Room Types ***\n");
         Integer count = 0;
+        this.roomTypeList = this.roomTypeSessionBeanRemote.getAllRoomTypeNames();
         for (String type : roomTypeList) {
             try {
                 List<Room> roomList = this.walkInRoomReservationRemote.searchAvailableRoom(type, checkInDate, checkOutDate);

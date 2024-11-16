@@ -26,7 +26,7 @@ import ws.partner.Room;
 public class MainApp {
     private ws.partner.Partner partner;
     private PartnerWebService_Service service;
-    private static List<String> roomTypeList = Arrays.asList("Deluxe Room", "Premier Room", "Family Room", "Junior Suite", "Grand Suite");
+    private static List<String> roomTypeList;
 
     public MainApp() {
         this.service = new PartnerWebService_Service();
@@ -178,6 +178,7 @@ public class MainApp {
         
         System.out.println("*** Available Room Types ***\n");
         Integer count = 0;
+        this.roomTypeList = this.service.getPartnerWebServicePort().getAllRoomTypeNames();
         for (String type : roomTypeList) {
             try {
                 List<Room> roomList = this.service.getPartnerWebServicePort().searchAvailableRoom(

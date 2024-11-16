@@ -40,4 +40,6 @@ public interface RoomTypeSessionBeanRemote {
     public void retrieveRoomRatesForRoomType(RoomType roomType);
 
     public void viewAllRoomTypeNames();
+    
+    public List<String> getAllRoomTypeNames();
 }
