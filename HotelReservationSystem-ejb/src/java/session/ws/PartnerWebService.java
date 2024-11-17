@@ -177,13 +177,17 @@ public class PartnerWebService {
             for (Reservation reservation : room.getReservationList()) {
                 em.detach(reservation);
                 
-                em.detach(reservation.getGuest());
-                
-                for (Reservation r : reservation.getGuest().getReservationList()) {
-                    em.detach(reservation);
+                if (reservation.getGuest() != null) {
+                    em.detach(reservation.getGuest());
+
+                    for (Reservation r : reservation.getGuest().getReservationList()) {
+                        em.detach(reservation);
+                    }
+
+
+                    reservation.getGuest().setReservationList(null);
+                    reservation.setGuest(null);
                 }
-                reservation.getGuest().setReservationList(null);
-                reservation.setGuest(null);
                 
                 for (Room r : reservation.getRoomList()) {
                     em.detach(room);
@@ -227,8 +231,8 @@ public class PartnerWebService {
             GuestNotFoundException, GuestAddReservationException, AvailableRoomNotFoundException, InputDataValidationException, ReservationAddRoomException, ReservationExceedAvailableRoomNumberException {
         Reservation reservation = this.partnerRoomReservationLocal.onlineReserve(roomType, noOfRoom, checkInDate, checkOutDate, partnerId, guestId);
         
-       em.detach(reservation);
-
+        em.detach(reservation);
+        
         em.detach(reservation.getGuest());
         reservation.getGuest().setReservationList(null);
 

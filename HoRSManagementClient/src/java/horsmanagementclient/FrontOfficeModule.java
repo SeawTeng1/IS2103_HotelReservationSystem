@@ -158,7 +158,7 @@ public class FrontOfficeModule {
                     BigDecimal roomRate = this.walkInRoomReservationRemote.getTotalPrice(type, checkInDate, checkOutDate, 1);
                     System.out.println("Room Type: " + type);
                     System.out.println("No of Room Available: " + roomList.size());
-                    System.out.println("Room Rate: $" + roomRate);
+                    System.out.println("Total Price: $" + roomRate);
                     System.out.println("-----------------------------------------------");
                 }
 
