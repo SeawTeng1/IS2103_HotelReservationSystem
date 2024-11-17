@@ -52,6 +52,7 @@ public class MainApp {
 
                 if(response == 1)
                 {
+                    this.partner = null;
                     this.partnerLogin();
                     
                     if (this.partner != null) {
@@ -188,7 +189,7 @@ public class MainApp {
                             type, convertDateToXMLGregorianCalendar(checkInDate), convertDateToXMLGregorianCalendar(checkOutDate));
                     System.out.println("Room Type: " + type);
                     System.out.println("No of Room Available: " + roomList.size());
-                    System.out.println("Room Rate: $" + roomRate);
+                    System.out.println("Total Price: $" + roomRate);
                     System.out.println("-----------------------------------------------");
                 }
                 

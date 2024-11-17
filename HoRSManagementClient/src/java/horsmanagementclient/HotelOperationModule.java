@@ -508,7 +508,7 @@ public class HotelOperationModule {
             if (roomType.getHigherRoomType() != null) {
                 System.out.println("Higher Room Type: " + roomType.getHigherRoomType().getName());
             } else {
-                System.out.println("Higher Room Type: This room is the Highest Room Type in the Hotel Reservation System, no Higher Room Type has been allocated to it!");
+                System.out.println("Higher Room Type: No Higher Room Type has been allocated to it!");
             }
             // display room rates for each room type
             System.out.println("Room Type Rates: ");

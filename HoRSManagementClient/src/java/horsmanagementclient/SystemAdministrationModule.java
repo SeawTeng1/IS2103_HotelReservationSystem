@@ -262,11 +262,11 @@ public class SystemAdministrationModule {
         System.out.println("*** HoR System :: System Administration :: View All Partners ***\n");
         
         List<Partner> partnerList = partnerSessionBeanRemote.viewAllPartners();
-        System.out.printf("%8s%24s%24s\n", "Partner ID", "Userame", "Password");
+        System.out.printf("%8s%24s\n", "Partner ID", "Userame");
 
         for(Partner partner:partnerList)
         {
-            System.out.printf("%8s%24s%24s\n", partner.getPartnerId().toString(), partner.getUsername(), partner.getPassword());
+            System.out.printf("%8s%24s\n", partner.getPartnerId().toString(), partner.getUsername());
         }
         
         System.out.print("Press any key to continue...> ");
