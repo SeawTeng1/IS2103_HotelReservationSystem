@@ -89,6 +89,7 @@ public class RoomAllocationExceptionReportSessionBean implements RoomAllocationE
         return query.getResultList();
     }
     
+    @Override
     public List<RoomAllocationExceptionReport> viewReportsbyDate(Date reportDate) {
         Date nextDay = new Date(reportDate.getTime() + (23 * 60 * 60 * 1000) + (59 * 60 * 1000));
         

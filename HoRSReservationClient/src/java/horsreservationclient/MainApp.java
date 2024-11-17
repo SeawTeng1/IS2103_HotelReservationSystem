@@ -119,6 +119,7 @@ public class MainApp {
             this.guest = this.guestSessionBeanRemote.guestLogin(passportNumber, password);
             System.out.println("Guest successfully login!");
         } catch (GuestNotFoundException | InvalidCredentialException ex) {
+            this.guest = null; // Reset guest
             System.out.println(ex.getMessage());
         }
     }

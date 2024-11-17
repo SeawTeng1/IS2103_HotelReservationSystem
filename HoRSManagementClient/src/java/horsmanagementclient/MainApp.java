@@ -91,6 +91,8 @@ public class MainApp {
                         } else if (currentEmployee != null && currentEmployee.getRoleType() == RoleType.GUEST_RELATION_OFFICER) { //for GUEST_RELATION_OFFICER
                             frontOfficeModule = new FrontOfficeModule(employeeSessionBeanRemote, guestSessionBeanRemote, walkInReservationRemote, currentEmployee, roomTypeSessionBeanRemote);
                             frontOfficeModule.menuFrontOffice();
+                        } else {
+                            System.out.println("Access denied: Invalid credentials.");
                         }
                     }
                     catch(InvalidLoginCredentialException ex) 
@@ -137,10 +139,13 @@ public class MainApp {
                 currentEmployee = employeeSessionBeanRemote.employeeLogin(username, password);
                 System.out.println("Login successful!\n");
             } catch (EmployeeNotFoundException ex) {
+                currentEmployee = null; // Reset currentEmployee
                 System.out.println("An error has occurred while doing login: " + ex.getMessage() + "\n");
             } catch (EmployeeInvalidPasswordException ex) {
+                currentEmployee = null; // Reset currentEmployee
                 System.out.println("An error has occurred while doing login: " + ex.getMessage() + "\n");
             } catch (Exception e) {
+                currentEmployee = null; // Reset currentEmployee
                 System.out.println("An unexpected error occurred: " + e.getMessage());
             }
         }
